@@ -14,8 +14,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx src/server/db/seed.ts",
     "typecheck": "next typegen && tsc --noEmit",
-    "regressao": "npm run lint && npm run typecheck && npm test && npm run test:tz && npm run test:parity",
-    "regressao:real": "echo \"disponível a partir da Task 12\"",
+    "regressao": "npm run lint && npm run typecheck && npm test && npm run test:tz && npm run test:parity && npm run parity -- --lado ambos --fixture",
+    "regressao:real": "npm run parity -- --lado ambos --dados parity/data",
     "test:tz": "TZ=UTC vitest run tests/domain && TZ=America/Sao_Paulo vitest run tests/domain"
   },
   "dependencies": {
