@@ -3,7 +3,7 @@ import { usuarioDaRequisicao } from "@/server/auth";
 import { podeReprocessar } from "@/server/escopo";
 import { reprocessarTudo } from "@/server/ingestao";
 
-export const runtime = "nodejs";
+// runtime: Node.js é o padrão (a opção "runtime" não é aceita com cacheComponents).
 export const maxDuration = 300;
 
 export async function POST() {

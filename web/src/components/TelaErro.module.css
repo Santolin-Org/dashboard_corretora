@@ -1,0 +1,58 @@
+/* styles.css: #upload-screen (tela cheia centralizada) e #progress-wrap/#progress-bar-* (carregando).
+   A caixa da mensagem é .sp-error (tokens.css). Não há upload: a zona de arrastar foi removida. */
+.tela {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(78, 128, 255, 0.10) 0%, transparent 65%),
+    var(--bg-base);
+}
+
+.progresso {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-lg);
+  padding: 2rem;
+  text-align: center;
+  max-width: 380px;
+  margin: 2rem auto;
+  width: 100%;
+  box-shadow: var(--shadow-card);
+}
+
+.rotulo {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.barra {
+  background: var(--bg-base);
+  border-radius: 20px;
+  height: 4px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.preenchimento {
+  height: 100%;
+  width: 60%;
+  background: var(--accent);
+  border-radius: 20px;
+  transition: width .1s;
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
+.texto {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+}

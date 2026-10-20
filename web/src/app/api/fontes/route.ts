@@ -3,7 +3,7 @@ import { usuarioDaRequisicao } from "@/server/auth";
 import { escopoDoUsuario } from "@/server/escopo";
 import { obterBase } from "@/server/ingestao";
 
-export const runtime = "nodejs";
+// runtime: Node.js é o padrão (a opção "runtime" não é aceita com cacheComponents).
 
 export async function GET() {
   const u = await usuarioDaRequisicao();

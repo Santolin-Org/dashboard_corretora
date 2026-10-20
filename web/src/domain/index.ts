@@ -10,3 +10,4 @@ export * from './producao/enriquecimentos';
 export * from './saude/parse';
 export * from './saude/aplicar';
 export * from './sinistros/parse';
+export * from './filtros';

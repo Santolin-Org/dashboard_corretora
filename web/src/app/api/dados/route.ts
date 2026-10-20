@@ -5,7 +5,7 @@ import { aplicarEscopo, escopoDoUsuario } from "@/server/escopo";
 import { obterBase } from "@/server/ingestao";
 import { codificarLinhas, codificarSinistros } from "@/domain/serializacao";
 
-export const runtime = "nodejs";
+// runtime: Node.js é o padrão (a opção "runtime" não é aceita com cacheComponents).
 export const maxDuration = 60; // partida fria: baixa e parseia as planilhas
 
 // private: só o navegador guarda; no-cache: ele revalida (If-None-Match) antes de reusar.

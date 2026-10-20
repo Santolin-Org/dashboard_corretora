@@ -1,0 +1,82 @@
+/* styles.css: KPI CARDS (.kpi, .k-*, .kpi-label/value/sub); .kpi-grid fica em tokens.css */
+.kpi {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 14px 14px 14px 17px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform .15s, box-shadow .15s;
+  min-width: fit-content;
+}
+
+.kpi:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-default);
+}
+
+/* Left accent strip */
+.kpi::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: var(--r-md) 0 0 var(--r-md);
+}
+
+.kpi:global(.k-blue)::before {
+  background: var(--k-blue);
+}
+
+.kpi:global(.k-green)::before {
+  background: var(--k-green);
+}
+
+.kpi:global(.k-red)::before {
+  background: var(--k-red);
+}
+
+.kpi:global(.k-amber)::before {
+  background: var(--k-amber);
+}
+
+.kpi:global(.k-purple)::before {
+  background: var(--k-purple);
+}
+
+.kpi:global(.k-teal)::before {
+  background: var(--k-teal);
+}
+
+/* Remove old top-strip pseudo */
+.kpi::after {
+  display: none;
+}
+
+.rotulo {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-secondary);
+  margin-bottom: 7px;
+  font-weight: 500;
+}
+
+.valor {
+  font-size: 21px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  letter-spacing: -1px;
+  line-height: 1;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+.sub {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 5px;
+}

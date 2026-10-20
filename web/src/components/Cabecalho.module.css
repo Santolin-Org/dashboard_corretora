@@ -1,0 +1,42 @@
+/* styles.css: header, header h1, header p, .topbar-actions, #rec-badge */
+.cabecalho {
+  background: var(--header-bg);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 11px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+}
+
+.titulo {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+}
+
+.subtitulo {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.acoes {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.recBadge {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}

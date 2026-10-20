@@ -49,3 +49,6 @@ next-env.d.ts
 
 # snapshots locais de ingestão
 /.snapshots/
+
+# fixture gerada para npm run dev (Task 10)
+/parity/fixtures/out/
