@@ -82,9 +82,11 @@
   no novo o canvas fica sem `Chart` e `window.__charts['ch-ret-cancel']` não existe (igual ao `charts[...]`).
 - **"Hoje" do período padrão:** o antigo usa `fmtD(today())` (data UTC do relógio do navegador) como fim do
   período; o novo usa `base.hoje` (data civil de São Paulo). Só diferem entre 21h e 24h (horário de Brasília).
-- **Página do detalhe:** `retDetailPage` volta a 1 a cada `renderRetTab` (mudar filtro, período, visão, voltar à
-  aba) e ao clicar em Todas/Canceladas/Vencidas (mesmo no filtro já ativo); ordenar a tabela por produtor
-  não a reinicia. Reproduzido.
+- **Página do detalhe:** `retDetailPage` volta a 1 a cada `renderRetTab`: qualquer ação de filtro (inclusive
+  desligar e religar), período, visão, Todas/Canceladas/Vencidas (mesmo o já ativo), "↻ Limpar" (mesmo nos
+  padrões) e ao voltar à aba. Reproduzido com uma geração de render incrementada por essas ações. Ordenar a
+  tabela por produtor não reinicia. Não reproduzido: a troca de tema (que também chama `renderRetTab`).
+- **Recarga de dados:** as opções de colaborador são remontadas com os marcados atuais (`populateFilters`).
 - **Exportar** (`exportData('churn')` e `('detalhe')`): arquivos `Export_Churn.xlsx` (aba "Churn", usa a visão
   marcada, a ordem de criação do agregado e não a ordenação da tela) e `Export_Detalhe.xlsx` (aba "Detalhe",
   todas as perdidas no filtro de situação atual, sem paginar). Comparados célula a célula com o antigo em

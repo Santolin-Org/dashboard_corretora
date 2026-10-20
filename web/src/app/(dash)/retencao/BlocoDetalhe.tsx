@@ -21,19 +21,17 @@ const BOTOES: { id: string; sit: FiltroDetalhe; rotulo: string }[] = [
 ];
 
 // renderRetDetailTable: #sc-ret-detail com #ret-detail-badge, Exportar (exportData('detalhe')), filtro de situação,
-// #ret-detail-wrap e #ret-detail-pagination. `retDetailPage` volta a 1 a cada renderRetTab (mudança de filtro,
-// período, visão, ou voltar à aba) e ao trocar o filtro de situação: `chaveRender` identifica esses momentos.
-export function BlocoDetalhe({ todas, f, p, situacao, aoMudarSituacao, chaveRender }: {
-  todas: Linha[]; f: FiltrosRetencao; p: PeriodoRet; situacao: FiltroDetalhe; aoMudarSituacao(s: FiltroDetalhe): void; chaveRender: string;
+// #ret-detail-wrap e #ret-detail-pagination. `retDetailPage` volta a 1 a cada renderRetTab (ação de filtro, período, visão, situação ou
+// Limpar, ou voltar à aba): `geracao` é incrementada por essas ações, mesmo que o valor não mude.
+export function BlocoDetalhe({ todas, f, p, situacao, aoMudarSituacao, geracao }: {
+  todas: Linha[]; f: FiltrosRetencao; p: PeriodoRet; situacao: FiltroDetalhe; aoMudarSituacao(s: FiltroDetalhe): void; geracao: number;
 }) {
-  const [pg, setPg] = useState<{ chave: string; n: number }>({ chave: chaveRender, n: 1 });
-  const chavePagina = `${chaveRender}|${situacao}`;
-  const pagina = pg.chave === chavePagina ? pg.n : 1;
+  const [pg, setPg] = useState<{ geracao: number; n: number }>({ geracao, n: 1 });
+  const pagina = pg.geracao === geracao ? pg.n : 1;
   const rows = useMemo(() => getRetDetailRows(todas, f, p, situacao), [todas, f, p, situacao]);
   const d = useMemo(() => tabelaDetalhe(rows, pagina), [rows, pagina]);
-  const irPara = (n: number) => setPg({ chave: chavePagina, n });
-  // toggleRetDetailFilter: retDetailPage = 1 mesmo ao reclicar o filtro já ativo.
-  const escolher = (sit: FiltroDetalhe) => { setPg({ chave: `${chaveRender}|${sit}`, n: 1 }); aoMudarSituacao(sit); };
+  const irPara = (n: number) => setPg({ geracao, n });
+  const escolher = (sit: FiltroDetalhe) => aoMudarSituacao(sit); // a ação incrementa a geração: retDetailPage = 1
   const sp = " ";
   return (
     <SecaoRecolhivel

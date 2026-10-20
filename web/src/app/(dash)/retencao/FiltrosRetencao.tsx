@@ -14,6 +14,10 @@ type Estado = ReturnType<typeof useEstadoRetencao>;
 export function FiltrosRetencao({ todas, hoje, e }: { todas: Linha[]; hoje: string; e: Estado }) {
   const { filtros, setFiltros, periodo, setPeriodo, colRemontagem, setColRemontagem, visual, setVisual } = e;
   useEffect(() => { e.sincronizarGeracao(); });
+  // populateFilters (a cada carga de dados) remonta ms-ret-col com o RET_MS.col atual.
+  useEffect(() => {
+    if (e.linhasVistas !== todas) { e.setLinhasVistas(todas); setColRemontagem(filtros.col); }
+  });
 
   // buildRetColabOptions: remontado só quando o período muda ou no "Limpar" da aba, com os marcados daquele momento.
   const opcoes = useMemo(() => opcoesRetencao(todas, periodo, colRemontagem), [todas, periodo, colRemontagem]);

@@ -159,6 +159,39 @@ describe("aba Retenção", () => {
     expect(pag.style.display).toBe("none");
   });
 
+  it("página do detalhe volta a 1 a cada ação, mesmo desligando e religando o filtro ou Limpar nos padrões", () => {
+    const { container } = render(<Raiz linhas={MUITAS} />);
+    const pag = container.querySelector("#ret-detail-pagination") as HTMLElement;
+    fireEvent.click(screen.getByText("Próxima →"));
+    expect(pag.textContent).toContain("Página 2 de 2");
+    fireEvent.click(container.querySelector("#ret-evitavel-btn")!);
+    fireEvent.click(container.querySelector("#ret-evitavel-btn")!); // de volta ao mesmo estado
+    expect(pag.textContent).toContain("Página 1 de 2");
+    fireEvent.click(screen.getByText("Próxima →"));
+    fireEvent.click(screen.getByText("↻ Limpar")); // já nos padrões
+    expect(pag.textContent).toContain("Página 1 de 2");
+  });
+
+  it("colaborador: opções remontadas com os marcados atuais quando os dados são recarregados", () => {
+    const L1 = [linha({ colab: "ANA", vig: "2026-02-01" }), linha({ colab: "BIA", vig: "2026-02-01" })];
+    const L2 = [linha({ colab: "BIA", vig: "2026-02-01" })];
+    const Raiz2 = ({ ls }: { ls: typeof L1 }) => {
+      const b = base(ls);
+      return (
+        <EstadoAbasProvider>
+          <ContextoPainel.Provider value={{ base: b, recarregar: () => {}, abrirFontes: () => {} }}>
+            <FiltrosProvider linhas={b.linhas}><Retencao /></FiltrosProvider>
+          </ContextoPainel.Provider>
+        </EstadoAbasProvider>
+      );
+    };
+    const { container, rerender } = render(<Raiz2 ls={L1} />);
+    fireEvent.click(container.querySelector("#ms-ret-col input[data-valor='ANA']")!);
+    rerender(<Raiz2 ls={L2} />);
+    const vals = [...container.querySelectorAll("#ms-ret-col input[type=checkbox]")].map((c) => c.getAttribute("data-valor"));
+    expect(vals).toEqual(["ANA", "BIA"]); // ANA segue marcada, mesmo sem produção na nova base
+  });
+
   it("Exportar: churn usa a visão marcada; detalhe exporta TODAS as perdidas no filtro de situação (sem paginar)", () => {
     const { container } = render(<Raiz linhas={MUITAS} />);
     fireEvent.click(container.querySelector("#vt-ret-grp")!);

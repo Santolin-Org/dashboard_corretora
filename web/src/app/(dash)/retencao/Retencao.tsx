@@ -14,8 +14,6 @@ export default function Retencao() {
   const { base } = usePainel();
   const e = useEstadoRetencao();
   const todas = base.linhas;
-  // renderRetTab (e portanto retDetailPage = 1) roda a cada mudança de filtro, período e visão.
-  const chaveRender = JSON.stringify([e.filtros, e.periodo, e.visao]);
   return (
     <>
       <FiltrosRetencao todas={todas} hoje={base.hoje} e={e} />
@@ -26,7 +24,7 @@ export default function Retencao() {
       {" "}
       <BlocoProdutor todas={todas} f={e.filtros} p={e.periodo} visao={e.visao} aoMudarVisao={e.setVisao} ordem={e.ordem} aoOrdenar={e.setOrdem} />
       {" "}
-      <BlocoDetalhe todas={todas} f={e.filtros} p={e.periodo} situacao={e.situacao} aoMudarSituacao={e.setSituacao} chaveRender={chaveRender} />
+      <BlocoDetalhe todas={todas} f={e.filtros} p={e.periodo} situacao={e.situacao} aoMudarSituacao={e.setSituacao} geracao={e.renderRet} />
     </>
   );
 }

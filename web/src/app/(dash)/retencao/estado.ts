@@ -20,17 +20,27 @@ const VISUAL_LIMPO: VisualBotoes = { R: false, N: false, evitavel: false };
 export function useEstadoRetencao() {
   const { base } = usePainel();
   const { geracaoLimpeza } = useFiltros();
-  const [filtros, setFiltros] = useEstadoAba<FiltrosRetencao>("retencao:filtros", FILTROS_RET_INICIAIS);
-  const [periodo, setPeriodo] = useEstadoAba<PeriodoRet>("retencao:periodo", periodoPadraoRet(base.hoje));
+  const [filtros, setFiltrosBruto] = useEstadoAba<FiltrosRetencao>("retencao:filtros", FILTROS_RET_INICIAIS);
+  const [periodo, setPeriodoBruto] = useEstadoAba<PeriodoRet>("retencao:periodo", periodoPadraoRet(base.hoje));
+  // Geração de renderRetTab: cada ação que o chamava no antigo (filtro, período, visão, situação, Limpar)
+  // incrementa; o detalhe volta à página 1 a cada incremento (retDetailPage = 1), mesmo sem mudar valor.
+  const [renderRet, setRenderRet] = useEstadoAba<number>("retencao:render", 0);
+  const bump = () => setRenderRet((n) => n + 1);
+  const setFiltros = (v: FiltrosRetencao) => { setFiltrosBruto(v); bump(); };
+  const setPeriodo = (v: PeriodoRet) => { setPeriodoBruto(v); bump(); };
   const [colRemontagem, setColRemontagem] = useEstadoAba<string[]>("retencao:col-remontagem", []);
   const [visual, setVisual] = useEstadoAba<VisualBotoes>("retencao:visual", VISUAL_INICIAL);
   const [geracaoVista, setGeracaoVista] = useEstadoAba<number>("retencao:geracao", 0);
-  const [visao, setVisao] = useEstadoAba<VisaoRet>("retencao:visao", "colab"); // vt-ret-colab marcado de início
+  const [visaoBruta, setVisaoBruta] = useEstadoAba<VisaoRet>("retencao:visao", "colab"); // vt-ret-colab marcado de início
+  const visao = visaoBruta, setVisao = (v: VisaoRet) => { setVisaoBruta(v); bump(); };
   const [ordem, setOrdem] = useEstadoAba<OrdemRet>("retencao:ordem", ORDEM_RET_INICIAL);
-  const [situacao, setSituacao] = useEstadoAba<FiltroDetalhe>("retencao:detalhe", "");
+  const [situacao, setSituacaoBruta] = useEstadoAba<FiltroDetalhe>("retencao:detalhe", "");
+  const setSituacao = (v: FiltroDetalhe) => { setSituacaoBruta(v); bump(); };
+  const [linhasVistas, setLinhasVistas] = useEstadoAba<unknown>("retencao:linhas", null);
   // Limpar filtros (global): zera a aparência dos botões; vale mesmo com a aba fechada.
   const visualAtual = geracaoVista === geracaoLimpeza ? visual : VISUAL_LIMPO;
   return {
+    renderRet, linhasVistas, setLinhasVistas, bump,
     filtros, setFiltros, periodo, setPeriodo, colRemontagem, setColRemontagem, visual: visualAtual, setVisual,
     geracaoLimpeza, geracaoVista, setGeracaoVista, visao, setVisao, ordem, setOrdem, situacao, setSituacao,
     /** Confirma na store o visual limpo pelo "Limpar filtros" global. */
