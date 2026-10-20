@@ -29,3 +29,20 @@ describe('aritmética de datas', () => {
     expect(mesISO('2026-01-05')).toBe(1);
   });
 });
+
+// O app antigo (SheetJS cellDates:true + fmtD) em São Paulo: célula = relógio local; fmtD = dia UTC.
+describe('célula com hora (relógio de parede de São Paulo)', () => {
+  it('>= 21h vira o dia seguinte (sem horário de verão)', () => {
+    expect(celulaParaISO(45658 + 22 / 24)).toBe('2025-01-02');
+    expect(celulaParaISO(45658 + 20 / 24)).toBe('2025-01-01');
+  });
+  it('horário de verão antigo (jan/2018, UTC-2): >= 22h vira o dia seguinte', () => {
+    const s = 43101; // 2018-01-01
+    expect(celulaParaISO(s + (22 * 60 + 30) / 1440)).toBe('2018-01-02');
+    expect(celulaParaISO(s + (21 * 60 + 30) / 1440)).toBe('2018-01-01');
+  });
+  it('string com hora é hora local de São Paulo', () => {
+    expect(celulaParaISO('2025-01-01 22:00:00')).toBe('2025-01-02');
+    expect(celulaParaISO('2025-01-01T20:59')).toBe('2025-01-01');
+  });
+});

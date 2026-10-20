@@ -18,9 +18,8 @@ export const COL: Record<string, string> = {
 };
 
 export function parseProducao(buf: ArrayBuffer): Linha[] {
-  // cellDates:false (o antigo usa true): o SheetJS monta Date no fuso do processo, o que
-  // mudaria o dia no servidor UTC. Com serial numérico, celulaParaISO é pura e dá o mesmo
-  // dia civil que o fmtD do navegador em São Paulo.
+  // cellDates:false (o antigo usa true): o SheetJS monta Date no fuso do processo. Com serial
+  // numérico, celulaParaISO reproduz o Date de São Paulo do app antigo sem depender do TZ.
   const wb = XLSX.read(buf, { type: 'array', cellDates: false });
   const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(wb.Sheets[wb.SheetNames[0]], { defval: '' });
   return rows.map(r => {
