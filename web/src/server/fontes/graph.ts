@@ -118,7 +118,7 @@ export class GraphFonte implements FonteArquivos {
       `?$select=id,name,size,file,folder,eTag,cTag,lastModifiedDateTime&$top=200`;
     const itens: ItemGraph[] = [];
     while (url) {
-      const j = await this.lerJson<{ value?: ItemGraph[]; "@odata.nextLink"?: string }>(await this.get(url, "pasta"));
+      const j: { value?: ItemGraph[]; "@odata.nextLink"?: string } = await this.lerJson(await this.get(url, "pasta"));
       if (!j || !Array.isArray(j.value)) throw new ErroFonte("http", "Resposta do Graph sem lista de arquivos");
       for (const it of j.value) itens.push(it);
       url = j["@odata.nextLink"];
