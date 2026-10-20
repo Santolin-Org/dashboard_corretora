@@ -144,12 +144,17 @@ Regras que valem nesta etapa:
   Depois disso, a dedup linha a linha atual (`prodDedupeKey`) continua valendo como
   segunda proteção. **Isso não deve alterar nenhum número com os arquivos atuais**
   (G2), porque não há sobreposição hoje.
-- **Proteção contra linha perdida [decisão do Claude].** Um arquivo só "toma" um ano
-  de outro se tiver, naquele ano, pelo menos 50% das linhas que o outro tem. Abaixo
-  disso (por exemplo, um endosso antigo perdido dentro do `producao_2026.xlsx`), nada é
-  descartado: as linhas seguem para a dedup normal e o painel de fontes mostra um aviso
-  de sobreposição. A ordem de leitura dos arquivos na união segue a do código atual,
-  para a dedup "primeiro vence" dar o mesmo resultado (G2).
+- **Proteção contra linha perdida e transbordo de fronteira [decisão do Claude].** Um
+  arquivo só perde um ano para outro se valerem as duas condições: (a) o dono do ano tem,
+  nele, pelo menos 50% das linhas que o outro tem; e (b) o ano é "principal" no arquivo
+  que perde, isto é, suas linhas do ano são pelo menos 25% do total do arquivo. A (a)
+  protege de um endosso antigo perdido dentro do `producao_2026.xlsx`; a (b) separa o
+  arquivo de ano inteiro parado (`producao_2025.xlsx` desatualizado) do transbordo de
+  fronteira (`producao_2024.xlsx` com algumas linhas de vigência 2025, comum quando o
+  relatório filtra por data de emissão), que são legítimas. Fora das duas condições nada
+  é descartado: as linhas seguem para a dedup normal e o painel de fontes mostra um aviso
+  de sobreposição nos dois arquivos. A ordem de leitura dos arquivos na união segue a do
+  código atual, para a dedup "primeiro vence" dar o mesmo resultado (G2).
 - **Enriquecimentos que cruzam linhas rodam no servidor, antes do recorte por usuário
   [decisão do Claude].** Motivo de endosso, troca de seguradora e qualquer marcação que
   dependa de outras apólices (por exemplo, a sucessora de uma renovação) são calculados

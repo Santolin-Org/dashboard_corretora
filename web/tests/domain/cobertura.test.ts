@@ -27,6 +27,15 @@ describe('aplicarCobertura', () => {
     expect(r.manifesto[0].sobreposicoes).toEqual([{ ano: 2021, com: 'producao_2026.xlsx', linhas: 200 }]);
     expect(r.manifesto[1].sobreposicoes).toEqual([{ ano: 2021, com: 'producao_2021.xlsx', linhas: 1 }]);
   });
+  it('transbordo de fronteira: 5 linhas de 2025 em 100 do arquivo antigo, dona com 100 → nada sai, aviso nas duas', () => {
+    const A: FonteProducao = { nome: 'producao_2024.xlsx', modificadoEm: '2026-01-10T00:00:00Z', linhas: [...muitas(95, '2024-05-05', 'a'), ...muitas(5, '2025-01-02', 'f')] };
+    const B: FonteProducao = { nome: 'producao_2026.xlsx', modificadoEm: '2026-10-01T00:00:00Z', linhas: muitas(100, '2025-05-05', 'b') };
+    const r = aplicarCobertura([A, B]);
+    expect(r.fontes[0].linhas).toHaveLength(100);
+    expect(r.manifesto[0].anosIgnorados).toEqual([]);
+    expect(r.manifesto[0].sobreposicoes).toEqual([{ ano: 2025, com: 'producao_2026.xlsx', linhas: 5 }]);
+    expect(r.manifesto[1].sobreposicoes).toEqual([{ ano: 2025, com: 'producao_2024.xlsx', linhas: 100 }]);
+  });
   it('(c) sem sobreposição a saída é igual à entrada', () => {
     const fs: FonteProducao[] = [
       { nome: 'producao_2024.xlsx', modificadoEm: '2026-01-10T00:00:00Z', linhas: muitas(5, '2024-01-01') },

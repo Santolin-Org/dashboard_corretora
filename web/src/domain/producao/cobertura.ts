@@ -11,14 +11,23 @@ export type ManifestoFonte = {
 };
 export type ManifestoCobertura = Pick<ManifestoFonte, 'nome' | 'anosIgnorados' | 'sobreposicoes'>;
 
-export const COBERTURA_FRACAO_MIN = 0.5;
+// Duas condições para um arquivo perder um ano:
+//  (a) a dona do ano tem pelo menos 50% das linhas que ele tem naquele ano (proteção
+//      contra um endosso antigo perdido dentro de um arquivo de outro ano);
+//  (b) o ano é "principal" nele: pelo menos 25% das linhas do arquivo. Distingue o
+//      arquivo de ano inteiro parado (producao_2025 desatualizado, em que 2025 é tudo)
+//      do transbordo de fronteira (producao_2024 com algumas linhas de vigência 2025,
+//      comum quando o relatório do ERP filtra por data de emissão): essas linhas de
+//      fronteira são legítimas e o outro arquivo pode não as ter.
+export const COBERTURA_MIN_DONA = 0.5;
+export const COBERTURA_MIN_ANO_PRINCIPAL = 0.25;
 
 // ── Regra de cobertura (nova, como proteção) ──────────────────────────────────
 // Cada arquivo cobre os anos de início de vigência que contém. Quando dois arquivos
 // cobrem o mesmo ano, vale inteiro o modificado por último naquele ano, e as linhas
 // daquele ano no arquivo mais antigo são descartadas em bloco — mas só se o dono tiver,
-// no ano, pelo menos 50% das linhas que o outro tem (proteção contra um endosso antigo
-// perdido dentro de um arquivo de outro ano). Abaixo disso nada sai e fica só o aviso
+// no ano, pelo menos 50% das linhas que o outro tem e o ano for principal no outro (25% do arquivo;
+// ver constantes). Fora disso nada sai e fica só o aviso
 // de sobreposição. A dedup linha a linha continua valendo depois, como segunda proteção.
 export function aplicarCobertura(fontes: FonteProducao[]): { fontes: FonteProducao[]; manifesto: ManifestoCobertura[] } {
   // contagem de linhas por ano de vigência em cada fonte (sem spread: um ano passa de 100 mil linhas)
@@ -47,7 +56,7 @@ export function aplicarCobertura(fontes: FonteProducao[]): { fontes: FonteProduc
     for (const i of com) {
       if (i === dona) continue;
       const nF = contagens[i].get(y) as number;
-      if (nDona >= COBERTURA_FRACAO_MIN * nF) {
+      if (nDona >= COBERTURA_MIN_DONA * nF && nF >= COBERTURA_MIN_ANO_PRINCIPAL * fontes[i].linhas.length) {
         descartar[i].add(y);
         manifesto[i].anosIgnorados.push({ ano: y, cobertoPor: fontes[dona].nome });
       } else {

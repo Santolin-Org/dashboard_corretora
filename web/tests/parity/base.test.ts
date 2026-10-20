@@ -29,11 +29,8 @@ test("montarBase/montarSinistros (Node) == applySharePointData antigo (ALL, prod
   const bufSaude = lerOpc("saude_fernando.xlsx"), bufAv = lerOpc("sinistrosAvisados.xlsx"), bufPg = lerOpc("sinistrosPagamentos.xlsx");
 
   const cob = aplicarCobertura(fontes);
-  // A regra de cobertura é nova (o app antigo não a tem): alimentamos o antigo com o que sobra dela
-  // e provamos, no resto, igualdade campo a campo. Com arquivos sem sobreposição real, cob remove nada.
-  const ignorados: Record<string, number[]> = {};
-  cob.manifesto.forEach((m) => { if (m.anosIgnorados.length) ignorados[m.nome] = m.anosIgnorados.map((x) => x.ano); });
-
+  // Cobertura é regra nova (o app antigo não a tem): com a fixture inteira ela não pode remover nada.
+  expect(cob.manifesto.every((m) => m.anosIgnorados.length === 0)).toBe(true);
   const novo = montarBase(fontes, bufSaude ? parseSaude(ab(bufSaude)) : null, "2026-10-15");
   const novoSin = montarSinistros(bufAv ? ab(bufAv) : null, bufPg ? ab(bufPg) : null);
 
@@ -44,7 +41,7 @@ test("montarBase/montarSinistros (Node) == applySharePointData antigo (ALL, prod
     const payloads: any = {};
     payloads.producao = d.producao.map((f: any) => ({
       name: f.name, lastModified: "Wed, 14 Oct 2026 12:00:00 GMT", cached: false,
-      rows: w.parseProducaoArrayBuffer(dec(f.b64)).filter((r: any) => !(d.ignorados[f.name] || []).includes(Number(fmtD(r.vig).slice(0, 4)))),
+      rows: w.parseProducaoArrayBuffer(dec(f.b64)),
     }));
     if (d.av) payloads.sinistrosAvisados = dec(d.av);
     if (d.pg) payloads.sinistrosPagamentos = dec(d.pg);
@@ -58,7 +55,7 @@ test("montarBase/montarSinistros (Node) == applySharePointData antigo (ALL, prod
       cont: { ...claimsSourceCounts },
     };
   }, {
-    producao: nomes.map((name) => ({ name, b64: readFileSync(join(dir, name)).toString("base64") })), ignorados,
+    producao: nomes.map((name) => ({ name, b64: readFileSync(join(dir, name)).toString("base64") })),
     av: bufAv?.toString("base64") ?? null, pg: bufPg?.toString("base64") ?? null, saude: bufSaude?.toString("base64") ?? null,
   });
 
@@ -75,7 +72,8 @@ test("montarBase/montarSinistros (Node) == applySharePointData antigo (ALL, prod
     expect(m.nome).toBe(a.nome);
     expect(m.duplicadas, m.nome).toBe(a.dup);
     expect(m.ativasVencidas, m.nome).toBe(a.ativasVencidas ?? 0);
-    if (!ignorados[m.nome]) { expect(m.total, m.nome).toBe(a.total); expect(m.anos, m.nome).toEqual(a.anos); }
+    expect(m.total, m.nome).toBe(a.total);
+    expect(m.anos, m.nome).toEqual(a.anos);
     if (a.saude) expect(m.saude).toMatchObject(a.saude);
   });
 

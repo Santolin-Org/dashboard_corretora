@@ -35,14 +35,14 @@ describe('montarBase', () => {
     expect(prodYearRange(rs)).toEqual({ min: 2025, max: 2025 });
     expect(prodYearRange([])).toBeNull();
   });
-  it('fixture: a cobertura tira de producao_2024 as 11 linhas de 2025 (2026 as cobre); as duplicadas entre arquivos saem na dedup', () => {
+  it('fixture: cobertura não remove nada (11 linhas de 2025 em producao_2024 são fronteira); as duplicadas saem na dedup', () => {
     const total = fx.fontes.reduce((a, f) => a + f.linhas.length, 0);
     const { linhas, manifesto } = montarBase(fx.fontes, null, HOJE);
-    expect(manifesto[0].anosIgnorados).toEqual([{ ano: 2025, cobertoPor: 'producao_2026.xlsx' }]);
-    expect(manifesto[1].anosIgnorados).toEqual([]);
+    expect(manifesto.every(m => m.anosIgnorados.length === 0)).toBe(true);
+    expect(manifesto[0].sobreposicoes).toContainEqual({ ano: 2025, com: 'producao_2026.xlsx', linhas: 11 });
     const dup = manifesto.reduce((a, m) => a + m.duplicadas, 0);
     expect(dup).toBe(2);
-    expect(linhas.length).toBe(total - 11 - dup);
+    expect(linhas.length).toBe(total - dup);
   });
   it('fixture: troca de seguradora marca a apólice e o CN', () => {
     const { linhas } = montarBase(fx.fontes, null, HOJE);
