@@ -8,7 +8,7 @@ import { ABAS, Abas } from "./Abas";
 import { Cabecalho, textoRecBadge } from "./Cabecalho";
 import { FiltrosGlobais } from "./FiltrosGlobais";
 import { ModoTvEfeito } from "./ModoTv";
-import { TelaCarregando, TelaErro } from "./TelaErro";
+import { TelaCarregando, TelaErro, textoErroProducao } from "./TelaErro";
 
 const ROTAS_COM_CASCA = new Set<string>(ABAS.map((a) => a.id));
 
@@ -30,10 +30,11 @@ export function Casca({ children }: { children: ReactNode }) {
       conteudo = <TelaCarregando />;
     }
   } else if (base.erroProducao && base.sinistros.length === 0) {
-    // Sem produção e sem sinistros: nada para mostrar além do motivo (sem upload).
+    // Sem produção e sem sinistros: nada para mostrar além do motivo (sem upload). Com
+    // sinistros, o painel abre e as abas de produção mostram o motivo (PainelAba).
     conteudo = (
       <TelaErro
-        mensagem={base.erroProducao.mensagem}
+        mensagem={textoErroProducao(base.erroProducao)}
         acoes={<>
           <button type="button" className="btn-sm" onClick={abrirFontes}>Ver fontes</button>
           <button type="button" className="btn-sm" onClick={recarregar}>Tentar novamente</button>

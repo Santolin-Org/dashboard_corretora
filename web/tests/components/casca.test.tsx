@@ -137,22 +137,58 @@ describe("FiltrosGlobais + useFiltros", () => {
   });
 });
 
+// matchMedia controlável para alternar prefers-color-scheme.
+function mockTema(escuroInicial: boolean) {
+  const ouvintes = new Set<() => void>();
+  const mq = { matches: escuroInicial, addEventListener: (_: string, f: () => void) => ouvintes.add(f), removeEventListener: (_: string, f: () => void) => ouvintes.delete(f) };
+  vi.stubGlobal("matchMedia", () => mq);
+  window.matchMedia = (() => mq) as unknown as typeof window.matchMedia;
+  return { trocar(escuro: boolean) { mq.matches = escuro; ouvintes.forEach((f) => f()); } };
+}
+const tick = () => act(async () => { await new Promise((r) => setTimeout(r, 0)); });
+
 describe("Grafico", () => {
+  afterEach(() => { vi.unstubAllGlobals(); delete (window as { matchMedia?: unknown }).matchMedia; });
+
   it("registra window.__charts[id] = { data }, atualiza e remove ao desmontar", async () => {
-    const cfg1: ChartConfiguration = { type: "bar", data: { labels: ["Jan"], datasets: [{ label: "2026", data: [1] }] } };
-    const cfg2: ChartConfiguration = { type: "bar", data: { labels: ["Jan", "Fev"], datasets: [{ label: "2026", data: [1, 2] }] } };
-    const { rerender, unmount, container } = render(<Grafico id="ch-x" config={cfg1} altura={210} />);
+    mockTema(true);
+    const c1 = (): ChartConfiguration => ({ type: "bar", data: { labels: ["Jan"], datasets: [{ label: "2026", data: [1] }] } });
+    const c2 = (): ChartConfiguration => ({ type: "bar", data: { labels: ["Jan", "Fev"], datasets: [{ label: "2026", data: [1, 2] }] } });
+    const { rerender, unmount, container } = render(<Grafico id="ch-x" construir={c1} altura={210} />);
     expect(container.querySelector(".cw > canvas#ch-x")).not.toBeNull();
     expect((container.querySelector(".cw") as HTMLElement).style.height).toBe("210px");
-    expect(window.__charts!["ch-x"].data).toBe(cfg1.data);
-    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
-    expect(criados.at(-1)!.cfg).toBe(cfg1);
-    rerender(<Grafico id="ch-x" config={cfg2} altura={210} />);
-    expect(window.__charts!["ch-x"].data).toBe(cfg2.data);
-    await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
-    expect(criados.find((c) => c.cfg === cfg1)!.destruido).toBe(true);
+    expect(window.__charts!["ch-x"].data.labels).toEqual(["Jan"]);
+    await tick();
+    const primeiro = criados.at(-1)!;
+    expect(primeiro.cfg.data).toBe(window.__charts!["ch-x"].data);
+    rerender(<Grafico id="ch-x" construir={c2} altura={210} />);
+    expect(window.__charts!["ch-x"].data.labels).toEqual(["Jan", "Fev"]);
+    await tick();
+    expect(primeiro.destruido).toBe(true);
     unmount();
     expect(window.__charts!["ch-x"]).toBeUndefined();
+  });
+
+  it("troca de tema: reconstrói a config com as cores novas num Chart novo", async () => {
+    const tema = mockTema(true);
+    const { axisClr } = await import("@/client/tema");
+    const construir = (escuro: boolean): ChartConfiguration => ({
+      type: "line", data: { labels: ["Jan"], datasets: [{ data: [1] }] },
+      options: { scales: { x: { ticks: { color: axisClr() } } }, plugins: { title: { text: escuro ? "escuro" : "claro" } } },
+    });
+    render(<Grafico id="ch-tema" construir={construir} />);
+    await tick();
+    const antes = criados.at(-1)!;
+    expect((antes.cfg.options as { scales: { x: { ticks: { color: string } } } }).scales.x.ticks.color).toBe("#8b949e");
+    act(() => tema.trocar(false));
+    await tick();
+    const depois = criados.at(-1)!;
+    expect(depois).not.toBe(antes);
+    expect(antes.destruido).toBe(true);
+    expect(depois.cfg).not.toBe(antes.cfg);
+    expect((depois.cfg.options as { scales: { x: { ticks: { color: string } } } }).scales.x.ticks.color).toBe("#888");
+    expect((depois.cfg.options as { plugins: { title: { text: string } } }).plugins.title.text).toBe("claro");
+    expect(window.__charts!["ch-tema"].data).toBe(depois.cfg.data);
   });
 });
 

@@ -1,7 +1,9 @@
 "use client";
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
+import { usePainel } from "@/client/painel";
 import { PainelAba } from "./PainelAba";
+import { ErroProducao } from "./TelaErro";
 
 // Conteúdo de cada rota carregado sob demanda (um chunk por aba). As tarefas de porte
 // trocam o EmMigracao pelo componente da aba aqui.
@@ -22,7 +24,9 @@ const CONTEUDO: Record<string, ComponentType> = {
 const TELA_CHEIA: Record<string, string> = { "exibicao-tv": "tv-exibicao", apresentacao: "kickoff-mode" };
 
 export function AbaSobDemanda({ id }: { id: keyof typeof CONTEUDO & string }) {
+  const { base } = usePainel();
   const Conteudo = CONTEUDO[id];
-  if (TELA_CHEIA[id]) return <div id={TELA_CHEIA[id]}><Conteudo /></div>;
+  // Exibição TV e apresentação são só produção: com erro de produção, o motivo no lugar.
+  if (TELA_CHEIA[id]) return <div id={TELA_CHEIA[id]}>{base.erroProducao ? <ErroProducao erro={base.erroProducao} /> : <Conteudo />}</div>;
   return <PainelAba id={id}><Conteudo /></PainelAba>;
 }
