@@ -4,8 +4,9 @@ import {
   ESCOPOS,
   ISSUER_PADRAO,
   assertBypassSeguro,
+  assertIssuerSeguro,
   jwtCallback,
-  permitirEntrada,
+  permitirLogin,
   sessionCallback,
   usuarioDaSessao,
   type Sessao,
@@ -16,6 +17,7 @@ export type { Sessao };
 
 // Falha no boot se o bypass de paridade estiver ligado fora de dev/teste.
 assertBypassSeguro();
+assertIssuerSeguro(); // tenant fixo: env divergente derruba o boot
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
@@ -24,14 +26,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     MicrosoftEntraID({
       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
       clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
-      issuer: process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER || ISSUER_PADRAO,
+      issuer: ISSUER_PADRAO,
       authorization: { params: { scope: ESCOPOS } },
     }),
   ],
   callbacks: {
     // Recusa (e manda para /sem-acesso) quem não está ativo na tabela.
-    async signIn({ user }) {
-      return (await permitirEntrada(user.email)) ? true : "/sem-acesso";
+    async signIn({ user, profile }) {
+      return (await permitirLogin(user.email, (profile as { tid?: unknown } | undefined)?.tid)) ? true : "/sem-acesso";
     },
     async jwt({ token, account, user }) {
       return (await jwtCallback({ token: token as TokenApp, account, user })) as typeof token;

@@ -2,12 +2,32 @@
 import { buscarUsuarioAtivo, type Db } from "./db/client";
 import type { Papel } from "./db/schema";
 
+/** `expiraEm`: expiração do access token em SEGUNDOS desde a época (epoch). */
 export type Sessao = { email: string; nome: string; role: Papel; expiraEm: number };
 
 type Env = Record<string, string | undefined>;
 
-export const ISSUER_PADRAO =
-  "https://login.microsoftonline.com/59190e65-5cad-4885-9f2d-77a59385667b/v2.0";
+export const TENANT_ID = "59190e65-5cad-4885-9f2d-77a59385667b";
+export const ISSUER_PADRAO = `https://login.microsoftonline.com/${TENANT_ID}/v2.0`;
+
+/** Emissor efetivo: a env só pode repetir o do tenant Santolin; qualquer outro valor lança erro. */
+export function assertIssuerSeguro(env: Env = process.env): string {
+  const v = env.AUTH_MICROSOFT_ENTRA_ID_ISSUER;
+  if (v && v.replace(/\/+$/, "") !== ISSUER_PADRAO) {
+    throw new Error("AUTH_MICROSOFT_ENTRA_ID_ISSUER difere do tenant autorizado");
+  }
+  return ISSUER_PADRAO;
+}
+
+/** signIn: tenant do token deve ser o da Santolin E o e-mail estar ativo na lista. */
+export async function permitirLogin(
+  email: string | null | undefined,
+  tid: unknown,
+  db?: Db,
+): Promise<boolean> {
+  if (tid !== TENANT_ID) return false;
+  return permitirEntrada(email, db);
+}
 export const ESCOPOS = "openid profile email offline_access User.Read";
 
 /** Usuário sintético do bypass de paridade. */
@@ -168,13 +188,18 @@ export function sessionCallback<S extends { user?: { email?: string | null } }>(
 const PAGINAS_PUBLICAS = new Set(["/entrar", "/sem-acesso", "/favicon.ico"]);
 const PREFIXOS_PUBLICOS = ["/api/auth/", "/_next/static/", "/_next/image"];
 
+export function ehPublica(pathname: string): boolean {
+  return (
+    !pathname.includes("..") &&
+    (PAGINAS_PUBLICAS.has(pathname) || PREFIXOS_PUBLICOS.some((p) => pathname.startsWith(p)))
+  );
+}
+
 export function decidirAcesso(
   pathname: string,
   usuario: Sessao | null,
 ): "passar" | "401" | "entrar" {
-  const seguro = !pathname.includes("..");
-  if (seguro && (PAGINAS_PUBLICAS.has(pathname) || PREFIXOS_PUBLICOS.some((p) => pathname.startsWith(p))))
-    return "passar";
+  if (ehPublica(pathname)) return "passar";
   if (usuario) return "passar";
   return pathname === "/api" || pathname.startsWith("/api/") ? "401" : "entrar";
 }

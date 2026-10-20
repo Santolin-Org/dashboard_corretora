@@ -6,6 +6,11 @@ import { setDb } from "@/server/db/client";
 import { users } from "@/server/db/schema";
 import {
   assertBypassSeguro,
+  assertIssuerSeguro,
+  ehPublica,
+  permitirLogin,
+  ISSUER_PADRAO,
+  TENANT_ID,
   bypassAtivo,
   decidirAcesso,
   jwtCallback,
@@ -179,5 +184,32 @@ describe("decidirAcesso (proxy)", () => {
   it("com usuário passa", () => {
     expect(decidirAcesso("/", usuario)).toBe("passar");
     expect(decidirAcesso("/api/dados", usuario)).toBe("passar");
+  });
+});
+
+describe("tenant fixo", () => {
+  it("issuer divergente (ex.: /common) lança; igual ou ausente passa", () => {
+    expect(() => assertIssuerSeguro({ AUTH_MICROSOFT_ENTRA_ID_ISSUER: "https://login.microsoftonline.com/common/v2.0" })).toThrow();
+    expect(assertIssuerSeguro({ AUTH_MICROSOFT_ENTRA_ID_ISSUER: ISSUER_PADRAO })).toBe(ISSUER_PADRAO);
+    expect(assertIssuerSeguro({})).toBe(ISSUER_PADRAO);
+  });
+  it("signIn exige tid da Santolin mesmo com e-mail listado", async () => {
+    await db.insert(users).values({ email: "ana@exemplo.com.br", nome: "Ana", role: "gestao" });
+    expect(await permitirLogin("ana@exemplo.com.br", TENANT_ID)).toBe(true);
+    expect(await permitirLogin("ana@exemplo.com.br", "outro-tenant")).toBe(false);
+    expect(await permitirLogin("ana@exemplo.com.br", undefined)).toBe(false);
+  });
+});
+
+describe("rotas públicas não consultam o banco", () => {
+  it("ehPublica não toca no db; proxy usa ehPublica antes de usuarioDaSessao", async () => {
+    const espiao = vi.fn(() => { throw new Error("db consultado"); });
+    setDb({ select: espiao } as never);
+    for (const p of ["/entrar", "/sem-acesso", "/api/auth/session"]) expect(ehPublica(p)).toBe(true);
+    expect(ehPublica("/api/dados")).toBe(false);
+    expect(espiao).not.toHaveBeenCalled();
+    setDb(db);
+    const fonte = (await import("node:fs")).readFileSync("src/proxy.ts", "utf8");
+    expect(fonte.indexOf("ehPublica(pathname)")).toBeLessThan(fonte.indexOf("usuarioDaSessao(req"));
   });
 });
