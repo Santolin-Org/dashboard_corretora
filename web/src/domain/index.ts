@@ -1,2 +1,6 @@
-// Placeholder do domínio; as regras de negócio entram nas próximas tarefas.
-export const DOMINIO_VERSAO = 0;
+export * from './tipos';
+export * from './datas';
+export * from './formatos';
+export * from './ramos';
+export * from './situacoes';
+export * from './producao/parse';

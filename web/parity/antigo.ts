@@ -33,8 +33,8 @@ export function servirRaiz(porta = PORTA_ANTIGO): Promise<Server> {
   return new Promise((ok, erro) => { srv.once("error", erro); srv.listen(porta, "127.0.0.1", () => ok(srv)); });
 }
 
-const normNome = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
-const ehProducao = (n: string) => /^producao.*\.xlsx?$/.test(normNome(n)) && !n.startsWith("~$");
+export const normNome = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+export const ehProducao = (n: string) => /^producao.*\.xlsx?$/.test(normNome(n)) && !n.startsWith("~$");
 const LAST_MODIFIED = "Wed, 14 Oct 2026 12:00:00 GMT";
 
 function lerDados(dir: string) {
@@ -47,6 +47,14 @@ function lerDados(dir: string) {
     saude: nomes.includes("saude_fernando.xlsx") ? b64("saude_fernando.xlsx") : null,
     lastModified: LAST_MODIFIED,
   };
+}
+
+/** Abre a página antiga (relógio fixo) pronta para chamar funções globais como parseProducaoArrayBuffer/fmtD. */
+export async function abrirAntigo(page: Page): Promise<void> {
+  await page.addInitScript("window.__name = (f) => f;");
+  await page.clock.install({ time: new Date(HOJE_FIXO) });
+  await page.goto(`http://127.0.0.1:${PORTA_ANTIGO}/index.html`, { waitUntil: "load" });
+  await page.waitForFunction("typeof XLSX !== 'undefined' && typeof Chart !== 'undefined'", undefined, { timeout: 60000 });
 }
 
 export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): Promise<Snapshot> {
