@@ -4,7 +4,8 @@ import { celulaParaISO } from '../datas';
 import { normRamo } from '../ramos';
 import { normSit } from '../situacoes';
 
-export const SAUDE_FILE = 'saude_fernando.xlsx';
+import { SAUDE_FILE } from './modelo';
+export { SAUDE_FILE, SAUDE_MODELO } from './modelo';
 
 // Cada campo aceita mais de uma grafia de cabeçalho (comparadas por normRamo).
 export const SAUDE_COL: Record<string, string[]> = {

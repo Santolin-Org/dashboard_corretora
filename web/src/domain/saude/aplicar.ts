@@ -3,7 +3,7 @@ import { normRamo } from '../ramos';
 import { SIT, isApolice } from '../situacoes';
 import type { SaudeParse } from './parse';
 
-export { SAUDE_FILE } from './parse';
+export { SAUDE_FILE } from './modelo';
 
 // ── Saúdes lançados à parte (saude_fernando.xlsx) ──────────────────────────────
 // O ERP não consegue lançar a remuneração do seguro saúde — agenciamento sobre o

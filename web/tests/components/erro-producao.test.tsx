@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, cleanup } from "@testing-library/react";
+import { render, screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
 import { codificarLinhas, codificarSinistros } from "@/domain/serializacao";
 import type { Sinistro } from "@/domain/sinistros/parse";
 
@@ -93,5 +93,28 @@ describe("erro de produção com sinistros presentes", () => {
     await waitFor(() => expect(document.getElementById("sp-error")).not.toBeNull());
     expect(document.getElementById("sp-error")!.textContent).toBe(ESPERADO);
     expect(document.getElementById("dash")).toBeNull();
+  });
+});
+
+describe("painel de fontes na casca", () => {
+  it("'Ver fontes' na tela de erro abre o painel; admin vê Reprocessar fontes; Fechar fecha", async () => {
+    fetchMock.mockImplementation(async (url: string) =>
+      url === "/api/fontes" ? new Response(JSON.stringify({ podeReprocessar: true }), { status: 200 })
+        : new Response(JSON.stringify(corpo({ erro: ERRO })), { status: 200 }));
+    render(<Casca><p>x</p></Casca>);
+    fireEvent.click(await screen.findByText("Ver fontes"));
+    expect(document.querySelector("#fontes-modal")).not.toBeNull();
+    expect(await screen.findByText(/Reprocessar fontes/)).toBeTruthy();
+    fireEvent.click(screen.getByText("Fechar"));
+    expect(document.querySelector("#fontes-modal")).toBeNull();
+  });
+  it("gestão (podeReprocessar false) não vê o botão", async () => {
+    fetchMock.mockImplementation(async (url: string) =>
+      url === "/api/fontes" ? new Response(JSON.stringify({ podeReprocessar: false }), { status: 200 })
+        : new Response(JSON.stringify(corpo({ erro: ERRO })), { status: 200 }));
+    render(<Casca><p>x</p></Casca>);
+    fireEvent.click(await screen.findByText("Ver fontes"));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/fontes", expect.anything()));
+    expect(screen.queryByText(/Reprocessar fontes/)).toBeNull();
   });
 });

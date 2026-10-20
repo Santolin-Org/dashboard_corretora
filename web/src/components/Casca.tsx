@@ -1,12 +1,14 @@
 "use client";
-import { useCallback, useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useBase } from "@/client/useBase";
 import { FiltrosProvider, useFiltros } from "@/client/filtros";
+import { usePodeReprocessar } from "@/client/podeReprocessar";
 import { ContextoPainel, usePainel, type ValorPainel } from "@/client/painel";
 import { ABAS, Abas } from "./Abas";
 import { Cabecalho, textoRecBadge } from "./Cabecalho";
 import { FiltrosGlobais } from "./FiltrosGlobais";
+import { PainelFontes } from "./PainelFontes";
 import { ModoTvEfeito } from "./ModoTv";
 import { TelaCarregando, TelaErro, textoErroProducao } from "./TelaErro";
 
@@ -16,8 +18,10 @@ const ROTAS_COM_CASCA = new Set<string>(ABAS.map((a) => a.id));
 // /exibicao-tv e /apresentacao são telas cheias: recebem os mesmos contextos, sem a casca.
 export function Casca({ children }: { children: ReactNode }) {
   const { estado, base, erro, recarregar } = useBase();
-  // O painel de fontes (PainelFontes) entra na Task 11; até lá o link "N arquivos" não abre nada.
-  const abrirFontes = useCallback(() => {}, []);
+  const [fontesAberto, setFontesAberto] = useState(false);
+  const abrirFontes = useCallback(() => setFontesAberto(true), []);
+  const fecharFontes = useCallback(() => setFontesAberto(false), []);
+  const podeReprocessar = usePodeReprocessar(fontesAberto);
   const painel = useMemo<ValorPainel | null>(() => (base ? { base, recarregar, abrirFontes } : null), [base, recarregar, abrirFontes]);
 
   let conteudo: ReactNode;
@@ -50,7 +54,16 @@ export function Casca({ children }: { children: ReactNode }) {
       </ContextoPainel.Provider>
     );
   }
-  return <><ModoTvEfeito />{conteudo}</>;
+  return (
+    <>
+      <ModoTvEfeito />
+      {conteudo}
+      {base && (
+        <PainelFontes aberto={fontesAberto} onFechar={fecharFontes} manifesto={base.manifesto} totalLinhas={base.linhas.length}
+          avisosSaude={base.avisosSaude} podeReprocessar={podeReprocessar} recarregar={recarregar} />
+      )}
+    </>
+  );
 }
 
 function Painel({ children }: { children: ReactNode }) {

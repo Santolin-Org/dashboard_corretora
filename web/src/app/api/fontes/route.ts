@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { usuarioDaRequisicao } from "@/server/auth";
-import { escopoDoUsuario } from "@/server/escopo";
+import { escopoDoUsuario, podeReprocessar } from "@/server/escopo";
 import { obterBase } from "@/server/ingestao";
 
 // runtime: Node.js é o padrão (a opção "runtime" não é aceita com cacheComponents).
@@ -11,6 +11,7 @@ export async function GET() {
   if (escopoDoUsuario(u).tipo === "nada") return NextResponse.json({ erro: "Sem permissão" }, { status: 403 });
   const b = await obterBase();
   return NextResponse.json({
+    podeReprocessar: podeReprocessar(u),
     versao: b.versao,
     geradoEm: b.geradoEm,
     manifesto: b.manifesto,

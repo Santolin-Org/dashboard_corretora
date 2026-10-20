@@ -3,7 +3,8 @@ import { addDiasISO, anoISO } from '../datas';
 import { SIT, normSit, isApolice } from '../situacoes';
 import { aplicarCobertura, type FonteProducao, type ManifestoFonte } from './cobertura';
 import { applyMotivoEndosso, applyTrocaSeguradora } from './enriquecimentos';
-import { aplicarSaude, SAUDE_FILE } from '../saude/aplicar';
+import { aplicarSaude } from '../saude/aplicar';
+import { SAUDE_FILE } from '../saude/modelo';
 import type { SaudeParse } from '../saude/parse';
 
 export type { FonteProducao, ManifestoFonte } from './cobertura';

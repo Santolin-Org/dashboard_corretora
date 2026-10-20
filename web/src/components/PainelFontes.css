@@ -1,0 +1,35 @@
+/* styles.css: modal genérico (.export-modal-*) e painel de fontes (.fontes-*). Classes globais, como no app antigo. */
+.export-modal-overlay {
+  position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+}
+.export-modal-card {
+  background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-dropdown); padding: 20px; min-width: 260px; display: flex; flex-direction: column; gap: 10px;
+  max-height: 92vh; overflow: auto;
+}
+.export-modal-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.export-modal-option {
+  display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--bg-input);
+  border: 1px solid var(--border-default); border-radius: var(--r-md); color: var(--text-primary);
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.export-modal-option:hover { border-color: var(--accent); background: var(--accent-dim); }
+.export-modal-option:disabled { opacity: .6; cursor: default; }
+.export-modal-cancel { margin-top: 4px; background: transparent; border: none; color: var(--text-secondary); font-size: 12px; cursor: pointer; padding: 4px; }
+.export-modal-cancel:hover { color: var(--text-primary); }
+
+.fontes-card { min-width: 480px; max-width: 92vw; }
+.fontes-table { width: 100%; border-collapse: collapse; font-size: 12px; color: var(--text-primary); }
+.fontes-table th, .fontes-table td { padding: 6px 8px; text-align: left; border-bottom: 1px solid var(--border-default); white-space: nowrap; }
+.fontes-table th { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; }
+.fontes-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+.fontes-table tfoot td { font-weight: 700; border-bottom: none; border-top: 1px solid var(--border-default); }
+.fontes-table small { display: block; font-weight: 400; color: var(--text-secondary); white-space: normal; }
+.fontes-table .fontes-destaque { color: #BA7517; font-weight: 700; }
+.fontes-table .fontes-cobertura { color: #BA7517; }
+.fontes-avisos { margin: 2px 0 0; padding-left: 16px; font-size: 11px; font-weight: 400; color: var(--text-secondary); white-space: normal; }
+.fontes-warn { margin: 10px 0 0; font-size: 12px; color: #BA7517; }
+.fontes-hint { margin: 10px 0 0; font-size: 11px; line-height: 1.5; color: var(--text-secondary); }
+.fontes-hint code { font-size: 10px; background: var(--bg-input); border-radius: var(--r-sm); padding: 1px 4px; }
+.fontes-erro { margin: 10px 0 0; font-size: 12px; color: #E24B4A; }
