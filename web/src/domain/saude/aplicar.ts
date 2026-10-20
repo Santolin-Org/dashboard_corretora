@@ -47,7 +47,7 @@ const maisUmAno = (d: DataISO): DataISO => {
 // Mescla a planilha de saúde nas linhas (equivale a applySaudeManual). Troca elementos
 // por cópias dentro do array e acrescenta os saúdes que a produção não tem. `hoje` só
 // decide a situação dos saúdes criados sem SITUAÇÃO.
-export function aplicarSaude(linhas: Linha[], saude: SaudeParse, hoje: DataISO = ''):
+export function aplicarSaude(linhas: Linha[], saude: SaudeParse, hoje: DataISO):
   { vinculadas: number; criadas: number; avisos: string[] } {
   const rows = saude.linhas;
   const avisos = [...saude.avisos]; // recarga não pode acumular avisos repetidos

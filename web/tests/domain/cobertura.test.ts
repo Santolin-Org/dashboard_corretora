@@ -36,6 +36,15 @@ describe('aplicarCobertura', () => {
     expect(r.manifesto[0].sobreposicoes).toEqual([{ ano: 2025, com: 'producao_2026.xlsx', linhas: 5 }]);
     expect(r.manifesto[1].sobreposicoes).toEqual([{ ano: 2025, com: 'producao_2024.xlsx', linhas: 100 }]);
   });
+  it('modificadoEm vazio ou inválido nunca é dono sobre uma data válida', () => {
+    const mk = (nome: string, modificadoEm: string): FonteProducao => ({ nome, modificadoEm, linhas: muitas(100, '2025-05-05', nome) });
+    for (const ruim of ['', 'lixo']) {
+      const r = aplicarCobertura([mk('novo.xlsx', '2026-10-01T00:00:00Z'), mk('semdata.xlsx', ruim)]);
+      expect(r.fontes[0].linhas).toHaveLength(100);
+      expect(r.fontes[1].linhas).toHaveLength(0);
+      expect(r.manifesto[1].anosIgnorados).toEqual([{ ano: 2025, cobertoPor: 'novo.xlsx' }]);
+    }
+  });
   it('(c) sem sobreposição a saída é igual à entrada', () => {
     const fs: FonteProducao[] = [
       { nome: 'producao_2024.xlsx', modificadoEm: '2026-01-10T00:00:00Z', linhas: muitas(5, '2024-01-01') },

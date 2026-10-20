@@ -51,7 +51,9 @@ export function aplicarCobertura(fontes: FonteProducao[]): { fontes: FonteProduc
     if (com.length < 2) return;
     // dona: modificada por último; empate fica com a que vem depois na ordem
     let dona = com[0];
-    for (const i of com) if (Date.parse(fontes[i].modificadoEm) >= Date.parse(fontes[dona].modificadoEm)) dona = i;
+    // data vazia/inválida vale -Infinity: nunca é dona sobre uma data válida
+    const quando = (i: number) => { const t = Date.parse(fontes[i].modificadoEm); return Number.isNaN(t) ? -Infinity : t; };
+    for (const i of com) if (quando(i) >= quando(dona)) dona = i;
     const nDona = contagens[dona].get(y) as number;
     for (const i of com) {
       if (i === dona) continue;
