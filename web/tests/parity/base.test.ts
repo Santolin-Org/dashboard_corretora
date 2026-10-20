@@ -36,6 +36,12 @@ test("montarBase/montarSinistros (Node) == applySharePointData antigo (ALL, prod
 
   await abrirAntigo(page);
   const antigo = await page.evaluate((d) => {
+    // Data local (São Paulo) do Date antigo (getFullYear/getMonth/getDate), só quando difere da fmtD: Linha.vigLocal/emLocal.
+    const loc = (d: any) => (d instanceof Date ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "");
+    const locais = (r: any) => ({
+      ...(loc(r.vig) && loc(r.vig) !== fmtD(r.vig) ? { vigLocal: loc(r.vig) } : {}),
+      ...(loc(r.em) && loc(r.em) !== fmtD(r.em) ? { emLocal: loc(r.em) } : {}),
+    });
     const w = window as any;
     const dec = (b: string) => { const bin = atob(b); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u.buffer; };
     const payloads: any = {};
@@ -49,7 +55,7 @@ test("montarBase/montarSinistros (Node) == applySharePointData antigo (ALL, prod
     document.getElementById("landing-screen")!.style.display = "none";
     w.applySharePointData(payloads, []);
     return {
-      all: ALL.map((r: any) => ({ ...r, vig: fmtD(r.vig), em: fmtD(r.em), fim: fmtD(r.fim), cancel: fmtD(r.cancel) })),
+      all: ALL.map((r: any) => ({ ...r, vig: fmtD(r.vig), em: fmtD(r.em), fim: fmtD(r.fim), cancel: fmtD(r.cancel), ...locais(r) })),
       fontes: prodSources.map((s: any) => ({ nome: s.name, total: s.total, dup: s.dup, anos: s.anos, ativasVencidas: s.ativasVencidas, saude: s.saude && { vinculadas: s.saude.vinculadas, criadas: s.saude.criadas } })),
       claims: CLAIMS.map((r: any) => ({ ...r, abertura: fmtD(r.abertura), aviso: fmtD(r.aviso), encerra: fmtD(r.encerra) })),
       cont: { ...claimsSourceCounts },

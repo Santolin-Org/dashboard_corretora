@@ -12,6 +12,8 @@ export type LinhasColunares = {
   trocaSeg: number[]; // 0/1
   saudeManual: (0 | 1 | null)[]; // null = ausente
   saudeFaturaDe: (string | null)[]; // null = ausente
+  vigLocal: (string | null)[]; // null = ausente (igual a vig)
+  emLocal: (string | null)[]; // null = ausente (igual a em)
 };
 
 export type SinistrosColunares = {
@@ -57,6 +59,8 @@ export function codificarLinhas(l: Linha[]): LinhasColunares {
     trocaSeg: l.map((x) => (x.trocaSeg ? 1 : 0)),
     saudeManual: l.map((x) => (x.saudeManual === undefined ? null : x.saudeManual ? 1 : 0)),
     saudeFaturaDe: l.map((x) => (x.saudeFaturaDe === undefined ? null : x.saudeFaturaDe)),
+    vigLocal: l.map((x) => x.vigLocal ?? null),
+    emLocal: l.map((x) => x.emLocal ?? null),
   };
 }
 
@@ -70,6 +74,8 @@ export function decodificarLinhas(c: LinhasColunares): Linha[] {
     r.trocaSeg = c.trocaSeg[j] === 1;
     if (c.saudeManual[j] !== null) r.saudeManual = c.saudeManual[j] === 1;
     if (c.saudeFaturaDe[j] !== null) r.saudeFaturaDe = c.saudeFaturaDe[j];
+    if (c.vigLocal?.[j] != null) r.vigLocal = c.vigLocal[j];
+    if (c.emLocal?.[j] != null) r.emLocal = c.emLocal[j];
     out[j] = r as unknown as Linha;
   }
   return out;

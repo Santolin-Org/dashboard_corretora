@@ -1,0 +1,158 @@
+{
+  "graficos": {
+    "ch-cancel": {
+      "datasets": [
+        {
+          "data": [
+            18,
+            12,
+            12,
+            11,
+            9,
+            6
+          ]
+        }
+      ],
+      "labels": [
+        "Venda do bem",
+        "Insatisfação com atendimento",
+        "Troca de seguradora",
+        "Não informado",
+        "Preço",
+        "Falta de pagamento"
+      ]
+    },
+    "ch-evolucao": {
+      "datasets": [
+        {
+          "data": [
+            5420.780000000001,
+            1331.19,
+            5132.21,
+            6329.179999999999,
+            4650.51,
+            6843.8,
+            7720.570000000001,
+            4098.36,
+            5159.12,
+            1450.24,
+            118.21000000000001,
+            0
+          ],
+          "label": "2026"
+        },
+        {
+          "data": [
+            2772.12,
+            4549.349999999999,
+            7883.26,
+            7937.499999999999,
+            6665.029999999999,
+            2775.83,
+            3396.49,
+            2784.1,
+            2841.92,
+            5292.1,
+            3594.3499999999995,
+            2023.1
+          ],
+          "label": "2025"
+        }
+      ],
+      "labels": [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez"
+      ]
+    },
+    "ch-ramo": {
+      "datasets": [
+        {
+          "data": [
+            26005.42,
+            21433.649999999998,
+            21128.289999999994,
+            19700.620000000003,
+            19642.139999999996,
+            19203.290000000005,
+            18964.91,
+            18488.71
+          ]
+        }
+      ],
+      "labels": [
+        "Comp. residencial",
+        "Riscos diversos",
+        "RC geral",
+        "Transporte nac.",
+        "Viagem individual",
+        "Auto — casco",
+        "Acidentes pessoais",
+        "Vida"
+      ]
+    },
+    "ch-seg": {
+      "datasets": [
+        {
+          "data": [
+            39212.649999999994,
+            36565.63,
+            33852.85999999999,
+            31941.47,
+            30678.56000000001,
+            25169.27
+          ]
+        }
+      ],
+      "labels": [
+        "HDI Seguros",
+        "Bradesco Seguros",
+        "Tokio Marine",
+        "Porto Seguro",
+        "Mapfre",
+        "Allianz"
+      ]
+    }
+  },
+  "textos": {
+    "cancel-badge": "68 cancelamentos",
+    "cancel-cb-list": "Venda do bem18Insatisfação com atendimento12Troca de seguradora12Não informado11Preço9Falta de pagamento6",
+    "cancel-filter": "Filtrar motivos todos ▼ Venda do bem18Insatisfação com atendimento12Troca de seguradora12Não informado11Preço9Falta de pagamento6 Marcar todos Desmarcar todos",
+    "cancel-filter-arrow": "▼",
+    "cancel-filter-count": "todos",
+    "cancel-wrap": "",
+    "cb-Falta_de_pagamento": "",
+    "cb-Insatisfa__o_com_atendimento": "",
+    "cb-N_o_informado": "",
+    "cb-Pre_o": "",
+    "cb-Troca_de_seguradora": "",
+    "cb-Venda_do_bem": "",
+    "ch-cancel": "",
+    "ch-evolucao": "",
+    "ch-ramo": "",
+    "ch-seg": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "kpi-grid": "Prêmio totalR$ 352.868,02107 apólices este anoComissão totalR$ 48.254,1713.67% do prêmioTicket médio: PrêmioR$ 3.723,3398 c/ prêmioTicket médio: ComissãoR$ 492,39por apóliceClientes únicos55neste anoVencendo em 30d0renovações pendentes",
+    "leg-cur": "2026",
+    "leg-prev": "2025",
+    "mt-evol-c": "",
+    "mt-evol-p": "",
+    "mt-ramo-c": "",
+    "mt-ramo-p": "",
+    "mt-seg-c": "",
+    "mt-seg-p": "",
+    "rec-badge": "0 registros",
+    "seg-legend": "HDI Seguros 19.86%Bradesco Seguros 18.52%Tokio Marine 17.15%Porto Seguro 16.18%Mapfre 15.54%Allianz 12.75%",
+    "tab-visao-geral": "Prêmio totalR$ 352.868,02107 apólices este anoComissão totalR$ 48.254,1713.67% do prêmioTicket médio: PrêmioR$ 3.723,3398 c/ prêmioTicket médio: ComissãoR$ 492,39por apóliceClientes únicos55neste anoVencendo em 30d0renovações pendentes Evolução mensal da produção 2026 2025 · barra inferior = variação % vs. ano anterior Prêmio Comissão +95.5%-70.7%-34.9%-20.3%-30.2%+146.5%+127.3%+47.2%+81.5%-72.6%-96.7%-100.0% Cancelamentos por motivo 68 cancelamentos Filtrar motivos todos ▼ Venda do bem18Insatisfação com atendimento12Troca de seguradora12Não informado11Preço9Falta de pagamento6 Marcar todos Desmarcar todos Concentração por seguradora Prêmio Comissão HDI Seguros 19.86%Bradesco Seguros 18.52%Tokio Marine 17.15%Porto Seguro 16.18%Mapfre 15.54%Allianz 12.75% Produção por ramo Prêmio Comissão",
+    "var-bar": "+95.5%-70.7%-34.9%-20.3%-30.2%+146.5%+127.3%+47.2%+81.5%-72.6%-96.7%-100.0%"
+  }
+}

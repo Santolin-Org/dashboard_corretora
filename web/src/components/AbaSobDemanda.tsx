@@ -9,7 +9,7 @@ import { ErroProducao } from "./TelaErro";
 // trocam o EmMigracao pelo componente da aba aqui.
 const emMigracao = () => import("./EmMigracao");
 const CONTEUDO: Record<string, ComponentType> = {
-  "visao-geral": dynamic(emMigracao),
+  "visao-geral": dynamic(() => import("@/app/(dash)/visao-geral/VisaoGeral")),
   producao: dynamic(emMigracao),
   retencao: dynamic(emMigracao),
   crosssell: dynamic(emMigracao),

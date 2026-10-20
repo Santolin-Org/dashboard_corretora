@@ -19,3 +19,20 @@
   `.section-controls`, que dá `stopPropagation`); só o clique no cabeçalho alterna. Reproduzido.
 - **Filtros na URL (`?f=`)**: novidade. Os filtros globais acompanham a navegação entre abas e
   sobrevivem ao recarregar a página (o antigo perdia tudo no reload).
+
+## Task 14 — Visão geral
+
+- **Ano/mês pela data LOCAL do Date, não pela fatia UTC do `fmtD`.** O app antigo agrupa a
+  evolução mensal e o filtro "ano corrente" dos KPIs com `getFullYear()/getMonth()`. Numa célula
+  numérica sem formato de data, o `toDate` antigo faz o serial virar meia-noite UTC, que em São
+  Paulo é o dia anterior às 21h: uma apólice com início em 01/02 cai em janeiro no gráfico (e uma
+  de 01/01 cai no ano anterior), enquanto o `fmtD` e os filtros de data a veem em 01/02. É bug do
+  antigo; foi **reproduzido**: `Linha.vigLocal`/`emLocal` (preenchidos só quando diferem da ISO,
+  pelo `parseProducao`, que agora lê o formato da célula) alimentam `evolucaoMensal`/`cartoesKpi`.
+  Planilhas reais com colunas de data formatadas como data não disparam o efeito; a fixture
+  alterna células Date e numéricas de propósito. As demais abas que usam `getFullYear/getMonth`
+  (Comparativo, Metas…) devem usar o mesmo `vigLocal`. `prodYearRange` (Task 3) usa a ISO, não
+  a data local: só difere em 01/01 de célula numérica; não alterado aqui.
+- **Filtro de motivos de cancelamento volta a "todos" só quando o FD muda de identidade.** No
+  antigo também volta em "Limpar filtros" sem nenhum filtro ativo (FD igual); no novo, nesse caso
+  a seleção permanece.

@@ -23,11 +23,17 @@ test("parseProducao (Node) == parseProducaoArrayBuffer antigo + fmtD", async ({ 
     const b = readFileSync(join(dir, nome));
     const novo = parseProducao(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer);
     const antigo = await page.evaluate((b64) => {
+    // Data local (São Paulo) do Date antigo (getFullYear/getMonth/getDate), só quando difere da fmtD: Linha.vigLocal/emLocal.
+    const loc = (d: any) => (d instanceof Date ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "");
+    const locais = (r: any) => ({
+      ...(loc(r.vig) && loc(r.vig) !== fmtD(r.vig) ? { vigLocal: loc(r.vig) } : {}),
+      ...(loc(r.em) && loc(r.em) !== fmtD(r.em) ? { emLocal: loc(r.em) } : {}),
+    });
       const bin = atob(b64); const u = new Uint8Array(bin.length);
       for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
       const w = window as any;
       return w.parseProducaoArrayBuffer(u.buffer).map((r: any) => ({
-        ...r, vig: fmtD(r.vig), em: fmtD(r.em), fim: fmtD(r.fim), cancel: fmtD(r.cancel), trocaSeg: false,
+        ...r, vig: fmtD(r.vig), em: fmtD(r.em), fim: fmtD(r.fim), cancel: fmtD(r.cancel), trocaSeg: false, ...locais(r),
       }));
     }, b.toString("base64"));
     expect(novo.length).toBe(antigo.length);
@@ -53,11 +59,17 @@ test("parse com células de data com hora == antigo (inclui horário de verão a
   const b = Buffer.from(XLSX.write(wb, { type: "buffer", bookType: "xlsx" }));
   const novo = parseProducao(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer);
   const antigo = await page.evaluate((b64) => {
+    // Data local (São Paulo) do Date antigo (getFullYear/getMonth/getDate), só quando difere da fmtD: Linha.vigLocal/emLocal.
+    const loc = (d: any) => (d instanceof Date ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "");
+    const locais = (r: any) => ({
+      ...(loc(r.vig) && loc(r.vig) !== fmtD(r.vig) ? { vigLocal: loc(r.vig) } : {}),
+      ...(loc(r.em) && loc(r.em) !== fmtD(r.em) ? { emLocal: loc(r.em) } : {}),
+    });
     const bin = atob(b64); const u = new Uint8Array(bin.length);
     for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
     const w = window as any;
     return w.parseProducaoArrayBuffer(u.buffer).map((r: any) => ({
-      ...r, vig: fmtD(r.vig), em: fmtD(r.em), fim: fmtD(r.fim), cancel: fmtD(r.cancel), trocaSeg: false,
+      ...r, vig: fmtD(r.vig), em: fmtD(r.em), fim: fmtD(r.fim), cancel: fmtD(r.cancel), trocaSeg: false, ...locais(r),
     }));
   }, b.toString("base64"));
   expect(novo.length).toBe(seriais.length);

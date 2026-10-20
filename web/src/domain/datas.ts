@@ -54,6 +54,23 @@ export function celulaParaISO(v: unknown): DataISO {
   return isNaN(p.getTime()) ? '' : p.toISOString().slice(0, 10);
 }
 
+// Data civil LOCAL (America/Sao_Paulo) do Date que o app antigo guarda em r.vig/r.em — é a que
+// getFullYear()/getMonth()/getDate() enxergam, e pode diferir da fmtD (fatia UTC):
+//  - célula com formato de data (SheetJS cellDates:true => Date): os campos locais são o relógio
+//    da célula, então a data local é o dia da própria célula (célula >= 21h: fmtD já é o dia seguinte).
+//  - célula numérica sem formato de data (toDate de number): instante = serial em UTC, que no fuso de
+//    São Paulo é o dia anterior às 21h (a 1ª do mês cai no mês anterior para getMonth).
+export function dataLocalDeCelula(v: number, comFormatoDeData: boolean): DataISO {
+  if (!isFinite(v)) return '';
+  if (comFormatoDeData) {
+    const d = new Date(Math.round((v - 25569) * 86400) * 1000);
+    return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+  }
+  const inst = Math.round((v - 25569) * 86400 * 1000);
+  const d = new Date(inst + offsetSP(inst));
+  return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+}
+
 // Aritmética de calendário em UTC: nunca sofre deslocamento de horário de verão.
 export function addDiasISO(d: DataISO, n: number): DataISO {
   if (!d) return '';

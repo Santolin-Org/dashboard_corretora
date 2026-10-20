@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { celulaParaISO, addDiasISO, anoISO, mesISO } from '../../src/domain/datas';
+import { celulaParaISO, dataLocalDeCelula, addDiasISO, anoISO, mesISO } from '../../src/domain/datas';
 
 describe('celulaParaISO (idêntico em qualquer TZ do processo)', () => {
   it('serial Excel', () => { expect(celulaParaISO(45658)).toBe('2025-01-01'); });
@@ -45,4 +45,17 @@ describe('célula com hora (relógio de parede de São Paulo)', () => {
     expect(celulaParaISO('2025-01-01 22:00:00')).toBe('2025-01-02');
     expect(celulaParaISO('2025-01-01T20:59')).toBe('2025-01-01');
   });
+});
+
+describe('dataLocalDeCelula (getFullYear/getMonth do Date antigo, idêntico em qualquer TZ do processo)', () => {
+  it('número sem formato de data: serial em UTC cai no dia anterior às 21h em São Paulo', () => {
+    expect(dataLocalDeCelula(46054, false)).toBe('2026-01-31'); // 1º/fev vira janeiro
+    expect(dataLocalDeCelula(45658, false)).toBe('2024-12-31'); // 1º/jan vira o ano anterior
+    expect(dataLocalDeCelula(46054.5, false)).toBe('2026-02-01'); // meio-dia UTC = 9h local
+  });
+  it('célula com formato de data: o dia do relógio da célula', () => {
+    expect(dataLocalDeCelula(46054, true)).toBe('2026-02-01');
+    expect(dataLocalDeCelula(46054.9, true)).toBe('2026-02-01'); // 21h+: fmtD seria o dia seguinte
+  });
+  it('inválido', () => { expect(dataLocalDeCelula(NaN, true)).toBe(''); });
 });

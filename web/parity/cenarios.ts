@@ -51,6 +51,22 @@ export const CENARIOS: Cenario[] = [
       { tipo: "preencher", id: "ret-per-e", valor: "2026-09-30" },
     ],
   },
+  {
+    nome: "visao-geral-motivo", aba: "visao-geral",
+    passos: [
+      { tipo: "clicar", seletor: "#cancel-filter .cancel-filter-header" }, // abre a lista de motivos
+      { tipo: "clicar", seletor: "#cancel-filter .cancel-filter-footer button:nth-child(2)" }, // Desmarcar todos
+      { tipo: "clicar", seletor: "#cb-Pre_o" }, // marca só "Preço"
+    ],
+  },
+  {
+    nome: "visao-geral-comissao", aba: "visao-geral",
+    passos: [
+      { tipo: "clicar", seletor: 'label[for="mt-evol-c"]' },
+      { tipo: "clicar", seletor: 'label[for="mt-seg-c"]' },
+      { tipo: "clicar", seletor: 'label[for="mt-ramo-c"]' },
+    ],
+  },
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
   {

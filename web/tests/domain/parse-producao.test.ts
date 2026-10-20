@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gerarFixture } from '../../parity/fixtures/make-fixture';
 import { parseProducao, COL } from '../../src/domain/producao/parse';
+import { addDiasISO } from '../../src/domain/datas';
 import type { Linha } from '../../src/domain/tipos';
 
 let linhas: Linha[];
@@ -21,6 +22,14 @@ describe('parseProducao (fixture)', () => {
     for (const l of linhas) {
       expect(l.vig).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(l.trocaSeg).toBe(false);
+    }
+  });
+  it('vigLocal/emLocal só aparecem quando a data local do Date antigo difere da ISO (célula numérica sem formato de data)', () => {
+    const com = linhas.filter(l => l.vigLocal);
+    expect(com.length).toBeGreaterThan(0); // a fixture alterna células Date e numéricas
+    for (const l of com) {
+      expect(l.vigLocal).not.toBe(l.vig);
+      expect(addDiasISO(l.vigLocal!, 1)).toBe(l.vig); // dia anterior às 21h
     }
   });
   it('CNPJ de 15 dígitos vira PJ', () => {
