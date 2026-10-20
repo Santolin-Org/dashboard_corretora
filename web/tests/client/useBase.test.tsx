@@ -64,4 +64,34 @@ describe("useBase", () => {
     await waitFor(() => expect(result.current.estado).toBe("erro"));
     expect(result.current.base).toBeDefined();
   });
+
+  it("respostas fora de ordem: a mais nova vence mesmo que a antiga chegue por último", async () => {
+    let soltaVelha!: (r: Response) => void;
+    fetchMock.mockImplementationOnce(() => new Promise<Response>((res) => { soltaVelha = res; }));
+    const { result } = renderHook(() => useBase());
+    fetchMock.mockResolvedValueOnce(resp(200, corpo("v2"), '"v2:a"'));
+    await act(async () => { result.current.recarregar(); });
+    await waitFor(() => expect(result.current.base?.versao).toBe("v2"));
+    await act(async () => { soltaVelha(resp(200, corpo("v1"), '"v1:a"')); });
+    expect(result.current.base?.versao).toBe("v2");
+  });
+
+  it("recarregar tem identidade estável", async () => {
+    fetchMock.mockResolvedValue(resp(200, corpo("v1"), '"v1:a"'));
+    const { result, rerender } = renderHook(() => useBase());
+    const r = result.current.recarregar;
+    await waitFor(() => expect(result.current.estado).toBe("pronto"));
+    rerender();
+    expect(result.current.recarregar).toBe(r);
+  });
+
+  it("StrictMode: monta/desmonta/monta e ainda aplica a resposta", async () => {
+    const { StrictMode } = await import("react");
+    fetchMock.mockResolvedValue(resp(200, corpo("v1"), '"v1:a"'));
+    const { result } = renderHook(() => useBase(), { wrapper: StrictMode });
+    await waitFor(() => expect(result.current.estado).toBe("pronto"));
+    fetchMock.mockResolvedValueOnce(resp(200, corpo("v2"), '"v2:a"'));
+    await act(async () => { result.current.recarregar(); });
+    await waitFor(() => expect(result.current.base?.versao).toBe("v2"));
+  });
 });

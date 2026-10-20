@@ -18,6 +18,7 @@ export function useBase(): { estado: EstadoBase; base?: BaseCliente; erro?: stri
   const [erro, setErro] = useState<string | undefined>();
   const etag = useRef<string | null>(null);
   const seq = useRef(0);
+  const vivo = useRef(true);
 
   const carregar = useCallback(async () => {
     const meu = ++seq.current;
@@ -25,18 +26,18 @@ export function useBase(): { estado: EstadoBase; base?: BaseCliente; erro?: stri
       const headers: Record<string, string> = {};
       if (etag.current) headers["If-None-Match"] = etag.current;
       const r = await fetch("/api/dados", { headers, credentials: "same-origin" });
-      if (meu !== seq.current) return; // resposta de uma chamada antiga
+      if (!vivo.current || meu !== seq.current) return; // resposta de uma chamada antiga
       if (r.status === 401) { setEstado("sessao-expirada"); return; }
       if (r.status === 304) { setErro(undefined); setEstado("pronto"); return; }
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const c = (await r.json()) as Corpo;
-      if (meu !== seq.current) return;
+      if (!vivo.current || meu !== seq.current) return;
       setBase({ ...c, linhas: decodificarLinhas(c.linhas), sinistros: decodificarSinistros(c.sinistros) });
       etag.current = r.headers.get("etag");
       setErro(undefined);
       setEstado("pronto");
     } catch (e) {
-      if (meu !== seq.current) return;
+      if (!vivo.current || meu !== seq.current) return;
       setErro(e instanceof Error ? e.message : String(e));
       setEstado("erro");
     }
@@ -46,9 +47,10 @@ export function useBase(): { estado: EstadoBase; base?: BaseCliente; erro?: stri
     // Busca inicial: os setState acontecem só depois do await (assíncronos), não no corpo do efeito.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void carregar();
-    const contador = seq;
-    return () => { contador.current = Number.MAX_SAFE_INTEGER; }; // invalida respostas pendentes após desmontar
+    vivo.current = true; // StrictMode: monta, desmonta e monta de novo
+    return () => { vivo.current = false; };
   }, [carregar]);
 
-  return { estado, base, erro, recarregar: () => void carregar() };
+  const recarregar = useCallback(() => void carregar(), [carregar]);
+  return { estado, base, erro, recarregar };
 }

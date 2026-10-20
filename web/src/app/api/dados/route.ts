@@ -18,9 +18,9 @@ export async function GET(req: Request) {
   const escopo = escopoDoUsuario(u);
   const b = await obterBase();
 
-  // ETag forte: versão da base + usuário + escopo (o recorte muda o corpo).
-  const etag = `"${createHash("sha256").update(`${b.versao}:${u.email}:${escopo.tipo}`).digest("hex").slice(0, 32)}"`;
-  const candidatos = (req.headers.get("if-none-match") ?? "").split(",").map((s) => s.trim());
+  // ETag forte: versão + dia ("hoje" muda sem mudar a versão) + usuário + escopo (o recorte muda o corpo).
+  const etag = `"${createHash("sha256").update(JSON.stringify([b.versao, b.hoje, u.email, escopo.tipo])).digest("hex").slice(0, 32)}"`;
+  const candidatos = (req.headers.get("if-none-match") ?? "").split(",").map((s) => s.trim().replace(/^W\//, ""));
   if (candidatos.includes(etag) || candidatos.includes("*")) {
     return new NextResponse(null, { status: 304, headers: { ETag: etag, "Cache-Control": CACHE } });
   }
