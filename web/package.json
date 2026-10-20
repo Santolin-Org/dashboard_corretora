@@ -9,6 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "parity": "tsx parity/run.ts",
+    "test:parity": "playwright test",
     "typecheck": "next typegen && tsc --noEmit",
     "regressao": "npm run lint && npm run typecheck && npm test",
     "regressao:real": "echo \"disponível a partir da Task 12\""

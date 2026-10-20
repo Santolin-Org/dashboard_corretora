@@ -1,0 +1,86 @@
+{
+  "graficos": {
+    "ch-prod-line": {
+      "datasets": [
+        {
+          "data": [
+            31238.239999999998,
+            17185.66,
+            32022.410000000003,
+            53489.02,
+            42490.840000000004,
+            45311.06999999999,
+            51434.86000000001,
+            24192.37,
+            35082.74,
+            0,
+            0,
+            0
+          ],
+          "label": "2026"
+        },
+        {
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            -2760.6
+          ],
+          "label": "2025"
+        }
+      ],
+      "labels": [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez"
+      ]
+    }
+  },
+  "textos": {
+    "cb-chart": "−",
+    "cb-kpis": "−",
+    "cb-table": "−",
+    "ch-prod-line": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "mt-prod-c": "",
+    "mt-prod-p": "",
+    "mt-tbl-c": "",
+    "mt-tbl-p": "",
+    "period-end": "",
+    "period-legend": "2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "period-start": "",
+    "period-tags": "",
+    "prod-kpi-badge": "Colaborador",
+    "prod-kpi-grid": "Prêmio totalR$ 329.686,6195 apólicesComissão totalR$ 45.310,1813.74% do prêmioTicket médioR$ 3.987,9786 c/ prêmioColaboradors ativos5na seleção atualDestaqueCARLA NOGUEIRA70 pontosCom. média %13.74%comissão / prêmio",
+    "prod-table-badge": "5 colaboradors",
+    "prod-table-wrap": "#ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1DIOGO FARIASR$ 82.126,95 🏆R$ 11.421,0913.91%R$ 3.910,812125.21%2FERNANDO DE PAULA SERAFIMR$ 74.745,13R$ 8.573,2911.47%R$ 3.933,95 🏆1918.92%3CARLA NOGUEIRAR$ 68.754,60R$ 11.514,03 🏆16.75% 🏆R$ 3.125,2122 🏆25.41%4ANA CLARA MENDESR$ 66.838,26R$ 9.582,4714.34%R$ 3.517,801921.15%5BRUNO TAVARESR$ 37.221,67R$ 4.219,3011.34%R$ 2.658,69149.31%Total geralR$ 329.686,61R$ 45.310,1813.74%R$ 3.470,3995100%",
+    "prod-view-label": "95 registros · Colaborador",
+    "rec-badge": "95 registros",
+    "sb-chart": "Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "sb-kpis": "Prêmio totalR$ 329.686,6195 apólicesComissão totalR$ 45.310,1813.74% do prêmioTicket médioR$ 3.987,9786 c/ prêmioColaboradors ativos5na seleção atualDestaqueCARLA NOGUEIRA70 pontosCom. média %13.74%comissão / prêmio",
+    "sb-table": "#ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1DIOGO FARIASR$ 82.126,95 🏆R$ 11.421,0913.91%R$ 3.910,812125.21%2FERNANDO DE PAULA SERAFIMR$ 74.745,13R$ 8.573,2911.47%R$ 3.933,95 🏆1918.92%3CARLA NOGUEIRAR$ 68.754,60R$ 11.514,03 🏆16.75% 🏆R$ 3.125,2122 🏆25.41%4ANA CLARA MENDESR$ 66.838,26R$ 9.582,4714.34%R$ 3.517,801921.15%5BRUNO TAVARESR$ 37.221,67R$ 4.219,3011.34%R$ 2.658,69149.31%Total geralR$ 329.686,61R$ 45.310,1813.74%R$ 3.470,3995100%",
+    "sc-chart": "Evolução da produção comparar períodos Prêmio Comissão − Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "sc-kpis": "Indicadores principais Colaborador − Prêmio totalR$ 329.686,6195 apólicesComissão totalR$ 45.310,1813.74% do prêmioTicket médioR$ 3.987,9786 c/ prêmioColaboradors ativos5na seleção atualDestaqueCARLA NOGUEIRA70 pontosCom. média %13.74%comissão / prêmio",
+    "sc-table": "Tabela de produção 5 colaboradors Exportar Prêmio Comissão − #ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1DIOGO FARIASR$ 82.126,95 🏆R$ 11.421,0913.91%R$ 3.910,812125.21%2FERNANDO DE PAULA SERAFIMR$ 74.745,13R$ 8.573,2911.47%R$ 3.933,95 🏆1918.92%3CARLA NOGUEIRAR$ 68.754,60R$ 11.514,03 🏆16.75% 🏆R$ 3.125,2122 🏆25.41%4ANA CLARA MENDESR$ 66.838,26R$ 9.582,4714.34%R$ 3.517,801921.15%5BRUNO TAVARESR$ 37.221,67R$ 4.219,3011.34%R$ 2.658,69149.31%Total geralR$ 329.686,61R$ 45.310,1813.74%R$ 3.470,3995100%",
+    "tab-producao": "Por colaborador Por grupo de produção 95 registros · Colaborador Indicadores principais Colaborador − Prêmio totalR$ 329.686,6195 apólicesComissão totalR$ 45.310,1813.74% do prêmioTicket médioR$ 3.987,9786 c/ prêmioColaboradors ativos5na seleção atualDestaqueCARLA NOGUEIRA70 pontosCom. média %13.74%comissão / prêmio Evolução da produção comparar períodos Prêmio Comissão − Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas Tabela de produção 5 colaboradors Exportar Prêmio Comissão − #ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1DIOGO FARIASR$ 82.126,95 🏆R$ 11.421,0913.91%R$ 3.910,812125.21%2FERNANDO DE PAULA SERAFIMR$ 74.745,13R$ 8.573,2911.47%R$ 3.933,95 🏆1918.92%3CARLA NOGUEIRAR$ 68.754,60R$ 11.514,03 🏆16.75% 🏆R$ 3.125,2122 🏆25.41%4ANA CLARA MENDESR$ 66.838,26R$ 9.582,4714.34%R$ 3.517,801921.15%5BRUNO TAVARESR$ 37.221,67R$ 4.219,3011.34%R$ 2.658,69149.31%Total geralR$ 329.686,61R$ 45.310,1813.74%R$ 3.470,3995100%",
+    "vt-colab": "",
+    "vt-grp": ""
+  }
+}

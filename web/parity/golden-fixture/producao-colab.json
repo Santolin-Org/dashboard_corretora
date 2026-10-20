@@ -1,0 +1,86 @@
+{
+  "graficos": {
+    "ch-prod-line": {
+      "datasets": [
+        {
+          "data": [
+            24193.129999999997,
+            977.54,
+            15337.880000000001,
+            5730.469999999999,
+            13365.62,
+            0,
+            9994.220000000001,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "label": "2026"
+        },
+        {
+          "data": [
+            5781.9,
+            4272.85,
+            11440.16,
+            12589.89,
+            360.49,
+            12530.869999999999,
+            0,
+            9780.22,
+            2893.33,
+            9469.73,
+            6795.42,
+            -2563.91
+          ],
+          "label": "2025"
+        }
+      ],
+      "labels": [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez"
+      ]
+    }
+  },
+  "textos": {
+    "cb-chart": "−",
+    "cb-kpis": "−",
+    "cb-table": "−",
+    "ch-prod-line": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "mt-prod-c": "",
+    "mt-prod-p": "",
+    "mt-tbl-c": "",
+    "mt-tbl-p": "",
+    "period-end": "",
+    "period-legend": "2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "period-start": "",
+    "period-tags": "",
+    "prod-kpi-badge": "Colaborador",
+    "prod-kpi-grid": "Prêmio totalR$ 263.636,4088 apólicesComissão totalR$ 37.154,2614.09% do prêmioTicket médioR$ 3.513,6378 c/ prêmioColaboradors ativos1na seleção atualDestaqueANA CLARA100 pontosCom. média %14.09%comissão / prêmio",
+    "prod-table-badge": "1 colaboradors",
+    "prod-table-wrap": "#ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1ANA CLARA MENDESR$ 263.636,40 🏆R$ 37.154,26 🏆14.09% 🏆R$ 2.995,87 🏆88 🏆100.00%Total geralR$ 263.636,40R$ 37.154,2614.09%R$ 2.995,8788100%",
+    "prod-view-label": "88 registros · Colaborador",
+    "rec-badge": "88 registros",
+    "sb-chart": "Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "sb-kpis": "Prêmio totalR$ 263.636,4088 apólicesComissão totalR$ 37.154,2614.09% do prêmioTicket médioR$ 3.513,6378 c/ prêmioColaboradors ativos1na seleção atualDestaqueANA CLARA100 pontosCom. média %14.09%comissão / prêmio",
+    "sb-table": "#ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1ANA CLARA MENDESR$ 263.636,40 🏆R$ 37.154,26 🏆14.09% 🏆R$ 2.995,87 🏆88 🏆100.00%Total geralR$ 263.636,40R$ 37.154,2614.09%R$ 2.995,8788100%",
+    "sc-chart": "Evolução da produção comparar períodos Prêmio Comissão − Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "sc-kpis": "Indicadores principais Colaborador − Prêmio totalR$ 263.636,4088 apólicesComissão totalR$ 37.154,2614.09% do prêmioTicket médioR$ 3.513,6378 c/ prêmioColaboradors ativos1na seleção atualDestaqueANA CLARA100 pontosCom. média %14.09%comissão / prêmio",
+    "sc-table": "Tabela de produção 1 colaboradors Exportar Prêmio Comissão − #ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1ANA CLARA MENDESR$ 263.636,40 🏆R$ 37.154,26 🏆14.09% 🏆R$ 2.995,87 🏆88 🏆100.00%Total geralR$ 263.636,40R$ 37.154,2614.09%R$ 2.995,8788100%",
+    "tab-producao": "Por colaborador Por grupo de produção 88 registros · Colaborador Indicadores principais Colaborador − Prêmio totalR$ 263.636,4088 apólicesComissão totalR$ 37.154,2614.09% do prêmioTicket médioR$ 3.513,6378 c/ prêmioColaboradors ativos1na seleção atualDestaqueANA CLARA100 pontosCom. média %14.09%comissão / prêmio Evolução da produção comparar períodos Prêmio Comissão − Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas Tabela de produção 1 colaboradors Exportar Prêmio Comissão − #ColaboradorPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1ANA CLARA MENDESR$ 263.636,40 🏆R$ 37.154,26 🏆14.09% 🏆R$ 2.995,87 🏆88 🏆100.00%Total geralR$ 263.636,40R$ 37.154,2614.09%R$ 2.995,8788100%",
+    "vt-colab": "",
+    "vt-grp": ""
+  }
+}
