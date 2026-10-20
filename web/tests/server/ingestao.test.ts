@@ -12,7 +12,7 @@ vi.mock("@/server/auth", () => ({ usuarioDaRequisicao: vi.fn() }));
 
 import { parseProducao } from "@/domain/producao/parse";
 import { usuarioDaRequisicao } from "@/server/auth";
-import { obterBase, definirDependencias, reiniciarIngestao } from "@/server/ingestao";
+import { obterBase, definirDependencias, reiniciarIngestao, reprocessarTudo } from "@/server/ingestao";
 import { criarArmazemMemoria } from "@/server/snapshots";
 import { PastaLocalFonte } from "@/server/fontes/pasta-local";
 import { ErroFonte, type ArquivoMeta, type FonteArquivos } from "@/server/fontes/tipos";
@@ -35,7 +35,7 @@ beforeEach(() => {
   fonte = new PastaLocalFonte(dir);
   armazem = criarArmazemMemoria();
   reiniciarIngestao();
-  definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-15" });
+  definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
   parse.mockClear();
   usuario.mockReset();
 });
@@ -61,7 +61,7 @@ describe("obterBase", () => {
   it("processo novo (cache em memória vazio) lê dos snapshots sem parsear", async () => {
     const b1 = await obterBase();
     reiniciarIngestao();
-    definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-15" });
+    definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
     parse.mockClear();
     const b2 = await obterBase();
     expect(parse).not.toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe("obterBase", () => {
 
   it("muda o dia: mesma versão de arquivos, base remontada com o novo hoje", async () => {
     const b1 = await obterBase();
-    definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-16" });
+    definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-16", ttlNegativoMs: 0 });
     const b2 = await obterBase();
     expect(b2.hoje).toBe("2026-10-16");
     expect(b2.versao).toBe(b1.versao);
@@ -129,7 +129,7 @@ describe("obterBase", () => {
       },
       baixar: (a) => fonte.baixar(a),
     };
-    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15" });
+    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
     const b = await obterBase();
     expect(b.erroProducao?.mensagem).toBe("Token recusado");
     expect(b.sinistros).toEqual([]);
@@ -146,6 +146,7 @@ describe("obterBase", () => {
       },
       armazem,
       hoje: () => "2026-10-15",
+      ttlNegativoMs: 0,
     });
     const b = await obterBase();
     expect(b.erroProducao?.mensagem).toBe("Credenciais do Azure ausentes");
@@ -160,7 +161,7 @@ describe("obterBase", () => {
         return fonte.baixar(a);
       },
     };
-    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15" });
+    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
     const b = await obterBase();
     expect(b.avisos).toContain("sinistrosPagamentos.xlsx: HTTP 500");
     expect(b.erroProducao).toBeUndefined();
@@ -172,14 +173,87 @@ describe("obterBase", () => {
     expect(b2.versao).not.toBe(b.versao);
   });
 
-  it("montagem falha não fica em cache: a próxima chamada tenta de novo", async () => {
-    parse.mockImplementationOnce(() => {
+  it("arquivo ilegível é falha determinística: não reparseia enquanto a tag for a mesma", async () => {
+    parse.mockImplementation(() => {
       throw new Error("planilha corrompida");
     });
     const b = await obterBase();
     expect(b.erroProducao?.mensagem).toContain("planilha corrompida");
+    const chamadas = parse.mock.calls.length;
+    const listar = vi.spyOn(fonte, "listar");
     const b2 = await obterBase();
-    expect(b2.erroProducao).toBeUndefined();
+    expect(parse.mock.calls.length).toBe(chamadas);
+    expect(b2).toBe(b);
+    // salvar o arquivo de novo (tag nova) invalida
+    parse.mockReset();
+    const real = await vi.importActual<typeof import("@/domain/producao/parse")>("@/domain/producao/parse");
+    parse.mockImplementation(real.parseProducao);
+    const t = new Date(Date.now() + 60_000);
+    for (const f of readdirSync(dir)) utimesSync(join(dir, f), t, t);
+    expect((await obterBase()).erroProducao).toBeUndefined();
+    expect(listar).toHaveBeenCalled();
+  });
+
+  it("falha de rede usa TTL curto e depois tenta de novo", async () => {
+    let falha = true;
+    let listagens = 0;
+    const f2: FonteArquivos = {
+      listar: async () => {
+        listagens++;
+        if (falha) throw new ErroFonte("rede", "sem rede");
+        return fonte.listar();
+      },
+      baixar: (a) => fonte.baixar(a),
+    };
+    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 50 });
+    const b = await obterBase();
+    expect(await obterBase()).toBe(b);
+    expect(listagens).toBe(1);
+    falha = false;
+    await new Promise((r) => setTimeout(r, 70));
+    expect((await obterBase()).erroProducao).toBeUndefined();
+  });
+
+  it("listagem falha com base boa em memória: segue servindo-a, com aviso", async () => {
+    let falha = false;
+    const f2: FonteArquivos = {
+      listar: async () => {
+        if (falha) throw new ErroFonte("rede", "sem rede");
+        return fonte.listar();
+      },
+      baixar: (a) => fonte.baixar(a),
+    };
+    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
+    const ok = await obterBase();
+    falha = true;
+    const b = await obterBase();
+    expect(b.linhas.length).toBe(ok.linhas.length);
+    expect(b.erroProducao).toBeUndefined();
+    expect(b.avisos).toContain("sem rede");
+  });
+
+  it("404 no download é ignorado sem aviso", async () => {
+    const f2: FonteArquivos = {
+      listar: () => fonte.listar(),
+      baixar: async (a) => {
+        if (a.nome === "producao_2025.xlsx" || a.nome === "sinistrosPagamentos.xlsx") throw new ErroFonte("pasta", "nf", 404);
+        return fonte.baixar(a);
+      },
+    };
+    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
+    const b = await obterBase();
+    expect(b.avisos).toEqual([]);
+    expect(b.manifesto.filter((m) => m.nome.startsWith("producao"))).toHaveLength(2);
+  });
+
+  it("poda snapshots de tags antigas depois de uma montagem completa", async () => {
+    await obterBase();
+    const t = new Date(Date.now() + 60_000);
+    utimesSync(join(dir, "producao_2025.xlsx"), t, t);
+    await obterBase();
+    const prodKeys = armazem.chaves().filter((k) => k.startsWith("prod/"));
+    expect(prodKeys).toHaveLength(3);
+    expect(prodKeys.filter((k) => k.startsWith("prod/producao_2025.xlsx@"))).toHaveLength(1);
   });
 
   it("forcar ignora cache em memória", async () => {
@@ -190,6 +264,31 @@ describe("obterBase", () => {
     await armazem.apagarTudo();
     await obterBase({ forcar: true });
     expect(parse).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("reprocessarTudo", () => {
+  it("só apaga os snapshots depois que a montagem em andamento termina", async () => {
+    const f0 = fonte;
+    let solta!: () => void;
+    const trava = new Promise<void>((r) => (solta = r));
+    const f2: FonteArquivos = {
+      listar: () => f0.listar(),
+      baixar: async (a) => {
+        await trava;
+        return f0.baixar(a);
+      },
+    };
+    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
+    const antes = obterBase();
+    const repro = reprocessarTudo();
+    await new Promise((r) => setTimeout(r, 20));
+    solta();
+    await antes;
+    const b = await repro;
+    expect(b.erroProducao).toBeUndefined();
+    expect(armazem.chaves().filter((k) => k.startsWith("prod/"))).toHaveLength(3);
+    expect(parse).toHaveBeenCalledTimes(6); // 3 da primeira + 3 da forçada, que usou snapshots já apagados
   });
 });
 
@@ -225,6 +324,13 @@ describe("POST /api/fontes/reprocessar", () => {
     expect((await POST()).status).toBe(403);
     usuario.mockResolvedValue(sessao("vendedor"));
     expect((await POST()).status).toBe(403);
+  });
+  it("500 em JSON quando o reprocessamento lança", async () => {
+    usuario.mockResolvedValue(sessao("admin"));
+    definirDependencias({ fonte: () => fonte, armazem: { ...armazem, apagarTudo: async () => { throw new Error("blob fora"); } }, hoje: () => "2026-10-15" });
+    const r = await POST();
+    expect(r.status).toBe(500);
+    expect((await r.json()).erro).toBeTruthy();
   });
   it("admin apaga snapshots e remonta tudo", async () => {
     usuario.mockResolvedValue(sessao("admin"));

@@ -22,16 +22,26 @@ export type Base = {
   erroProducao?: { mensagem: string; arquivosNaPasta: string[] };
 };
 
-export type Dependencias = { fonte: () => FonteArquivos; armazem: ArmazemSnapshots; hoje: () => DataISO };
+export type Dependencias = {
+  fonte: () => FonteArquivos;
+  armazem: ArmazemSnapshots;
+  hoje: () => DataISO;
+  /** Quanto tempo uma falha de rede/HTTP é servida sem tentar de novo (padrão 30 s). */
+  ttlNegativoMs?: number;
+};
 
 const SIN_AVISADOS = "sinistrosAvisados.xlsx";
 const SIN_PAGAMENTOS = "sinistrosPagamentos.xlsx";
 
 // ── Estado do processo ────────────────────────────────────────────────────────
 let deps: Dependencias | null = null; // injeção para testes
-let atual: Base | null = null; // última base completa (sem falha transitória)
+// Base em memória, chaveada por (arquivos, dia). Guarda também falhas determinísticas
+// (arquivo ilegível), que só mudam quando o arquivo é salvo de novo (tag nova).
+let atual: { chave: string; hoje: DataISO; base: Base } | null = null;
+// Falha de rede/HTTP: servida por um TTL curto para não martelar Graph/armazém a cada requisição.
+let negativo: { ate: number; base: Base } | null = null;
 let emAndamento: Promise<Base> | null = null;
-let forcadaEmAndamento: Promise<Base> | null = null;
+let forcadaEmAndamento: { p: Promise<Base>; limpa: boolean } | null = null;
 // Sinistros e saúde são pequenos: ficam em memória por nome@tag (não vão ao armazém).
 const buffers = new Map<string, ArrayBuffer>();
 
@@ -42,6 +52,7 @@ export function definirDependencias(d: Dependencias | null): void {
 /** Zera o estado do processo (testes). */
 export function reiniciarIngestao(): void {
   atual = null;
+  negativo = null;
   emAndamento = null;
   forcadaEmAndamento = null;
   buffers.clear();
@@ -78,7 +89,7 @@ function baseVazia(hoje: DataISO, parcial: Partial<Base>): Base {
 
 const chaveProd = (a: ArquivoMeta) => `prod/${a.nome}@${a.tag}`;
 
-async function baixarFixo(fonte: FonteArquivos, a: ArquivoMeta | undefined, avisos: string[]): Promise<ArrayBuffer | null> {
+async function baixarFixo(fonte: FonteArquivos, a: ArquivoMeta | undefined, avisos: string[], redeFalhou: { v: boolean }): Promise<ArrayBuffer | null> {
   if (!a) return null; // ausente não é erro (o app antigo ignorava o 404)
   const k = `${a.nome}@${a.tag}`;
   const em = buffers.get(k);
@@ -88,7 +99,9 @@ async function baixarFixo(fonte: FonteArquivos, a: ArquivoMeta | undefined, avis
     buffers.set(k, b);
     return b;
   } catch (e) {
+    if (e instanceof ErroFonte && e.status === 404) return null; // sumiu entre a listagem e o download: como no app antigo, ignora
     avisos.push(`${a.nome}: ${msgErro(e)}`);
+    redeFalhou.v = true;
     return null;
   }
 }
@@ -114,26 +127,34 @@ async function carregarProducao(
   return linhas;
 }
 
-/** Retorna a base e se ela pode ser guardada em memória (sem falha transitória). */
-async function montar(forcar: boolean): Promise<{ base: Base; cacheavel: boolean }> {
+type Resultado = {
+  base: Base;
+  /** ok/det: vai para a base em memória; rede: só TTL curto (ou volta à última base boa). */
+  modo: "ok" | "det" | "rede";
+  chave?: string;
+  podarProd?: Set<string>;
+};
+
+async function montar(forcar: boolean): Promise<Resultado> {
   let d: Dependencias;
   let hoje: DataISO;
   let metas: ArquivoMeta[];
   let fonte: FonteArquivos;
+  const falhaInicial = (e: unknown, h: DataISO): Resultado => ({
+    base: baseVazia(h, { erroProducao: { mensagem: msgErro(e), arquivosNaPasta: [] } }),
+    modo: "rede",
+  });
   try {
     d = dependencias();
     hoje = d.hoje();
-    fonte = d.fonte();
   } catch (e) {
-    return {
-      base: baseVazia(hojeServidor(), { erroProducao: { mensagem: msgErro(e), arquivosNaPasta: [] } }),
-      cacheavel: false,
-    };
+    return falhaInicial(e, hojeServidor());
   }
   try {
+    fonte = d.fonte();
     metas = await fonte.listar(); // uma listagem por montagem: as tags usadas são as dela
   } catch (e) {
-    return { base: baseVazia(hoje, { erroProducao: { mensagem: msgErro(e), arquivosNaPasta: [] } }), cacheavel: false };
+    return falhaInicial(e, hoje);
   }
 
   const prod = metas.filter((m) => isProducaoFileName(m.nome));
@@ -144,14 +165,15 @@ async function montar(forcar: boolean): Promise<{ base: Base; cacheavel: boolean
   const usados = [...prod, sinAv, sinPg, saudeMeta].filter((m): m is ArquivoMeta => !!m);
   const versaoArquivos = hash(usados.map((m) => [m.nome, m.tag]));
 
-  if (!forcar && atual && atual.versao === versaoArquivos && atual.hoje === hoje) {
-    return { base: atual, cacheavel: true };
+  if (!forcar && atual && atual.chave === versaoArquivos && atual.hoje === hoje) {
+    return { base: atual.base, modo: "ok" };
   }
   if (forcar) buffers.clear();
   const vivos = new Set(usados.map((m) => `${m.nome}@${m.tag}`));
   for (const k of [...buffers.keys()]) if (!vivos.has(k)) buffers.delete(k);
 
   const avisos: string[] = [];
+  const rede = { v: false }; // houve falha de rede/HTTP (transitória)?
   let erroProducao: Base["erroProducao"];
 
   // Produção: um snapshot por arquivo; só o que mudou é reparseado.
@@ -160,8 +182,13 @@ async function montar(forcar: boolean): Promise<{ base: Base; cacheavel: boolean
     try {
       fontes.push({ nome: a.nome, linhas: await carregarProducao(fonte, d.armazem, a), modificadoEm: a.modificadoEm });
     } catch (e) {
-      if (e instanceof ErroFonte) avisos.push(`${a.nome}: ${msgErro(e)}`);
-      else {
+      if (e instanceof ErroFonte) {
+        if (e.status !== 404) {
+          // 404: como no app antigo, o arquivo é ignorado sem aviso
+          avisos.push(`${a.nome}: ${msgErro(e)}`);
+          rede.v = true;
+        }
+      } else {
         // arquivo ilegível: não montar a base com um ano faltando em silêncio
         erroProducao = { mensagem: `${a.nome}: ${msgErro(e)}`, arquivosNaPasta: metas.map((m) => m.nome) };
         break;
@@ -176,9 +203,9 @@ async function montar(forcar: boolean): Promise<{ base: Base; cacheavel: boolean
 
   // Sinistros e saúde seguem mesmo sem produção.
   const [bufAv, bufPg, bufSaude] = [
-    await baixarFixo(fonte, sinAv, avisos),
-    await baixarFixo(fonte, sinPg, avisos),
-    await baixarFixo(fonte, saudeMeta, avisos),
+    await baixarFixo(fonte, sinAv, avisos, rede),
+    await baixarFixo(fonte, sinPg, avisos, rede),
+    await baixarFixo(fonte, saudeMeta, avisos, rede),
   ];
   let sinistros: Sinistro[] = [];
   let contagens = { sinistrosAvisados: 0, sinistrosPagamentos: 0 };
@@ -207,10 +234,11 @@ async function montar(forcar: boolean): Promise<{ base: Base; cacheavel: boolean
     }
   }
 
-  // Falha transitória (download, arquivo ilegível): a base é devolvida mas não fica em cache.
-  const transitorio = avisos.length > 0 || (!!erroProducao && prod.length > 0);
+  // Falha de rede/HTTP é transitória (TTL curto). Arquivo ilegível é determinístico: depende só de
+  // (nome, tag) e fica em memória até o arquivo ser salvo de novo.
+  const comFalha = avisos.length > 0 || (!!erroProducao && prod.length > 0);
   const base: Base = {
-    versao: transitorio ? hash([versaoArquivos, avisos, erroProducao?.mensagem]) : versaoArquivos,
+    versao: comFalha ? hash([versaoArquivos, avisos, erroProducao?.mensagem]) : versaoArquivos,
     geradoEm: new Date().toISOString(),
     hoje,
     linhas,
@@ -221,34 +249,67 @@ async function montar(forcar: boolean): Promise<{ base: Base; cacheavel: boolean
     avisos,
     ...(erroProducao ? { erroProducao } : {}),
   };
-  return { base, cacheavel: !transitorio };
+  return {
+    base,
+    modo: rede.v ? "rede" : comFalha ? "det" : "ok",
+    chave: versaoArquivos,
+    podarProd: !rede.v && prod.length ? new Set(prod.map(chaveProd)) : undefined,
+  };
 }
 
 async function executar(forcar: boolean): Promise<Base> {
-  const { base, cacheavel } = await montar(forcar);
-  // A base só é trocada depois de montada por inteiro; falhas transitórias não ficam em cache.
-  if (cacheavel) atual = base;
-  return base;
+  const d = dependencias();
+  if (!forcar && negativo && Date.now() < negativo.ate) return negativo.base;
+  const r = await montar(forcar);
+  // A base só é trocada depois de montada por inteiro.
+  if (r.modo === "rede") {
+    const ttl = d.ttlNegativoMs ?? 30_000;
+    let base = r.base;
+    if (!r.chave && atual) {
+      // listagem falhou mas há uma base boa: continua servindo-a, com o aviso
+      base = { ...atual.base, avisos: [...atual.base.avisos, r.base.erroProducao?.mensagem ?? "falha ao listar a pasta"] };
+    }
+    negativo = { ate: Date.now() + ttl, base };
+    return base;
+  }
+  negativo = null;
+  atual = { chave: r.chave!, hoje: r.base.hoje, base: r.base };
+  if (r.podarProd) {
+    // remove snapshots de tags antigas (equivalente ao _cachePrune do app antigo)
+    try {
+      const velhos = (await d.armazem.listar("prod/")).filter((k) => !r.podarProd!.has(k));
+      if (velhos.length) await d.armazem.apagar(velhos);
+    } catch (e) {
+      console.warn("[ingestao] poda de snapshots falhou", e);
+    }
+  }
+  return r.base;
+}
+
+function encadear(limpa: boolean): Promise<Base> {
+  const anterior = emAndamento;
+  const p: Promise<Base> = (anterior ? anterior.catch(() => undefined) : Promise.resolve()).then(async () => {
+    // apagar só depois que a montagem anterior terminou: ela poderia gravar depois da limpeza
+    if (limpa) await dependencias().armazem.apagarTudo();
+    negativo = null;
+    return executar(true);
+  });
+  const encerra = () => {
+    if (forcadaEmAndamento?.p === p) forcadaEmAndamento = null;
+    if (emAndamento === p) emAndamento = null;
+  };
+  forcadaEmAndamento = { p, limpa };
+  emAndamento = p;
+  p.then(encerra, encerra);
+  return p;
 }
 
 /**
  * Base da produção. Chamadas simultâneas compartilham uma única montagem em andamento;
- * `forcar` ignora a base em memória (os snapshots só somem com `apagarTudo()` do armazém).
+ * `forcar` ignora a base em memória (os snapshots só somem com `reprocessarTudo`).
  */
 export function obterBase(opts?: { forcar?: boolean }): Promise<Base> {
-  if (opts?.forcar) {
-    if (forcadaEmAndamento) return forcadaEmAndamento;
-    const anterior = emAndamento;
-    const p: Promise<Base> = (anterior ? anterior.catch(() => undefined) : Promise.resolve()).then(() => executar(true));
-    const encerra = () => {
-      if (forcadaEmAndamento === p) forcadaEmAndamento = null;
-      if (emAndamento === p) emAndamento = null;
-    };
-    forcadaEmAndamento = p;
-    emAndamento = p;
-    p.then(encerra, encerra);
-    return p;
-  }
+  if (opts?.forcar) return forcadaEmAndamento?.p ?? encadear(false);
   if (emAndamento) return emAndamento;
   const p: Promise<Base> = executar(false);
   const encerra = () => {
@@ -259,8 +320,12 @@ export function obterBase(opts?: { forcar?: boolean }): Promise<Base> {
   return p;
 }
 
-/** Reprocessamento forçado: apaga os snapshots e remonta tudo. */
-export async function reprocessarTudo(): Promise<Base> {
-  await dependencias().armazem.apagarTudo();
-  return obterBase({ forcar: true });
+/**
+ * Reprocessamento forçado: apaga os snapshots e remonta tudo.
+ * Atenção: só renova a instância (processo) que atendeu a chamada; as demais renovam
+ * quando uma tag mudar, ou na próxima reinicialização.
+ */
+export function reprocessarTudo(): Promise<Base> {
+  if (forcadaEmAndamento?.limpa) return forcadaEmAndamento.p;
+  return encadear(true);
 }

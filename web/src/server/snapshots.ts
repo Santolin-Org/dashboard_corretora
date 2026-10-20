@@ -8,6 +8,9 @@ export interface ArmazemSnapshots {
   ler(chave: string): Promise<Uint8Array | null>;
   gravar(chave: string, dados: Uint8Array): Promise<void>;
   apagarTudo(): Promise<void>;
+  /** Chaves com o prefixo dado. */
+  listar(prefixo: string): Promise<string[]>;
+  apagar(chaves: string[]): Promise<void>;
 }
 
 /** Linha[] → JSON → gzip. */
@@ -35,6 +38,12 @@ export function criarArmazemMemoria(): ArmazemSnapshots & { chaves(): string[] }
     async apagarTudo() {
       m.clear();
     },
+    async listar(p) {
+      return [...m.keys()].filter((k) => k.startsWith(p));
+    },
+    async apagar(ks) {
+      for (const k of ks) m.delete(k);
+    },
     chaves: () => [...m.keys()],
   };
 }
@@ -58,6 +67,16 @@ export function criarArmazemLocal(dir: string): ArmazemSnapshots {
     },
     async apagarTudo() {
       await fs.rm(dir, { recursive: true, force: true });
+    },
+    async listar(p) {
+      try {
+        return (await fs.readdir(dir)).filter((n) => !n.endsWith(".tmp")).map(decodeURIComponent).filter((k) => k.startsWith(p));
+      } catch {
+        return [];
+      }
+    },
+    async apagar(ks) {
+      await Promise.all(ks.map((k) => fs.rm(arq(k), { force: true })));
     },
   };
 }
@@ -88,6 +107,19 @@ export function criarArmazemBlob(): ArmazemSnapshots {
         if (r.blobs.length) await del(r.blobs.map((b) => b.url));
         cursor = r.hasMore ? r.cursor : undefined;
       } while (cursor);
+    },
+    async listar(p) {
+      const out: string[] = [];
+      let cursor: string | undefined;
+      do {
+        const r = await list({ prefix: caminho(p), cursor, limit: 1000 });
+        for (const b of r.blobs) out.push(decodeURIComponent(b.pathname.slice(PREFIXO_BLOB.length)));
+        cursor = r.hasMore ? r.cursor : undefined;
+      } while (cursor);
+      return out;
+    },
+    async apagar(ks) {
+      if (ks.length) await del(ks.map(caminho));
     },
   };
 }
