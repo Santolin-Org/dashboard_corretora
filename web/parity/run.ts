@@ -6,9 +6,9 @@ process.env.TZ = "America/Sao_Paulo";
 //   --lado ambos    captura o antigo e compara com o novo. Com --fixture o antigo NÃO é regerado (usa
 //                   parity/golden-fixture/, versionado) a menos que se passe --regerar-antigo.
 //   --fixture       gera a fixture sintética num diretório temporário; dourados em parity/golden-fixture/.
-//                   Em novo/ambos, sem --abas/--cenario, roda só as abas de abas-portadas.ts (lista vazia = nada a fazer).
+//   Em novo/ambos (com ou sem --fixture), sem --abas/--cenario, roda só as abas de abas-portadas.ts (lista vazia = nada a fazer).
 //   sem --fixture:  lê --dados (padrão parity/data), dourados em parity/.golden/ (ignorado pelo git).
-//   --abas a,b      limita aos cenários dessas abas (sobrepõe abas-portadas.ts).
+//   --abas a,b      limita aos cenários dessas abas (sobrepõe abas-portadas.ts; sem casamento = erro).
 // O relatório de diferenças vai para parity/.golden/relatorio.md; sai com código 1 se houver qualquer diferença.
 import { mkdirSync, mkdtempSync, readdirSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,7 +16,7 @@ import { join, resolve } from "node:path";
 import { chromium } from "@playwright/test";
 import { CENARIOS } from "./cenarios";
 import { snapshotAntigo, servirRaiz } from "./antigo";
-import { snapshotNovo, subirServidorNovo } from "./novo";
+import { aquecer, snapshotNovo, subirServidorNovo } from "./novo";
 import { compararSnapshots, type Diferenca } from "./diff";
 import { ABAS_PORTADAS } from "./abas-portadas";
 import { gerarFixture } from "./fixtures/make-fixture";
@@ -90,13 +90,17 @@ async function lado_novo(dados: string, goldenDir: string, nomes: string[]): Pro
   const browser = await chromium.launch();
   const difs: Diferenca[] = [];
   try {
+    // Aquece cada rota (primeira visita compila no next dev) antes de medir/capturar.
+    const aq = await browser.newPage();
+    await aquecer(aq, srv.baseUrl, [...new Set(nomes.map((n) => CENARIOS.find((x) => x.nome === n)!.aba))]);
+    await aq.close();
     for (const nome of nomes) {
       const c = CENARIOS.find((x) => x.nome === nome)!;
       const antigo = JSON.parse(readFileSync(join(goldenDir, `${nome}.json`), "utf8")) as Snapshot;
       const ctx = await browser.newContext({ timezoneId: "America/Sao_Paulo", locale: "pt-BR" });
       const page = await ctx.newPage();
       try {
-        const novo = await snapshotNovo(page, srv.baseUrl, c);
+        const novo = await snapshotNovo(page, srv.baseUrl, c, Object.keys(antigo.graficos));
         const d = compararSnapshots(nome, antigo, novo);
         console.log(`${nome}: ${d.length ? `${d.length} diferença(s)` : "OK"}`);
         difs.push(...d);
@@ -121,10 +125,11 @@ async function main() {
   const filtro = arg("cenario");
   const abas = arg("abas")?.split(",").map((a) => a.trim()).filter(Boolean);
   const fixture = flag("fixture");
-  // Fixture em novo/ambos: por padrão só as abas portadas (é o que o `regressao` roda).
-  const abasAlvo = abas ?? (fixture && lado !== "antigo" && !filtro ? (ABAS_PORTADAS as string[]) : undefined);
+  // Com o lado novo envolvido (fixture ou dados reais): por padrão só as abas portadas.
+  const abasAlvo = abas ?? (lado !== "antigo" && !filtro ? (ABAS_PORTADAS as string[]) : undefined);
   const nomes = CENARIOS.filter((c) => (!filtro || c.nome === filtro) && (!abasAlvo || abasAlvo.includes(c.aba))).map((c) => c.nome);
   if (filtro && !CENARIOS.some((c) => c.nome === filtro)) throw new Error(`cenário desconhecido: ${filtro}`);
+  if (!nomes.length && abas) throw new Error(`--abas ${abas.join(",")} não casa com nenhum cenário`);
   if (!nomes.length) {
     console.log(abasAlvo ? "nada a comparar: nenhuma aba portada (abas-portadas.ts) ou aba desconhecida" : "nenhum cenário");
     return;

@@ -4,7 +4,7 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
 import { randomBytes } from "node:crypto";
-import { closeSync, openSync, readFileSync, writeFileSync } from "node:fs";
+import { closeSync, openSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import type { Page } from "@playwright/test";
@@ -36,9 +36,6 @@ export type ServidorNovo = { baseUrl: string; parar(): void };
  * Usa um distDir próprio (.next-parity) e porta livre, para não colidir com o dev server do desenvolvedor.
  */
 export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> {
-  // O next dev reescreve o tsconfig.json (acrescenta o distDir ao include e reformata): restauramos ao parar.
-  const tsconfig = join(RAIZ_WEB, "tsconfig.json");
-  const tsconfigOriginal = readFileSync(tsconfig, "utf8");
   const porta = await portaLivre();
   const baseUrl = `http://127.0.0.1:${porta}`;
   const logPath = join(tmpdir(), `parity-next-${porta}.log`);
@@ -57,20 +54,26 @@ export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> 
       PARITY_HOJE: "2026-10-15",
       AUTH_SECRET: randomBytes(24).toString("hex"),
       NEXT_DIST_DIR: ".next-parity",
+      NEXT_TSCONFIG: "tsconfig.parity.json",
       NEXT_TELEMETRY_DISABLED: "1",
     },
   });
   closeSync(fd);
   let saiu = false;
   filho.once("exit", () => { saiu = true; });
-  const parar = () => {
+  const sinais = ["SIGINT", "SIGTERM"] as const;
+  const aoSinal = (sig: NodeJS.Signals) => { parar(); process.exit(sig === "SIGINT" ? 130 : 143); };
+  function parar() {
+    for (const sg of sinais) process.removeListener(sg, aoSinal);
+    process.removeListener("exit", parar);
     const pid = filho.pid;
     if (!saiu && pid) {
       try { process.kill(-pid, "SIGTERM"); } catch { /* já saiu */ }
       setTimeout(() => { try { process.kill(-pid, "SIGKILL"); } catch { /* já saiu */ } }, 3000).unref();
     }
-    try { writeFileSync(tsconfig, tsconfigOriginal); } catch { /* sem permissão: segue */ }
-  };
+  }
+  for (const sg of sinais) process.once(sg, aoSinal);
+  process.once("exit", parar);
   try {
     const limite = Date.now() + 240_000;
     for (;;) {
@@ -90,7 +93,12 @@ export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> 
   return { baseUrl, parar };
 }
 
-export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario): Promise<Snapshot> {
+/** Visita cada rota uma vez: o primeiro acesso ao next dev compila a rota (lento). */
+export async function aquecer(page: Page, baseUrl: string, abas: string[]): Promise<void> {
+  for (const aba of abas) await page.goto(`${baseUrl}/${aba}`, { waitUntil: "load", timeout: 240_000 }).catch(() => undefined);
+}
+
+export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsGraficos: string[] = []): Promise<Snapshot> {
   const erros: string[] = [];
   page.on("console", (m) => { if (m.type() === "error") erros.push(`console: ${m.text()}`); });
   page.on("pageerror", (e) => erros.push(`pageerror: ${e.message}`));
@@ -99,8 +107,12 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario): Pro
   await page.addInitScript("window.__name = (f) => f;");
   await page.clock.install({ time: new Date(HOJE_FIXO) });
   await page.goto(`${baseUrl}/${c.aba}`, { waitUntil: "load", timeout: 120_000 });
-  // Dados carregados: o badge do cabeçalho fica não vazio quando a base chega.
-  await page.waitForFunction("(document.getElementById('rec-badge')?.textContent ?? '').trim() !== ''", undefined, { timeout: 120_000 });
+  // Dados carregados: o badge sai de "" / "—" quando a base chega (fica "—" também se o fetch falhar).
+  try {
+    await page.waitForFunction("(() => { const t = (document.getElementById('rec-badge')?.textContent ?? '').trim(); return t !== '' && t !== '—'; })()", undefined, { timeout: 120_000 });
+  } catch {
+    throw new Error(`dados/gráficos não carregaram (${c.nome}): #rec-badge continua vazio ou "—"`);
+  }
 
   const container = conteinerDe(c);
   const existe = await page.waitForSelector(container, { timeout: 15_000, state: "attached" }).then(() => true, () => false);
@@ -127,6 +139,14 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario): Pro
       if (await escolher.count()) await escolher.first().click({ timeout: 10_000 });
     }
     await page.waitForTimeout(600);
+  }
+
+  // Gráficos registrados: todos os ids do dourado precisam existir em window.__charts (os ausentes
+  // de verdade viram ausente-no-novo depois de esgotar a espera).
+  // Aba ainda em migração (placeholder) nunca registra gráficos: não vale esperar.
+  const emMigracao = existe && (await page.locator(`${container} >> text=Em migração`).count()) > 0;
+  if (existe && !emMigracao && idsGraficos.length) {
+    await page.waitForFunction((ids) => ids.every((id) => (window as any).__charts?.[id]), idsGraficos, { timeout: 20_000 }).catch(() => undefined);
   }
 
   const snap = await page.evaluate((container) => {
@@ -158,6 +178,9 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario): Pro
     return { textos, graficos } as Snapshot;
   }, container);
 
+  if (existe && !snap.textos[container.slice(1)]) {
+    throw new Error(`dados/gráficos não carregaram (${c.nome}): snapshot trivial`);
+  }
   if (erros.length) throw new Error(`erros na página nova (${c.nome}):\n${erros.join("\n")}`);
   return snap;
 }
