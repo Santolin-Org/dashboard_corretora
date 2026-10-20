@@ -1,0 +1,5 @@
+[
+  { "email": "mitz@exemplo.com.br", "nome": "Mitz", "role": "admin" },
+  { "email": "gestora@exemplo.com.br", "nome": "Gestora Exemplo", "role": "gestao" },
+  { "email": "vendedor@exemplo.com.br", "nome": "Vendedor Exemplo", "role": "vendedor" }
+]

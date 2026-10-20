@@ -32,3 +32,4 @@ desktop.ini
 web/parity/data/
 web/parity/.golden/
 web/.env*.local
+web/seed/usuarios.json
