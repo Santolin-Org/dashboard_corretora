@@ -12,7 +12,7 @@
 
 ## Global Constraints
 
-- **Nada na raiz do repositório muda**, exceto acrescentar `web/` ao `.vercelignore` (Task 1). `index.html`, `main.js`, `styles.css`, `auth.html`, `scripts/` e os registros Azure existentes (`18d14ac5…`, `b5812845…`) ficam intactos.
+- **Nada na raiz do repositório muda**, exceto acrescentar `web/` ao `.vercelignore` e `web/parity/data/` etc. ao `.gitignore`, e criar `.github/workflows/web-regressao.yml` (Task 1). `index.html`, `main.js`, `styles.css`, `auth.html`, `scripts/` e os registros Azure existentes (`18d14ac5…`, `b5812845…`) ficam intactos.
 - **Regras de negócio não mudam.** `METRICAS.md` e `SKILL.md` são a especificação. Se divergirem do `main.js`, vale o `main.js`, e a divergência é anotada em `web/docs/divergencias.md` para o Mitz decidir.
 - **Números idênticos (G2):** o harness de paridade (`npm run parity`) precisa sair com diferença zero em todos os cenários antes de a tarefa da aba ser considerada pronta.
 - **Planilhas reais nunca vão para o git.** Ficam em `web/parity/data/` (ignorado). Snapshots dourados ficam em `web/parity/.golden/` (ignorado).
@@ -23,6 +23,7 @@
 - **Papéis:** `admin`, `gestao`, `vendedor`. Na Etapa 1, `admin` e `gestao` veem tudo, `vendedor` e quem não está na lista não recebem nada, e só `admin` reprocessa fontes.
 - **IDs de DOM:** todo elemento com `id` dentro das abas, do cabeçalho, do modal de fontes, da Exibição TV e do modo apresentação no `index.html`/`main.js` atual mantém o mesmo `id` no app novo, porque é por eles que o harness compara. Gráficos se registram em `window.__charts[<id do canvas antigo>]`.
 - Textos de interface em português, iguais aos atuais.
+- **Regressão a cada tarefa (regra do Mitz para todos os projetos).** `npm run regressao` roda, em sequência, `lint`, `tsc --noEmit`, `test` (Vitest, inclusive `test:tz`) e `parity -- --lado ambos --fixture` (paridade sobre a fixture sintética, só nas abas já portadas, listadas em `parity/abas-portadas.ts`). **Toda tarefa termina rodando `npm run regressao` com saída 0, antes do commit.** O mesmo comando roda no GitHub Actions a cada push e PR que toque em `web/`. Os testes que cada tarefa escreve são permanentes: nunca apagar, pular (`.skip`) ou afrouxar um teste para uma tarefa passar. Uma mudança intencional de comportamento atualiza o teste, e isso é dito no commit. Antes de cada merge, rodar também `npm run regressao:real` (paridade em todos os cenários sobre `parity/data/` real, só local, porque os dados não vão para o CI).
 
 ## Review Focus
 
@@ -79,13 +80,15 @@ web/
 - Modify: `.vercelignore` (acrescentar `web/` com o comentário "App Next.js novo — projeto Vercel próprio"), `.gitignore` (acrescentar `web/parity/data/`, `web/parity/.golden/`, `web/.env*.local`)
 
 **Interfaces:**
-- Produces: scripts `npm run dev | build | test | lint | parity` em `web/package.json` (`parity` = `tsx parity/run.ts`).
+- Produces: scripts `npm run dev | build | test | lint | parity | regressao | regressao:real` em `web/package.json` (`parity` = `tsx parity/run.ts`). Até a Task 12 existir, `regressao` roda só `lint`, `tsc --noEmit` e `test`. A Task 12 acrescenta a etapa de paridade.
+- Create também: `.github/workflows/web-regressao.yml`, com gatilho `push` e `pull_request` em `paths: ['web/**']`. Usa Node LTS, `npm ci` em `web/`, `npx playwright install --with-deps chromium`, `TZ=America/Sao_Paulo` e `npm run regressao`.
 
 - [ ] **Step 1:** Gerar o app, instalar `vitest`, `@playwright/test`, `tsx`, `xlsx@0.18.5`. Ligar `"strict": true` no tsconfig.
 - [ ] **Step 2:** Escrever `tests/smoke.test.ts`, que verifica que `@/domain` resolve. Rodar `npm test`. Esperado: PASS.
 - [ ] **Step 3:** Rodar `npm run build` em `web/`. Esperado: build sem erro.
-- [ ] **Step 4:** Rodar `git diff --stat main -- . ':!web' ':!docs'`. Esperado: só `.vercelignore` e `.gitignore`.
-- [ ] **Step 5:** Commit: `feat(web): esqueleto Next.js em web/`.
+- [ ] **Step 4:** Rodar `git diff --stat main -- . ':!web' ':!docs'`. Esperado: só `.vercelignore`, `.gitignore` e `.github/workflows/web-regressao.yml`.
+- [ ] **Step 5:** Rodar `npm run regressao`. Esperado: saída 0. Depois do push, o workflow fica verde no GitHub.
+- [ ] **Step 6:** Commit: `feat(web): esqueleto Next.js em web/ com suíte de regressão e CI`.
 
 ### Task 2: Harness de paridade — lado antigo e fixture sintética
 
@@ -450,6 +453,7 @@ O harness é a régua de todo o resto, então vem antes de qualquer porte.
 - [ ] **Step 2:** Rodar o teste. Esperado: FAIL.
 - [ ] **Step 3:** Implementar `diff.ts`, `novo.ts` e a integração no `run.ts`.
 - [ ] **Step 4:** Rodar `npm run parity -- --lado ambos --abas visao-geral` com a fixture. Esperado: o relatório lista só `ausente-no-novo` da aba ainda não portada (prova de que o fluxo ponta a ponta funciona) e a saída tem código 1.
+- [ ] **Step 4b:** Criar `parity/abas-portadas.ts` (`export const ABAS_PORTADAS: AbaId[] = []`) e a flag `--fixture` (gera a fixture num diretório temporário e roda só os cenários de `ABAS_PORTADAS`). Acrescentar a etapa de paridade ao `regressao` e criar `regressao:real` (`parity -- --lado ambos --dados parity/data`). Rodar `npm run regressao`. Esperado: saída 0 (lista vazia = nada a comparar ainda).
 - [ ] **Step 5:** Commit: `test(web): harness de paridade — lado novo e relatório de diferenças`.
 
 ### Task 13: Sessão longa e aviso de "entrar novamente"
@@ -482,7 +486,8 @@ Todas seguem o **procedimento padrão** abaixo. Cada task só lista o que é esp
 3. **Domínio:** portar as funções de cálculo do trecho do `main.js` indicado para `src/domain/<arquivo>.ts` como funções puras `(linhas filtradas, parâmetros da aba, hoje) → objeto de dados`. Nada de DOM. Constantes e comentários de regra de negócio vêm junto, literalmente. Rodar os testes até PASS.
 4. **Componentes:** `src/app/(dash)/<aba>/` com o componente da aba e sub-componentes por bloco (KPIs, cada gráfico, cada tabela), reproduzindo os mesmos `id`s, textos e estrutura do `index.html` e dos templates do `main.js`. Estado local da aba (ordenação, paginação, toggles) em `useState`/URL, com os mesmos valores iniciais das variáveis do topo do `main.js`.
 5. **Paridade:** `npm run parity -- --lado ambos --abas <aba>` com diferença zero na fixture **e** nos dados reais. Divergência que o `main.js` justifica por bug conhecido não é "consertada": é reproduzida e anotada em `docs/divergencias.md`.
-6. **Commit:** `feat(web): aba <nome> com paridade`.
+6. **Regressão:** acrescentar a aba em `ABAS_PORTADAS`. Rodar `npm run regressao` (todas as abas já portadas, não só a atual) e `npm run regressao:real`. Esperado: saída 0 nos dois.
+7. **Commit:** `feat(web): aba <nome> com paridade`.
 
 ### Task 14: Visão geral
 - Trecho: `main.js` 1572–1674 (+ "Cancel filter", 388–425). Gráficos: `ch-evolucao`, `ch-cancel`, `ch-seg`, `ch-ramo`. Domínio: `visao-geral.ts`.
