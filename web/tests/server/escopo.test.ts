@@ -63,14 +63,35 @@ describe("usuários no banco (pglite)", () => {
       { email: "A@exemplo.com.br", nome: "A", role: "admin" },
       { email: "b@exemplo.com.br", nome: "B", role: "vendedor" },
     ]);
-    await sincronizarUsuarios(db, [{ email: "a@exemplo.com.br", nome: "A2", role: "gestao" }]);
+    await sincronizarUsuarios(db, [
+      { email: "a@exemplo.com.br", nome: "A2", role: "admin" },
+      { email: "c@exemplo.com.br", nome: "C", role: "gestao" },
+    ]);
     expect(await buscarUsuarioAtivo("a@exemplo.com.br")).toEqual({
-      email: "a@exemplo.com.br", nome: "A2", role: "gestao",
+      email: "a@exemplo.com.br", nome: "A2", role: "admin",
     });
     expect(await buscarUsuarioAtivo("b@exemplo.com.br")).toBeNull();
     // reativa quem volta ao arquivo
-    await sincronizarUsuarios(db, [{ email: "b@exemplo.com.br", nome: "B", role: "vendedor" }]);
+    await sincronizarUsuarios(db, [
+      { email: "b@exemplo.com.br", nome: "B", role: "vendedor" },
+      { email: "d@exemplo.com.br", nome: "D", role: "admin" },
+    ]);
     expect(await buscarUsuarioAtivo("b@exemplo.com.br")).not.toBeNull();
     expect(await buscarUsuarioAtivo("a@exemplo.com.br")).toBeNull();
+  });
+
+  it("recusa lista vazia, sem admin e e-mails duplicados, sem tocar no banco", async () => {
+    await sincronizarUsuarios(db, [{ email: "a@exemplo.com.br", nome: "A", role: "admin" }]);
+    await expect(sincronizarUsuarios(db, [])).rejects.toThrow(/vazia/);
+    await expect(
+      sincronizarUsuarios(db, [{ email: "b@exemplo.com.br", nome: "B", role: "gestao" }]),
+    ).rejects.toThrow(/admin/);
+    await expect(
+      sincronizarUsuarios(db, [
+        { email: "a@exemplo.com.br", nome: "A", role: "admin" },
+        { email: " A@Exemplo.com.br", nome: "A", role: "admin" },
+      ]),
+    ).rejects.toThrow(/duplicado: a@exemplo.com.br/);
+    expect(await buscarUsuarioAtivo("a@exemplo.com.br")).not.toBeNull();
   });
 });
