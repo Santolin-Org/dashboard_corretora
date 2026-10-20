@@ -26,12 +26,12 @@
       "datasets": [
         {
           "data": [
-            31238.239999999998,
-            18135.66,
+            35388.24,
+            17185.66,
             32972.41,
             54439.02,
             42490.840000000004,
-            45311.06999999999,
+            47161.06999999999,
             51434.86000000001,
             24192.37,
             35082.74,
@@ -45,13 +45,13 @@
           "data": [
             15445.630000000001,
             38931.079999999994,
-            54871.48,
-            58269.630000000005,
-            51936.409999999996,
+            53171.48,
+            62988.740000000005,
+            45717.299999999996,
             15174.68,
             31841.72,
             18476.13,
-            22405.6,
+            20555.6,
             46033.86,
             26660.439999999995,
             11770.810000000001
@@ -141,7 +141,7 @@
     "ch-ramo": "",
     "ch-seg": "",
     "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
-    "kpi-grid": "Prêmio totalR$ 347.818,02104 apólices este anoComissão totalR$ 47.499,1713.66% do prêmioTicket médio: PrêmioR$ 3.732,6796 c/ prêmioTicket médio: ComissãoR$ 494,78por apóliceClientes únicos55neste anoVencendo em 30d0renovações pendentes",
+    "kpi-grid": "Prêmio totalR$ 352.868,02107 apólices este anoComissão totalR$ 48.254,1713.67% do prêmioTicket médio: PrêmioR$ 3.723,3398 c/ prêmioTicket médio: ComissãoR$ 492,39por apóliceClientes únicos55neste anoVencendo em 30d0renovações pendentes",
     "leg-cur": "2026",
     "leg-prev": "2025",
     "mt-evol-c": "",
@@ -152,7 +152,7 @@
     "mt-seg-p": "",
     "rec-badge": "0 registros",
     "seg-legend": "Bradesco Seguros 19.58%HDI Seguros 19.29%Tokio Marine 17.17%Porto Seguro 16.12%Mapfre 15.20%Allianz 12.64%",
-    "tab-visao-geral": "Prêmio totalR$ 347.818,02104 apólices este anoComissão totalR$ 47.499,1713.66% do prêmioTicket médio: PrêmioR$ 3.732,6796 c/ prêmioTicket médio: ComissãoR$ 494,78por apóliceClientes únicos55neste anoVencendo em 30d0renovações pendentes Evolução mensal da produção 2026 2025 · barra inferior = variação % vs. ano anterior Prêmio Comissão +102.2%-53.4%-39.9%-6.6%-18.2%+198.6%+61.5%+30.9%+56.6%-74.9%-96.3%-100.0% Cancelamentos por motivo 68 cancelamentos Filtrar motivos todos ▼ Venda do bem18Insatisfação com atendimento12Troca de seguradora12Não informado11Preço9Falta de pagamento6 Marcar todos Desmarcar todos Concentração por seguradora Prêmio Comissão Bradesco Seguros 19.58%HDI Seguros 19.29%Tokio Marine 17.17%Porto Seguro 16.12%Mapfre 15.20%Allianz 12.64% Produção por ramo Prêmio Comissão",
-    "var-bar": "+102.2%-53.4%-39.9%-6.6%-18.2%+198.6%+61.5%+30.9%+56.6%-74.9%-96.3%-100.0%"
+    "tab-visao-geral": "Prêmio totalR$ 352.868,02107 apólices este anoComissão totalR$ 48.254,1713.67% do prêmioTicket médio: PrêmioR$ 3.723,3398 c/ prêmioTicket médio: ComissãoR$ 492,39por apóliceClientes únicos55neste anoVencendo em 30d0renovações pendentes Evolução mensal da produção 2026 2025 · barra inferior = variação % vs. ano anterior Prêmio Comissão +129.1%-55.9%-38.0%-13.6%-7.1%+210.8%+61.5%+30.9%+70.7%-74.9%-96.3%-100.0% Cancelamentos por motivo 68 cancelamentos Filtrar motivos todos ▼ Venda do bem18Insatisfação com atendimento12Troca de seguradora12Não informado11Preço9Falta de pagamento6 Marcar todos Desmarcar todos Concentração por seguradora Prêmio Comissão Bradesco Seguros 19.58%HDI Seguros 19.29%Tokio Marine 17.17%Porto Seguro 16.12%Mapfre 15.20%Allianz 12.64% Produção por ramo Prêmio Comissão",
+    "var-bar": "+129.1%-55.9%-38.0%-13.6%-7.1%+210.8%+61.5%+30.9%+70.7%-74.9%-96.3%-100.0%"
   }
 }

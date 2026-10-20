@@ -22,12 +22,12 @@
       "datasets": [
         {
           "data": [
-            0,
+            3200,
             2107.73,
             0,
             0,
             0,
-            0,
+            -1500,
             0,
             0,
             0,
@@ -41,13 +41,13 @@
           "data": [
             0,
             0,
-            3200,
             1500,
+            0,
             -2292.98,
             -2432.58,
             0,
             0,
-            -1500,
+            0,
             0,
             0,
             0
@@ -111,7 +111,7 @@
     "ch-ramo": "",
     "ch-seg": "",
     "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
-    "kpi-grid": "Prêmio totalR$ 2.107,731 apólices este anoComissão totalR$ 387,9418.41% do prêmioTicket médio: PrêmioR$ 2.107,731 c/ prêmioTicket médio: ComissãoR$ 387,94por apóliceClientes únicos1neste anoVencendo em 30d0renovações pendentes",
+    "kpi-grid": "Prêmio totalR$ 3.807,733 apólices este anoComissão totalR$ 642,9416.89% do prêmioTicket médio: PrêmioR$ 2.653,872 c/ prêmioTicket médio: ComissãoR$ 321,47por apóliceClientes únicos2neste anoVencendo em 30d0renovações pendentes",
     "leg-cur": "2026",
     "leg-prev": "2025",
     "mt-evol-c": "",
@@ -122,7 +122,7 @@
     "mt-seg-p": "",
     "rec-badge": "11 registros",
     "seg-legend": "Porto Seguro 100.00%",
-    "tab-visao-geral": "Prêmio totalR$ 2.107,731 apólices este anoComissão totalR$ 387,9418.41% do prêmioTicket médio: PrêmioR$ 2.107,731 c/ prêmioTicket médio: ComissãoR$ 387,94por apóliceClientes únicos1neste anoVencendo em 30d0renovações pendentes Evolução mensal da produção 2026 2025 · barra inferior = variação % vs. ano anterior Prêmio Comissão —novo-100.0%-100.0%———————— Cancelamentos por motivo 7 cancelamentos Filtrar motivos todos ▼ Insatisfação com atendimento2Preço2Troca de seguradora2Não informado1 Marcar todos Desmarcar todos Concentração por seguradora Prêmio Comissão Porto Seguro 100.00% Produção por ramo Prêmio Comissão",
-    "var-bar": "—novo-100.0%-100.0%————————"
+    "tab-visao-geral": "Prêmio totalR$ 3.807,733 apólices este anoComissão totalR$ 642,9416.89% do prêmioTicket médio: PrêmioR$ 2.653,872 c/ prêmioTicket médio: ComissãoR$ 321,47por apóliceClientes únicos2neste anoVencendo em 30d0renovações pendentes Evolução mensal da produção 2026 2025 · barra inferior = variação % vs. ano anterior Prêmio Comissão novonovo-100.0%————————— Cancelamentos por motivo 7 cancelamentos Filtrar motivos todos ▼ Insatisfação com atendimento2Preço2Troca de seguradora2Não informado1 Marcar todos Desmarcar todos Concentração por seguradora Prêmio Comissão Porto Seguro 100.00% Produção por ramo Prêmio Comissão",
+    "var-bar": "novonovo-100.0%—————————"
   }
 }

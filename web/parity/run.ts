@@ -1,3 +1,5 @@
+// O fuso precisa valer antes de qualquer uso de Date: o SheetJS grava células Date pelo TZ do processo.
+process.env.TZ = "America/Sao_Paulo";
 // Uso: tsx parity/run.ts --lado antigo|novo|ambos [--cenario <nome>] [--dados <dir>] [--fixture]
 //   --fixture  gera a fixture sintética em diretório temporário e grava em parity/golden-fixture/
 //   sem --fixture: lê --dados (padrão parity/data) e grava em parity/.golden/ (ignorado pelo git)

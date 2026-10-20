@@ -39,7 +39,7 @@ function mulberry32(semente: number) {
 const DIA = 86400000;
 const utc = (ano: number, mes: number, dia: number) => Date.UTC(ano, mes - 1, dia, 12, 0, 0);
 // Serial Excel inteiro (dia civil) para a data em ms UTC.
-const serial = (ms: number) => Math.round(ms / DIA) + 25569;
+const serial = (ms: number) => Math.floor(ms / DIA) + 25569;
 
 const COLABS = [
   "FERNANDO DE PAULA SERAFIM", "ANA CLARA MENDES", "BRUNO TAVARES", "CARLA NOGUEIRA", "DIOGO FARIAS",
@@ -199,7 +199,7 @@ export function gerarFixture(dir: string): void {
   // ── Casos dirigidos ───────────────────────────────────────────────────────────
   // Troca de seguradora: cancelada na cia A e reemitida na cia B em até 15 dias.
   const cliTroca = clientes[5];
-  const vigA = utc(2025, 3, 10), cancA = utc(2025, 9, 20);
+  const vigA = utc(2026, 1, 10), cancA = utc(2026, 6, 20);
   arq2026.push(linhaBase({
     tipo: "N", vig: vigA, cli: cliTroca, seg: "Porto Seguro", ramo: "Automóvel - Casco", premio: 3200,
     com: 480, colab: COLABS[1], sit: "Cancelada", apolice: "AP-TROCA-1", cancel: cancA,

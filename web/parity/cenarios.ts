@@ -44,6 +44,13 @@ function cenariosDaAba(aba: AbaId): Cenario[] {
 // Cenários específicos de cada aba entram nas Tasks 14–22.
 export const CENARIOS: Cenario[] = [
   ...ABAS_PRODUCAO.flatMap(cenariosDaAba),
+  {
+    nome: "retencao-periodo", aba: "retencao",
+    passos: [
+      { tipo: "preencher", id: "ret-per-s", valor: "2026-04-01" },
+      { tipo: "preencher", id: "ret-per-e", valor: "2026-09-30" },
+    ],
+  },
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
   {

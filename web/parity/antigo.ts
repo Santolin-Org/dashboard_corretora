@@ -41,7 +41,7 @@ function lerDados(dir: string) {
   const nomes = readdirSync(dir);
   const b64 = (n: string) => readFileSync(join(dir, n)).toString("base64");
   return {
-    producao: nomes.filter(ehProducao).sort().map((name) => ({ name, b64: b64(name) })),
+    producao: nomes.filter(ehProducao).sort((a, b) => a.localeCompare(b)).map((name) => ({ name, b64: b64(name) })),
     sinistrosAvisados: nomes.includes("sinistrosAvisados.xlsx") ? b64("sinistrosAvisados.xlsx") : null,
     sinistrosPagamentos: nomes.includes("sinistrosPagamentos.xlsx") ? b64("sinistrosPagamentos.xlsx") : null,
     saude: nomes.includes("saude_fernando.xlsx") ? b64("saude_fernando.xlsx") : null,

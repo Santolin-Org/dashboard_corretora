@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "parity": "tsx parity/run.ts",
-    "test:parity": "playwright test",
+    "parity": "TZ=America/Sao_Paulo tsx parity/run.ts",
+    "test:parity": "TZ=America/Sao_Paulo playwright test",
     "typecheck": "next typegen && tsc --noEmit",
     "regressao": "npm run lint && npm run typecheck && npm test",
     "regressao:real": "echo \"disponível a partir da Task 12\""
