@@ -157,3 +157,17 @@
   background: var(--rank-3-bg);
   color: var(--rank-3-text);
 }
+
+/* styles.css: .ret-table.detail-table e .ret-sortable (Retenção) */
+.ret-table.detail-table {
+  min-width: 900px;
+}
+
+.ret-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ret-sortable:hover {
+  color: var(--text-primary);
+}

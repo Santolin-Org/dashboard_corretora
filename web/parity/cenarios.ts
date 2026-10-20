@@ -5,7 +5,7 @@ export type AbaId =
 export type Passo =
   | { tipo: "preencher"; id: string; valor: string } // input date/text: define value e dispara 'change'
   | { tipo: "clicar"; seletor: string }
-  | { tipo: "multiselect"; id: "ms-col" | "ms-grp" | "ms-ram" | "ms-seg"; valores: string[] };
+  | { tipo: "multiselect"; id: "ms-col" | "ms-grp" | "ms-ram" | "ms-seg" | "ms-ret-col" | "ms-ret-ram" | "ms-ret-grp" | "ms-ret-mot"; valores: string[] };
 
 export type Cenario = { nome: string; aba: AbaId; passos: Passo[] };
 
@@ -50,6 +50,35 @@ export const CENARIOS: Cenario[] = [
       { tipo: "preencher", id: "ret-per-s", valor: "2026-04-01" },
       { tipo: "preencher", id: "ret-per-e", valor: "2026-09-30" },
     ],
+  },
+  {
+    nome: "retencao-vazio", aba: "retencao", // período sem nenhuma apólice: tabelas vazias, sem gráfico de motivos
+    passos: [
+      { tipo: "preencher", id: "ret-per-s", valor: "2030-01-01" },
+      { tipo: "preencher", id: "ret-per-e", valor: "2030-12-31" },
+    ],
+  },
+  { nome: "retencao-so-evitavel-off", aba: "retencao", passos: [{ tipo: "clicar", seletor: "#ret-evitavel-btn" }] },
+  // O detalhe não tem busca por texto: `retDetailFilter` é o filtro de situação (Todas/Canceladas/Vencidas).
+  { nome: "retencao-detalhe-busca", aba: "retencao", passos: [{ tipo: "clicar", seletor: "#ret-filter-canc-btn" }] },
+  { nome: "retencao-detalhe-vencidas", aba: "retencao", passos: [{ tipo: "clicar", seletor: "#ret-filter-venc-btn" }] },
+  { nome: "retencao-motivo", aba: "retencao", passos: [{ tipo: "multiselect", id: "ms-ret-mot", valores: ["Insatisfação com atendimento"] }] },
+  {
+    nome: "retencao-filtros-proprios", aba: "retencao",
+    passos: [
+      { tipo: "multiselect", id: "ms-ret-col", valores: ["CARLA NOGUEIRA"] },
+      { tipo: "multiselect", id: "ms-ret-ram", valores: ["Responsabilidade Civil Geral"] },
+      { tipo: "clicar", seletor: "#ret-tipo-R" },
+    ],
+  },
+  { nome: "retencao-grupo", aba: "retencao", passos: [{ tipo: "clicar", seletor: 'label[for="vt-ret-grp"]' }] },
+  {
+    nome: "retencao-ordenacao", aba: "retencao",
+    passos: [{ tipo: "clicar", seletor: "#ret-prod-table-wrap th:nth-child(5)" }, { tipo: "clicar", seletor: "#ret-prod-table-wrap th:nth-child(1)" }],
+  },
+  {
+    nome: "retencao-todos-evitaveis-canc", aba: "retencao",
+    passos: [{ tipo: "clicar", seletor: "#ret-evitavel-btn" }, { tipo: "clicar", seletor: "#ret-filter-canc-btn" }, { tipo: "clicar", seletor: "#ret-tipo-N" }],
   },
   {
     nome: "visao-geral-motivo", aba: "visao-geral",

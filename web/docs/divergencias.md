@@ -57,3 +57,35 @@
 - **CSS**: `.prod-table/.ret-table`, `.bar-bg/.bar-fg` e `.rank-badge` entraram como CSS
   **global** (`src/styles/tabelas.css`, importado no layout raiz) porque Retenção, Metas e a
   Exibição TV compartilham os seletores. O seletor de períodos ficou em `Producao.module.css`.
+
+## Task 16 — Retenção & Churn
+
+- **Filtros próprios, independentes dos globais.** A aba lê `ALL` inteiro (`base.linhas`): vigência, emissão,
+  colaborador, tipo etc. do cabeçalho não mudam nada nela, e o inverso também. O estado (`RET_MS`,
+  `retActiveTipos`, `retSoEvitavel`, período, visão, ordenação, filtro de situação do detalhe) fica na
+  store da casca e sobrevive à troca de aba; só "↻ Limpar" da própria aba o reinicia (período, seletores,
+  tipos e "Só evitável"; **não** reinicia ordenação nem o filtro Todas/Canceladas/Vencidas, como o
+  `resetRetFilters`). O período padrão (1º/jan–hoje) só é aplicado ao carregar e no Limpar da aba.
+- **Quirk reproduzido: o "Limpar filtros" global tira o destaque dos botões da aba.** `resetFilters`
+  faz `querySelectorAll('.tipo-btn').forEach(remove 'active')`, e "R — Renovação", "N — Novo" e
+  "Só evitável" também são `.tipo-btn`. O filtro em si não muda (continua só evitável, tipos
+  marcados), mas os botões ficam com aparência de desligados. Reclicar R com R no estado o remove do
+  filtro (o antigo decide por `retActiveTipos.has`), e "Só evitável" volta a refletir o estado ao ser
+  clicado. Reproduzido com `geracaoLimpeza` (vale mesmo com a aba fechada).
+- **Rótulos em português quebrado reproduzidos:** selo da tabela por produtor "5 colaboradors" (rótulo + "s")
+  e "N grupos"; selo de "Todas / Canceladas / Vencidas" fica como no HTML.
+- **`retencao-detalhe-busca`:** o detalhe não tem busca por texto. `retDetailFilter` é o filtro de situação
+  (Todas/Canceladas/Vencidas); o cenário clica em "Canceladas" (há também `retencao-detalhe-vencidas`).
+- **Seção de gráficos recolhida:** o antigo não redesenha `ch-ret-cancel`/`ch-ret-evolucao` nem atualiza
+  `#ret-cancel-badge` enquanto `sectionState['ret-charts']` está fechado; no novo seguem atualizados (invisíveis).
+- **Gráfico por motivo vazio:** sem cancelamentos o antigo destrói o gráfico e deixa o `<canvas>` vazio;
+  no novo o canvas fica sem `Chart` e `window.__charts['ch-ret-cancel']` não existe (igual ao `charts[...]`).
+- **"Hoje" do período padrão:** o antigo usa `fmtD(today())` (data UTC do relógio do navegador) como fim do
+  período; o novo usa `base.hoje` (data civil de São Paulo). Só diferem entre 21h e 24h (horário de Brasília).
+- **Página do detalhe:** `retDetailPage` volta a 1 a cada `renderRetTab` (mudar filtro, período, visão, voltar à
+  aba) e ao clicar em Todas/Canceladas/Vencidas (mesmo no filtro já ativo); ordenar a tabela por produtor
+  não a reinicia. Reproduzido.
+- **Exportar** (`exportData('churn')` e `('detalhe')`): arquivos `Export_Churn.xlsx` (aba "Churn", usa a visão
+  marcada, a ordem de criação do agregado e não a ordenação da tela) e `Export_Detalhe.xlsx` (aba "Detalhe",
+  todas as perdidas no filtro de situação atual, sem paginar). Comparados célula a célula com o antigo em
+  `tests/parity/exportar-retencao.test.ts`.
