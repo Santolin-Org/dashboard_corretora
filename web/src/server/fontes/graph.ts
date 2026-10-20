@@ -29,6 +29,7 @@ type ItemGraph = {
 export class GraphFonte implements FonteArquivos {
   private readonly f: FetchFn;
   private token: { valor: string; expiraEm: number } | null = null;
+  private tokenEmCurso: Promise<string> | null = null;
   private driveId: string | null = null;
 
   constructor(private readonly o: GraphOpcoes) {
@@ -43,8 +44,31 @@ export class GraphFonte implements FonteArquivos {
     }
   }
 
-  private async obterToken(): Promise<string> {
-    if (this.token && Date.now() < this.token.expiraEm - MARGEM_TOKEN_MS) return this.token.valor;
+  private async lerJson<T>(r: Response): Promise<T> {
+    let texto: string;
+    try {
+      texto = await r.text();
+    } catch {
+      throw new ErroFonte("rede", "Conexão interrompida ao ler a resposta do Microsoft Graph");
+    }
+    try {
+      return JSON.parse(texto) as T;
+    } catch {
+      throw new ErroFonte("http", "Resposta do Microsoft Graph não é JSON válido", r.status);
+    }
+  }
+
+  private obterToken(): Promise<string> {
+    if (this.token && Date.now() < this.token.expiraEm - MARGEM_TOKEN_MS) return Promise.resolve(this.token.valor);
+    if (!this.tokenEmCurso) {
+      this.tokenEmCurso = this.pedirToken().finally(() => {
+        this.tokenEmCurso = null;
+      });
+    }
+    return this.tokenEmCurso;
+  }
+
+  private async pedirToken(): Promise<string> {
     const corpo = new URLSearchParams({
       client_id: this.o.clientId,
       client_secret: this.o.clientSecret,
@@ -58,8 +82,8 @@ export class GraphFonte implements FonteArquivos {
     });
     if (r.status === 400 || r.status === 401) throw new ErroFonte("auth", "Credenciais do aplicativo recusadas pelo Azure AD", r.status);
     if (!r.ok) throw new ErroFonte("http", `Token: HTTP ${r.status}`, r.status);
-    const j = (await r.json()) as { access_token?: string; expires_in?: number };
-    if (!j.access_token) throw new ErroFonte("auth", "Resposta de token sem access_token");
+    const j = await this.lerJson<{ access_token?: string; expires_in?: number }>(r);
+    if (!j || typeof j.access_token !== "string" || !j.access_token) throw new ErroFonte("auth", "Resposta de token sem access_token");
     this.token = { valor: j.access_token, expiraEm: Date.now() + (j.expires_in ?? 3600) * 1000 };
     return this.token.valor;
   }
@@ -75,11 +99,13 @@ export class GraphFonte implements FonteArquivos {
 
   private async obterDriveId(): Promise<string> {
     if (this.driveId) return this.driveId;
-    const site = (await (await this.get(`${GRAPH}/sites/${HOST}`, "site")).json()) as { id: string };
-    const { value: drives = [] } = (await (await this.get(`${GRAPH}/sites/${site.id}/drives`, "site")).json()) as {
-      value?: { id: string; name: string }[];
-    };
-    const d = drives.find((x) => x.name.toLowerCase() === BIBLIOTECA.toLowerCase());
+    const site = await this.lerJson<{ id?: string }>(await this.get(`${GRAPH}/sites/${HOST}`, "site"));
+    if (!site || typeof site.id !== "string" || !site.id) throw new ErroFonte("http", "Resposta do Graph sem id do site");
+    const dj = await this.lerJson<{ value?: { id: string; name: string }[] }>(
+      await this.get(`${GRAPH}/sites/${site.id}/drives`, "site"),
+    );
+    if (!dj || !Array.isArray(dj.value)) throw new ErroFonte("http", "Resposta do Graph sem lista de bibliotecas");
+    const d = dj.value.find((x) => String(x.name).toLowerCase() === BIBLIOTECA.toLowerCase());
     if (!d) throw new ErroFonte("pasta", `Biblioteca "${BIBLIOTECA}" não encontrada`);
     this.driveId = d.id;
     return d.id;
@@ -92,8 +118,9 @@ export class GraphFonte implements FonteArquivos {
       `?$select=id,name,size,file,folder,eTag,cTag,lastModifiedDateTime&$top=200`;
     const itens: ItemGraph[] = [];
     while (url) {
-      const j = (await (await this.get(url, "pasta")).json()) as { value?: ItemGraph[]; "@odata.nextLink"?: string };
-      for (const it of j.value ?? []) itens.push(it);
+      const j = await this.lerJson<{ value?: ItemGraph[]; "@odata.nextLink"?: string }>(await this.get(url, "pasta"));
+      if (!j || !Array.isArray(j.value)) throw new ErroFonte("http", "Resposta do Graph sem lista de arquivos");
+      for (const it of j.value) itens.push(it);
       url = j["@odata.nextLink"];
     }
     return itens
@@ -110,6 +137,10 @@ export class GraphFonte implements FonteArquivos {
   async baixar(a: ArquivoMeta): Promise<ArrayBuffer> {
     const drive = await this.obterDriveId();
     const r = await this.get(`${GRAPH}/drives/${drive}/items/${a.id}/content`, "arquivo");
-    return r.arrayBuffer();
+    try {
+      return await r.arrayBuffer();
+    } catch {
+      throw new ErroFonte("rede", "Conexão interrompida ao baixar o arquivo");
+    }
   }
 }

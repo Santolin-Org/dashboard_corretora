@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { gerarFixture } from "../../parity/fixtures/make-fixture";
 import { ErroFonte, isProducaoFileName } from "@/server/fontes/tipos";
+import { criarFonte } from "@/server/fontes";
 import { PastaLocalFonte } from "@/server/fontes/pasta-local";
 import { GraphFonte } from "@/server/fontes/graph";
 
@@ -111,5 +112,46 @@ describe("GraphFonte", () => {
       return json({ value: [{ id: "x", name: "Outra" }] });
     };
     await expect(new GraphFonte({ ...cred, fetch: fetchMock }).listar()).rejects.toMatchObject({ codigo: "pasta" });
+  });
+
+  it("corpo não-JSON (token e listagem) → http; site sem id → http", async () => {
+    const html = () => new Response("<html>proxy</html>", { status: 200 });
+    await expect(new GraphFonte({ ...cred, fetch: async () => html() }).listar()).rejects.toMatchObject({ codigo: "http" });
+    const base = (corpoSite: () => Response, corpoDrive?: () => Response) => async (url: string | URL | Request) => {
+      const u = String(url);
+      if (u.includes("/oauth2/")) return json({ access_token: "t", expires_in: 3600 });
+      if (u.endsWith("/sites/santolinseguros.sharepoint.com")) return corpoSite();
+      if (u.endsWith("/drives")) return corpoDrive!();
+      return html();
+    };
+    await expect(new GraphFonte({ ...cred, fetch: base(() => json({})) }).listar()).rejects.toMatchObject({ codigo: "http" });
+    await expect(
+      new GraphFonte({ ...cred, fetch: base(() => json({ id: "s" }), () => json({ value: [{ id: "d", name: "Santolin" }] })) }).listar(),
+    ).rejects.toMatchObject({ codigo: "http" });
+  });
+
+  it("chamadas concorrentes compartilham um único pedido de token", async () => {
+    let tokens = 0;
+    const f = new GraphFonte({
+      ...cred,
+      fetch: async (url) => {
+        const u = String(url);
+        if (u.includes("/oauth2/")) { tokens++; await new Promise((r) => setTimeout(r, 5)); return json({ access_token: "t", expires_in: 3600 }); }
+        if (u.endsWith("/sites/santolinseguros.sharepoint.com")) return json({ id: "s" });
+        if (u.endsWith("/drives")) return json({ value: [{ id: "d", name: "Santolin" }] });
+        return json({ value: [] });
+      },
+    });
+    await Promise.all([f.listar(), f.listar()]);
+    expect(tokens).toBe(1);
+  });
+});
+
+describe("criarFonte", () => {
+  it("local sem FONTE_DIR lança ErroFonte", () => {
+    const antes = { ...process.env };
+    process.env.FONTE = "local";
+    delete process.env.FONTE_DIR;
+    try { expect(() => criarFonte()).toThrow(ErroFonte); } finally { process.env = antes; }
   });
 });
