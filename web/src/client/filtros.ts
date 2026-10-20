@@ -19,7 +19,7 @@ import { FILTROS_VAZIOS, filtrarLinhas, opcoesFiltros, tiposDisponiveis, type Fi
 //    com os marcados daquele momento; marcar/desmarcar não remonta a lista.
 
 type Modo = "inicial" | "filtrado" | "limpo";
-type Estado = { filtros: FiltrosGlobais; modo: Modo; colRemontagem: string[] };
+type Estado = { filtros: FiltrosGlobais; modo: Modo; colRemontagem: string[]; geracaoLimpeza: number };
 
 export type ValorFiltros = {
   filtros: FiltrosGlobais;
@@ -35,6 +35,11 @@ export type ValorFiltros = {
   recBadgeContagem: number;
   opcoes: { col: string[]; grp: string[]; ram: string[]; seg: string[] };
   tipos: string[];
+  /**
+   * Contador incrementado a cada limpar() (resetFilters do app antigo). As abas o observam para zerar
+   * o que o resetFilters zerava no antigo (hoje: a seleção de motivos de cancelamento da Visão geral).
+   */
+  geracaoLimpeza: number;
 };
 
 const Contexto = createContext<ValorFiltros | null>(null);
@@ -72,18 +77,18 @@ export function FiltrosProvider({ linhas, children }: { linhas: Linha[]; childre
   const [estado, setEstado] = useState<Estado>(() => {
     const daUrl = decodificarFiltros(params.get("f"));
     return daUrl
-      ? { filtros: daUrl, modo: "filtrado", colRemontagem: daUrl.col }
-      : { filtros: FILTROS_VAZIOS, modo: "inicial", colRemontagem: [] };
+      ? { filtros: daUrl, modo: "filtrado", colRemontagem: daUrl.col, geracaoLimpeza: 0 }
+      : { filtros: FILTROS_VAZIOS, modo: "inicial", colRemontagem: [], geracaoLimpeza: 0 };
   });
 
   const definir = useCallback((p: Partial<FiltrosGlobais>) => {
     setEstado((e) => {
       const filtros = { ...e.filtros, ...p };
       const mudouData = DATAS.some((k) => k in p && p[k] !== e.filtros[k]);
-      return { filtros, modo: "filtrado", colRemontagem: mudouData ? filtros.col : e.colRemontagem };
+      return { filtros, modo: "filtrado", colRemontagem: mudouData ? filtros.col : e.colRemontagem, geracaoLimpeza: e.geracaoLimpeza };
     });
   }, []);
-  const limpar = useCallback(() => setEstado({ filtros: FILTROS_VAZIOS, modo: "limpo", colRemontagem: [] }), []);
+  const limpar = useCallback(() => setEstado((e) => ({ filtros: FILTROS_VAZIOS, modo: "limpo", colRemontagem: [], geracaoLimpeza: e.geracaoLimpeza + 1 })), []);
 
   // Persistência na URL (?f=), preservando o resto do endereço.
   useEffect(() => {
@@ -95,7 +100,7 @@ export function FiltrosProvider({ linhas, children }: { linhas: Linha[]; childre
     window.history.replaceState(window.history.state, "", url);
   }, [estado.filtros]);
 
-  const { filtros, modo, colRemontagem } = estado;
+  const { filtros, modo, colRemontagem, geracaoLimpeza } = estado;
   const fd = useMemo(() => (modo === "filtrado" ? filtrarLinhas(linhas, filtros) : linhas), [linhas, filtros, modo]);
   const datas = `${filtros.vigIni}|${filtros.vigFim}|${filtros.emIni}|${filtros.emFim}`;
   const opcoes = useMemo(
@@ -107,8 +112,8 @@ export function FiltrosProvider({ linhas, children }: { linhas: Linha[]; childre
   const valor = useMemo<ValorFiltros>(() => ({
     filtros, definir, limpar, fd, aplicado: modo === "filtrado", inicial: modo === "inicial",
     recBadgeContagem: modo === "inicial" ? 0 : fd.length,
-    opcoes, tipos,
-  }), [filtros, definir, limpar, fd, modo, opcoes, tipos]);
+    opcoes, tipos, geracaoLimpeza,
+  }), [filtros, definir, limpar, fd, modo, opcoes, tipos, geracaoLimpeza]);
 
   return createElement(Contexto.Provider, { value: valor }, children);
 }

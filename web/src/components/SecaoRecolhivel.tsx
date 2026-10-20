@@ -33,12 +33,15 @@ export function SecaoRecolhivel({ chave, cabecalho, controles, aoAbrir, children
     <div className={`${s.card} section-card`} id={`sc-${chave}`}>
       <div className={`${s.header} section-header${aberta ? " open" : ""}`} onClick={alternar}>
         {cabecalho}
+        {" "}
         {/* Como no index.html, a área de controles (inclusive o −/+) não propaga o clique. */}
         <div className={`${s.controles} section-controls`} onClick={(e) => e.stopPropagation()}>
           {controles}
+          {" "}
           <button type="button" className={`${s.collapseBtn} collapse-btn`} id={`cb-${chave}`}>{aberta ? "−" : "+"}</button>
         </div>
       </div>
+      {" "}
       <div className="section-body" id={`sb-${chave}`} style={aberta ? undefined : { display: "none" }}>
         {children}
       </div>

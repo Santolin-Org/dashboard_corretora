@@ -2,6 +2,11 @@
 import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { fN } from "@/domain/formatos";
+import { resumoExecutivo, type Visao } from "@/domain/producao-aba";
+import type { Metrica } from "@/domain/visao-geral";
+import { useFiltros } from "@/client/filtros";
+import { useEstadoAba } from "@/client/estadoAbas";
+import { baixarPlanilha } from "@/client/exportar";
 import { fontesDesatualizadas } from "@/domain/producao/base";
 import type { BaseCliente } from "@/client/useBase";
 import { BotaoModoTv } from "./ModoTv";
@@ -52,6 +57,16 @@ export function Subtitulo({ base, onAbrirFontes }: { base: BaseCliente; onAbrirF
 
 export function Cabecalho({ base, recBadge, onAbrirFontes }: { base: BaseCliente; recBadge: string; onAbrirFontes(): void }) {
   const router = useRouter();
+  const { fd } = useFiltros();
+  // Mesmos controles da aba Produção (a store é da casca): o resumo usa a visão e a métrica marcadas lá.
+  const [visao] = useEstadoAba<Visao>("producao:visao", "colab");
+  const [metricaTabela] = useEstadoAba<Metrica>("producao:mt-tbl", "comissao");
+  // exportExecutiveSummary: hasProducaoData() é ALL.length > 0 (com o FD vazio exporta planilhas vazias).
+  const exportarResumo = () => {
+    if (base.linhas.length === 0) { alert("Sem dados de produção para exportar."); return; }
+    const r = resumoExecutivo(fd, visao, metricaTabela);
+    void baixarPlanilha("Resumo_Executivo.xlsx", [{ nome: "Base_Filtrada", linhas: r.baseFiltrada }, { nome: "Producao_Por_Agente", linhas: r.producaoPorAgente }]);
+  };
   return (
     <header className={s.cabecalho}>
       <div>
@@ -64,13 +79,11 @@ export function Cabecalho({ base, recBadge, onAbrirFontes }: { base: BaseCliente
         <button type="button" className="btn-sm" onClick={() => router.push("/exibicao-tv" + window.location.search)} title="Abrir exibição em tela cheia para TV">
           📺 Exibição TV
         </button>
-        {/* exportExecutiveSummary ainda não tem tarefa de porte: o botão fica visível e inerte. */}
         <button
           type="button"
           className="btn-sm"
           style={{ borderColor: "#1D9E75", color: "#1D9E75", fontWeight: 600 }}
-          title="Em migração"
-          aria-disabled="true"
+          onClick={exportarResumo}
         >
           Exportar Resumo
         </button>

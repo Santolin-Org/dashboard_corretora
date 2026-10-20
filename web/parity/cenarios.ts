@@ -67,6 +67,32 @@ export const CENARIOS: Cenario[] = [
       { tipo: "clicar", seletor: 'label[for="mt-ramo-c"]' },
     ],
   },
+  {
+    nome: "producao-metrica-comissao", aba: "producao",
+    passos: [{ tipo: "clicar", seletor: 'label[for="mt-prod-c"]' }],
+  },
+  {
+    nome: "producao-periodos", aba: "producao",
+    passos: [
+      { tipo: "preencher", id: "period-start", valor: "2026-01-01" },
+      { tipo: "preencher", id: "period-end", valor: "2026-03-31" },
+      { tipo: "clicar", seletor: '#tab-producao .period-row button.btn-sm:nth-of-type(1)' }, // + Adicionar
+      { tipo: "preencher", id: "period-start", valor: "2025-07-01" },
+      { tipo: "preencher", id: "period-end", valor: "2025-12-31" },
+      { tipo: "clicar", seletor: '#tab-producao .period-row button.btn-sm:nth-of-type(1)' },
+    ],
+  },
+  {
+    nome: "producao-ordenacao", aba: "producao",
+    passos: [
+      { tipo: "clicar", seletor: '#prod-table-wrap th:nth-child(3)' }, // Prêmio líquido (1º clique: já é o padrão, desc -> asc)
+      { tipo: "clicar", seletor: '#prod-table-wrap th:nth-child(3)' },
+    ],
+  },
+  { nome: "producao-ordenacao-asc", aba: "producao", passos: [{ tipo: "clicar", seletor: "#prod-table-wrap th:nth-child(3)" }] },
+  { nome: "producao-ordenacao-nome", aba: "producao", passos: [{ tipo: "clicar", seletor: "#prod-table-wrap th:nth-child(2)" }] },
+  { nome: "producao-grupo", aba: "producao", passos: [{ tipo: "clicar", seletor: 'label[for="vt-grp"]' }] },
+  { nome: "producao-metrica-tabela", aba: "producao", passos: [{ tipo: "clicar", seletor: 'label[for="mt-tbl-p"]' }] },
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
   {

@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useEstadoAba } from "@/client/estadoAbas";
 import type { Linha } from "@/domain/tipos";
 import { producaoPorRamo, type Metrica } from "@/domain/visao-geral";
 import { fBRL, fShort } from "@/domain/formatos";
@@ -10,7 +11,7 @@ import { ToggleMetrica } from "./ToggleMetrica";
 
 // renderRamo: top 8 ramos, barras horizontais.
 export function BlocoRamo({ fd }: { fd: Linha[] }) {
-  const [metrica, setMetrica] = useState<Metrica>("premio"); // mt-ramo
+  const [metrica, setMetrica] = useEstadoAba<Metrica>("visao-geral:mt-ramo", "premio"); // mt-ramo
   const rm = useMemo(() => producaoPorRamo(fd, metrica), [fd, metrica]);
   return (
     <div className="chart-card">

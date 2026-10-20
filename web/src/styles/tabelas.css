@@ -1,0 +1,159 @@
+/* styles.css: TABLES (.prod-table/.ret-table, .bar-bg/.bar-fg, .rank-badge). Globais porque Produção, Retenção, Metas e a Exibição TV compartilham os seletores. */
+.prod-table-wrap,
+.ret-table-wrap {
+  overflow-x: auto;
+}
+
+.prod-table,
+.ret-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.prod-table th,
+.ret-table th {
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.prod-table th:hover,
+.ret-table th:hover {
+  color: var(--text-primary);
+}
+
+.prod-table th .sort-icon,
+.ret-table th .sort-icon {
+  margin-left: 4px;
+  opacity: .4;
+  font-size: 9px;
+}
+
+.prod-table th.sort-asc .sort-icon::after,
+.ret-table th.sort-asc .sort-icon::after {
+  content: '▲';
+  opacity: 1;
+  color: var(--accent);
+}
+
+.prod-table th.sort-desc .sort-icon::after,
+.ret-table th.sort-desc .sort-icon::after {
+  content: '▼';
+  opacity: 1;
+  color: var(--accent);
+}
+
+.prod-table th:not(.sort-asc):not(.sort-desc) .sort-icon::after,
+.ret-table th:not(.sort-asc):not(.sort-desc) .sort-icon::after {
+  content: '⇅';
+}
+
+.prod-table td,
+.ret-table td {
+  padding: 9px 12px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.prod-table tbody tr:nth-child(even) td,
+.ret-table tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.018);
+}
+
+.prod-table tr:last-child td,
+.ret-table tr:last-child td {
+  border-bottom: none;
+}
+
+.prod-table tbody tr:hover td,
+.ret-table tbody tr:hover td {
+  background: var(--bg-elevated);
+}
+
+.prod-table .num,
+.ret-table .num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text-primary);
+}
+
+.prod-table .name-cell,
+.ret-table .name-cell {
+  font-weight: 500;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.prod-table tfoot tr td,
+.ret-table tfoot tr td {
+  font-weight: 600;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-default);
+  font-size: 11px;
+  padding: 9px 12px;
+  color: var(--text-primary);
+}
+
+/* Mini progress bars in tables */
+.bar-bg {
+  height: 3px;
+  background: var(--bg-elevated);
+  border-radius: 2px;
+  margin-top: 5px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.bar-fg {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .4s;
+}
+
+/* Rank badges */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.rank-badge.r1 {
+  background: var(--rank-1-bg);
+  color: var(--rank-1-text);
+}
+
+.rank-badge.r2 {
+  background: var(--rank-2-bg);
+  color: var(--rank-2-text);
+}
+
+.rank-badge.r3 {
+  background: var(--rank-3-bg);
+  color: var(--rank-3-text);
+}

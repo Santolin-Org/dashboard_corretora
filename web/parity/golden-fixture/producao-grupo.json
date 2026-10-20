@@ -1,0 +1,86 @@
+{
+  "graficos": {
+    "ch-prod-line": {
+      "datasets": [
+        {
+          "data": [
+            35388.24,
+            17185.66,
+            32972.41,
+            54439.02,
+            42490.840000000004,
+            47161.06999999999,
+            51434.86000000001,
+            24192.37,
+            35082.74,
+            11537.48,
+            983.3299999999999,
+            0
+          ],
+          "label": "2026"
+        },
+        {
+          "data": [
+            15445.630000000001,
+            38931.079999999994,
+            53171.48,
+            62988.740000000005,
+            45717.299999999996,
+            15174.68,
+            31841.72,
+            18476.13,
+            20555.6,
+            46033.86,
+            26660.439999999995,
+            11770.810000000001
+          ],
+          "label": "2025"
+        }
+      ],
+      "labels": [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez"
+      ]
+    }
+  },
+  "textos": {
+    "cb-chart": "−",
+    "cb-kpis": "−",
+    "cb-table": "−",
+    "ch-prod-line": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "mt-prod-c": "",
+    "mt-prod-p": "",
+    "mt-tbl-c": "",
+    "mt-tbl-p": "",
+    "period-end": "",
+    "period-legend": "2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "period-start": "",
+    "period-tags": "",
+    "prod-kpi-badge": "Grupo de produção",
+    "prod-kpi-grid": "Prêmio totalR$ 1.436.544,09437 apólicesComissão totalR$ 197.420,4413.74% do prêmioTicket médioR$ 3.832,09391 c/ prêmioGrupo de produçãos ativos3na seleção atualDestaqueSantolin 36090 pontosCom. média %13.74%comissão / prêmio",
+    "prod-table-badge": "3 grupo de produçãos",
+    "prod-table-wrap": "#Grupo de produçãoPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1Santolin 360R$ 529.421,30 🏆R$ 71.091,57 🏆13.43%R$ 3.372,11 🏆157 🏆36.01%2CorretoraR$ 471.553,15R$ 65.856,8613.97% 🏆R$ 3.368,2414033.36%3ParceriasR$ 435.569,64R$ 60.472,0113.88%R$ 3.111,2114030.63%Total geralR$ 1.436.544,09R$ 197.420,4413.74%R$ 3.287,29437100%",
+    "prod-view-label": "437 registros · Grupo de produção",
+    "rec-badge": "0 registros",
+    "sb-chart": "Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "sb-kpis": "Prêmio totalR$ 1.436.544,09437 apólicesComissão totalR$ 197.420,4413.74% do prêmioTicket médioR$ 3.832,09391 c/ prêmioGrupo de produçãos ativos3na seleção atualDestaqueSantolin 36090 pontosCom. média %13.74%comissão / prêmio",
+    "sb-table": "#Grupo de produçãoPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1Santolin 360R$ 529.421,30 🏆R$ 71.091,57 🏆13.43%R$ 3.372,11 🏆157 🏆36.01%2CorretoraR$ 471.553,15R$ 65.856,8613.97% 🏆R$ 3.368,2414033.36%3ParceriasR$ 435.569,64R$ 60.472,0113.88%R$ 3.111,2114030.63%Total geralR$ 1.436.544,09R$ 197.420,4413.74%R$ 3.287,29437100%",
+    "sc-chart": "Evolução da produção comparar períodos Prêmio Comissão − Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas",
+    "sc-kpis": "Indicadores principais Grupo de produção − Prêmio totalR$ 1.436.544,09437 apólicesComissão totalR$ 197.420,4413.74% do prêmioTicket médioR$ 3.832,09391 c/ prêmioGrupo de produçãos ativos3na seleção atualDestaqueSantolin 36090 pontosCom. média %13.74%comissão / prêmio",
+    "sc-table": "Tabela de produção 3 grupo de produçãos Exportar Prêmio Comissão − #Grupo de produçãoPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1Santolin 360R$ 529.421,30 🏆R$ 71.091,57 🏆13.43%R$ 3.372,11 🏆157 🏆36.01%2CorretoraR$ 471.553,15R$ 65.856,8613.97% 🏆R$ 3.368,2414033.36%3ParceriasR$ 435.569,64R$ 60.472,0113.88%R$ 3.111,2114030.63%Total geralR$ 1.436.544,09R$ 197.420,4413.74%R$ 3.287,29437100%",
+    "tab-producao": "Por colaborador Por grupo de produção 437 registros · Grupo de produção Indicadores principais Grupo de produção − Prêmio totalR$ 1.436.544,09437 apólicesComissão totalR$ 197.420,4413.74% do prêmioTicket médioR$ 3.832,09391 c/ prêmioGrupo de produçãos ativos3na seleção atualDestaqueSantolin 36090 pontosCom. média %13.74%comissão / prêmio Evolução da produção comparar períodos Prêmio Comissão − Adicionar período: → + Adicionar Limpar períodos 2026 — atual2025 — anterior· Adicione períodos para comparar janelas específicas Tabela de produção 3 grupo de produçãos Exportar Prêmio Comissão − #Grupo de produçãoPrêmio líquidoComissãoCom. média %Ticket médioQtd. apólices% participação1Santolin 360R$ 529.421,30 🏆R$ 71.091,57 🏆13.43%R$ 3.372,11 🏆157 🏆36.01%2CorretoraR$ 471.553,15R$ 65.856,8613.97% 🏆R$ 3.368,2414033.36%3ParceriasR$ 435.569,64R$ 60.472,0113.88%R$ 3.111,2114030.63%Total geralR$ 1.436.544,09R$ 197.420,4413.74%R$ 3.287,29437100%",
+    "vt-colab": "",
+    "vt-grp": ""
+  }
+}

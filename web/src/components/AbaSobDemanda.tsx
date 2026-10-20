@@ -10,7 +10,7 @@ import { ErroProducao } from "./TelaErro";
 const emMigracao = () => import("./EmMigracao");
 const CONTEUDO: Record<string, ComponentType> = {
   "visao-geral": dynamic(() => import("@/app/(dash)/visao-geral/VisaoGeral")),
-  producao: dynamic(emMigracao),
+  producao: dynamic(() => import("@/app/(dash)/producao/Producao")),
   retencao: dynamic(emMigracao),
   crosssell: dynamic(emMigracao),
   comparativo: dynamic(emMigracao),

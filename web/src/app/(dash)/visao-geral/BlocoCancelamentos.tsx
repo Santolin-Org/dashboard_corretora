@@ -1,8 +1,9 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Linha } from "@/domain/tipos";
 import { alternarMotivo, cancelamentos } from "@/domain/visao-geral";
 import { fN } from "@/domain/formatos";
+import { useEstadoAba } from "@/client/estadoAbas";
 import { Grafico } from "@/components/Grafico";
 import { axisClr, gridClr, labelClr } from "@/client/tema";
 import { idObjeto } from "@/client/versao";
@@ -10,12 +11,14 @@ import s from "./VisaoGeral.module.css";
 
 // Cancelamentos por motivo + filtro de motivos (buildCancelFilter/cancelCbToggle/cancelCbAll/cancelCbNone).
 // `activeCancelMotivos` do app antigo só é usado aqui, então vive neste componente (não é global entre
-// abas). null = todos marcados. Volta a null sempre que o FD muda (applyFilters/resetFilters).
-export function BlocoCancelamentos({ fd }: { fd: Linha[] }) {
-  const [estado, setEstado] = useState<{ fd: Linha[]; sel: ReadonlySet<string> | null }>({ fd, sel: null });
-  const sel = estado.fd === fd ? estado.sel : null;
-  const definirSel = (novo: ReadonlySet<string> | null) => setEstado({ fd, sel: novo });
-  const [aberto, setAberto] = useState(false); // toggleCancelFilter: lista começa fechada
+// abas). null = todos marcados. Volta a null sempre que o FD muda (applyFilters) e a cada "Limpar
+// filtros" (resetFilters zera activeCancelMotivos incondicionalmente: `geracaoLimpeza`, mesmo quando
+// o FD não muda). O estado fica na store da casca: sobrevive à troca de aba, como o DOM do antigo.
+export function BlocoCancelamentos({ fd, geracaoLimpeza }: { fd: Linha[]; geracaoLimpeza: number }) {
+  const [estado, setEstado] = useEstadoAba<{ fd: Linha[]; geracao: number; sel: ReadonlySet<string> | null }>("visao-geral:motivos", { fd, geracao: geracaoLimpeza, sel: null });
+  const sel = estado.fd === fd && estado.geracao === geracaoLimpeza ? estado.sel : null;
+  const definirSel = (novo: ReadonlySet<string> | null) => setEstado({ fd, geracao: geracaoLimpeza, sel: novo });
+  const [aberto, setAberto] = useEstadoAba("visao-geral:motivos-aberto", false); // toggleCancelFilter: lista começa fechada
 
   const cn = useMemo(() => cancelamentos(fd, sel), [fd, sel]);
   const nomes = cn.todos.map(([m]) => m);

@@ -57,18 +57,8 @@ export async function abrirAntigo(page: Page): Promise<void> {
   await page.waitForFunction("typeof XLSX !== 'undefined' && typeof Chart !== 'undefined'", undefined, { timeout: 60000 });
 }
 
-export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): Promise<Snapshot> {
-  const erros: string[] = [];
-  page.on("console", (m) => { if (m.type() === "error") erros.push(`console: ${m.text()}`); });
-  page.on("pageerror", (e) => erros.push(`pageerror: ${e.message}`));
-  page.on("dialog", (d) => { erros.push(`dialog: ${d.message()}`); void d.dismiss(); });
-
-  // tsx/esbuild injeta __name() nas funções serializadas para page.evaluate.
-  await page.addInitScript("window.__name = (f) => f;");
-  await page.clock.install({ time: new Date(HOJE_FIXO) });
-  await page.goto(`http://127.0.0.1:${PORTA_ANTIGO}/index.html`, { waitUntil: "load" });
-  await page.waitForFunction("typeof XLSX !== 'undefined' && typeof Chart !== 'undefined'", undefined, { timeout: 60000 });
-
+/** Injeta as planilhas no app antigo (mesma montagem de payloads de _spFetchAndLoad, modo 'prod') e espera o #dash abrir. */
+export async function injetarDadosAntigo(page: Page, dataDir: string): Promise<void> {
   // Mesma montagem de payloads de _spFetchAndLoad (modo 'prod').
   await page.evaluate((d) => {
     const dec = (b: string) => {
@@ -88,6 +78,21 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
     w.applySharePointData(payloads, []);
   }, lerDados(dataDir));
   await page.waitForFunction("document.getElementById('dash') && document.getElementById('dash').style.display !== 'none'");
+}
+
+export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): Promise<Snapshot> {
+  const erros: string[] = [];
+  page.on("console", (m) => { if (m.type() === "error") erros.push(`console: ${m.text()}`); });
+  page.on("pageerror", (e) => erros.push(`pageerror: ${e.message}`));
+  page.on("dialog", (d) => { erros.push(`dialog: ${d.message()}`); void d.dismiss(); });
+
+  // tsx/esbuild injeta __name() nas funções serializadas para page.evaluate.
+  await page.addInitScript("window.__name = (f) => f;");
+  await page.clock.install({ time: new Date(HOJE_FIXO) });
+  await page.goto(`http://127.0.0.1:${PORTA_ANTIGO}/index.html`, { waitUntil: "load" });
+  await page.waitForFunction("typeof XLSX !== 'undefined' && typeof Chart !== 'undefined'", undefined, { timeout: 60000 });
+
+  await injetarDadosAntigo(page, dataDir);
 
   const abaTab = c.aba === "exibicao-tv" || c.aba === "apresentacao" ? "visao-geral" : c.aba;
   await page.evaluate((aba) => {

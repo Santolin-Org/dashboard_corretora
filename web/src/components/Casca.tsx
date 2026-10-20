@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useBase } from "@/client/useBase";
 import { FiltrosProvider, useFiltros } from "@/client/filtros";
+import { EstadoAbasProvider } from "@/client/estadoAbas";
 import { usePodeReprocessar } from "@/client/podeReprocessar";
 import { ContextoPainel, usePainel, type ValorPainel } from "@/client/painel";
 import { AvisoSessao, AvisoSemConexao } from "./AvisoSessao";
@@ -56,7 +57,8 @@ export function Casca({ children }: { children: ReactNode }) {
     );
   }
   return (
-    <>
+    // O estado de UI das abas fica acima das rotas: sobrevive à troca de aba (como o DOM do app antigo).
+    <EstadoAbasProvider>
       <ModoTvEfeito />
       {base && estado === "sessao-expirada" && <AvisoSessao desde={ultimaBoaEm} />}
       {base && estado !== "sessao-expirada" && semConexaoDesde !== undefined && <AvisoSemConexao desde={semConexaoDesde} />}
@@ -65,7 +67,7 @@ export function Casca({ children }: { children: ReactNode }) {
         <PainelFontes aberto={fontesAberto} onFechar={fecharFontes} manifesto={base.manifesto} totalLinhas={base.linhas.length}
           avisosSaude={base.avisosSaude} podeReprocessar={podeReprocessar} recarregar={recarregar} />
       )}
-    </>
+    </EstadoAbasProvider>
   );
 }
 

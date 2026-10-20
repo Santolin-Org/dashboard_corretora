@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useEstadoAba } from "@/client/estadoAbas";
 import type { Linha } from "@/domain/tipos";
 import { concentracaoSeguradora, type Metrica } from "@/domain/visao-geral";
 import { fBRL, fP } from "@/domain/formatos";
@@ -10,7 +11,7 @@ import { ToggleMetrica } from "./ToggleMetrica";
 
 // renderSeguradora: rosca com top 8 + Outros e legenda de participação.
 export function BlocoSeguradora({ fd }: { fd: Linha[] }) {
-  const [metrica, setMetrica] = useState<Metrica>("premio"); // mt-seg
+  const [metrica, setMetrica] = useEstadoAba<Metrica>("visao-geral:mt-seg", "premio"); // mt-seg
   const sg = useMemo(() => concentracaoSeguradora(fd, metrica), [fd, metrica]);
   const cores = PALETA.slice(0, sg.rotulos.length);
   return (

@@ -11,7 +11,7 @@ import { BlocoRamo } from "./BlocoRamo";
 // domínio puro em @/domain/visao-geral, um componente por bloco, estado de controles local à aba.
 export default function VisaoGeral() {
   const { base } = usePainel();
-  const { filtros, fd } = useFiltros();
+  const { filtros, fd, geracaoLimpeza } = useFiltros();
   // renderKPIs: sem nenhuma data de vigência/emissão preenchida, os KPIs olham só o ano corrente.
   const semFiltroDeData = !filtros.vigIni && !filtros.vigFim && !filtros.emIni && !filtros.emFim;
   return (
@@ -21,7 +21,7 @@ export default function VisaoGeral() {
       <div className="charts-grid">
         <BlocoEvolucao fd={fd} hoje={base.hoje} />
         {" "}
-        <BlocoCancelamentos fd={fd} />
+        <BlocoCancelamentos fd={fd} geracaoLimpeza={geracaoLimpeza} />
         {" "}
         <BlocoSeguradora fd={fd} />
         {" "}

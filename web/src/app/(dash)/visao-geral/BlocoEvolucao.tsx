@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useEstadoAba } from "@/client/estadoAbas";
 import type { Linha } from "@/domain/tipos";
 import { evolucaoMensal, MESES_ROTULOS, type Metrica } from "@/domain/visao-geral";
 import { fBRL, fShort } from "@/domain/formatos";
@@ -13,7 +14,7 @@ const CLASSE = { "var-pos": s.varPos, "var-neg": s.varNeg, "var-neu": s.varNeu }
 
 // renderEvolucao: linhas do ano corrente e do anterior (vigência) + barra de variação %.
 export function BlocoEvolucao({ fd, hoje }: { fd: Linha[]; hoje: string }) {
-  const [metrica, setMetrica] = useState<Metrica>("premio"); // mt-evol: Prêmio marcado de início
+  const [metrica, setMetrica] = useEstadoAba<Metrica>("visao-geral:mt-evol", "premio"); // mt-evol: Prêmio marcado de início
   const ev = useMemo(() => evolucaoMensal(fd, metrica, hoje), [fd, metrica, hoje]);
   return (
     <div className="chart-card span2">
