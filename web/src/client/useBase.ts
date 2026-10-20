@@ -8,36 +8,61 @@ import {
 } from "@/domain/serializacao";
 
 export type BaseCliente = Omit<Base, "linhas" | "sinistros"> & { linhas: Linha[]; sinistros: Sinistro[] };
+/** Revalida /api/dados a cada 5 min: a TV fica ligada o dia todo e a chamada também renova o token (proxy). */
+export const INTERVALO_REVALIDACAO_MS = 5 * 60 * 1000;
+/** Falhas contínuas por mais que isto viram o aviso "Sem conexão com o servidor". */
+export const LIMITE_SEM_CONEXAO_MS = 15 * 60 * 1000;
+
 export type EstadoBase = "carregando" | "pronto" | "erro" | "sessao-expirada";
 
 type Corpo = Omit<Base, "linhas" | "sinistros"> & { linhas: LinhasColunares; sinistros: SinistrosColunares };
 
-export function useBase(): { estado: EstadoBase; base?: BaseCliente; erro?: string; recarregar(): void } {
+export function useBase(): {
+  estado: EstadoBase; base?: BaseCliente; erro?: string; recarregar(): void;
+  /** epoch ms da última carga/revalidação bem-sucedida (200 ou 304). */
+  ultimaBoaEm?: number;
+  /** epoch ms do início das falhas, só quando duram mais de LIMITE_SEM_CONEXAO_MS. */
+  semConexaoDesde?: number;
+} {
   const [estado, setEstado] = useState<EstadoBase>("carregando");
   const [base, setBase] = useState<BaseCliente | undefined>();
   const [erro, setErro] = useState<string | undefined>();
+  const [ultimaBoaEm, setUltimaBoaEm] = useState<number | undefined>();
+  const [semConexaoDesde, setSemConexaoDesde] = useState<number | undefined>();
+  const falhaDesde = useRef<number | null>(null);
   const etag = useRef<string | null>(null);
   const seq = useRef(0);
   const vivo = useRef(true);
 
   const carregar = useCallback(async () => {
+    const boa = () => {
+      falhaDesde.current = null;
+      setSemConexaoDesde(undefined);
+      setUltimaBoaEm(Date.now());
+      setErro(undefined);
+      setEstado("pronto");
+    };
     const meu = ++seq.current;
     try {
       const headers: Record<string, string> = {};
       if (etag.current) headers["If-None-Match"] = etag.current;
       const r = await fetch("/api/dados", { headers, credentials: "same-origin" });
       if (!vivo.current || meu !== seq.current) return; // resposta de uma chamada antiga
+      // O proxy responde 401 também quando o refresh do token falhou (session.error = RefreshFailed),
+      // então uma única chamada cobre os dois casos e já renova o cookie de sessão quando dá.
       if (r.status === 401) { setEstado("sessao-expirada"); return; }
-      if (r.status === 304) { setErro(undefined); setEstado("pronto"); return; }
+      if (r.status === 304) { boa(); return; }
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const c = (await r.json()) as Corpo;
       if (!vivo.current || meu !== seq.current) return;
       setBase({ ...c, linhas: decodificarLinhas(c.linhas), sinistros: decodificarSinistros(c.sinistros) });
       etag.current = r.headers.get("etag");
-      setErro(undefined);
-      setEstado("pronto");
+      boa();
     } catch (e) {
       if (!vivo.current || meu !== seq.current) return;
+      const agora = Date.now();
+      falhaDesde.current ??= agora;
+      if (agora - falhaDesde.current >= LIMITE_SEM_CONEXAO_MS) setSemConexaoDesde(falhaDesde.current);
       setErro(e instanceof Error ? e.message : String(e));
       setEstado("erro");
     }
@@ -48,9 +73,19 @@ export function useBase(): { estado: EstadoBase; base?: BaseCliente; erro?: stri
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void carregar();
     vivo.current = true; // StrictMode: monta, desmonta e monta de novo
-    return () => { vivo.current = false; };
+    const tick = setInterval(() => void carregar(), INTERVALO_REVALIDACAO_MS);
+    const aoVoltar = () => { if (document.visibilityState === "visible") void carregar(); };
+    const aoOnline = () => void carregar();
+    document.addEventListener("visibilitychange", aoVoltar);
+    window.addEventListener("online", aoOnline);
+    return () => {
+      vivo.current = false;
+      clearInterval(tick);
+      document.removeEventListener("visibilitychange", aoVoltar);
+      window.removeEventListener("online", aoOnline);
+    };
   }, [carregar]);
 
   const recarregar = useCallback(() => void carregar(), [carregar]);
-  return { estado, base, erro, recarregar };
+  return { estado, base, erro, recarregar, ultimaBoaEm, semConexaoDesde };
 }

@@ -5,6 +5,7 @@ import { useBase } from "@/client/useBase";
 import { FiltrosProvider, useFiltros } from "@/client/filtros";
 import { usePodeReprocessar } from "@/client/podeReprocessar";
 import { ContextoPainel, usePainel, type ValorPainel } from "@/client/painel";
+import { AvisoSessao, AvisoSemConexao } from "./AvisoSessao";
 import { ABAS, Abas } from "./Abas";
 import { Cabecalho, textoRecBadge } from "./Cabecalho";
 import { FiltrosGlobais } from "./FiltrosGlobais";
@@ -17,7 +18,7 @@ const ROTAS_COM_CASCA = new Set<string>(ABAS.map((a) => a.id));
 // Casca do painel (#dash): cabeçalho, abas e filtros globais em volta da aba atual.
 // /exibicao-tv e /apresentacao são telas cheias: recebem os mesmos contextos, sem a casca.
 export function Casca({ children }: { children: ReactNode }) {
-  const { estado, base, erro, recarregar } = useBase();
+  const { estado, base, erro, recarregar, ultimaBoaEm, semConexaoDesde } = useBase();
   const [fontesAberto, setFontesAberto] = useState(false);
   const abrirFontes = useCallback(() => setFontesAberto(true), []);
   const fecharFontes = useCallback(() => setFontesAberto(false), []);
@@ -57,6 +58,8 @@ export function Casca({ children }: { children: ReactNode }) {
   return (
     <>
       <ModoTvEfeito />
+      {base && estado === "sessao-expirada" && <AvisoSessao desde={ultimaBoaEm} />}
+      {base && estado !== "sessao-expirada" && semConexaoDesde !== undefined && <AvisoSemConexao desde={semConexaoDesde} />}
       {conteudo}
       {base && (
         <PainelFontes aberto={fontesAberto} onFechar={fecharFontes} manifesto={base.manifesto} totalLinhas={base.linhas.length}
