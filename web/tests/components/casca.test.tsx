@@ -154,19 +154,43 @@ describe("Grafico", () => {
     mockTema(true);
     const c1 = (): ChartConfiguration => ({ type: "bar", data: { labels: ["Jan"], datasets: [{ label: "2026", data: [1] }] } });
     const c2 = (): ChartConfiguration => ({ type: "bar", data: { labels: ["Jan", "Fev"], datasets: [{ label: "2026", data: [1, 2] }] } });
-    const { rerender, unmount, container } = render(<Grafico id="ch-x" construir={c1} altura={210} />);
+    const { rerender, unmount, container } = render(<Grafico id="ch-x" chave={1} construir={c1} altura={210} />);
     expect(container.querySelector(".cw > canvas#ch-x")).not.toBeNull();
     expect((container.querySelector(".cw") as HTMLElement).style.height).toBe("210px");
     expect(window.__charts!["ch-x"].data.labels).toEqual(["Jan"]);
     await tick();
     const primeiro = criados.at(-1)!;
     expect(primeiro.cfg.data).toBe(window.__charts!["ch-x"].data);
-    rerender(<Grafico id="ch-x" construir={c2} altura={210} />);
+    rerender(<Grafico id="ch-x" chave={2} construir={c2} altura={210} />);
     expect(window.__charts!["ch-x"].data.labels).toEqual(["Jan", "Fev"]);
     await tick();
     expect(primeiro.destruido).toBe(true);
     unmount();
     expect(window.__charts!["ch-x"]).toBeUndefined();
+  });
+
+  it("construir inline com a mesma chave: cria o Chart uma vez só; mudar a chave reconstrói com o construir mais recente", async () => {
+    mockTema(true);
+    const n0 = criados.length;
+    const el = (chave: number, dados: number[]) => (
+      <Grafico id="ch-inline" chave={chave} construir={() => ({ type: "bar", data: { labels: dados.map(String), datasets: [{ data: dados }] } })} />
+    );
+    const { rerender } = render(el(1, [1]));
+    await tick();
+    for (let i = 0; i < 5; i++) { rerender(el(1, [1])); await tick(); }
+    expect(criados.length - n0).toBe(1);
+    const primeiro = criados.at(-1)!;
+    expect(primeiro.destruido).toBe(false);
+    // mesma chave com dados diferentes: não reconstrói (a chave é quem manda)
+    rerender(el(1, [9]));
+    await tick();
+    expect(criados.length - n0).toBe(1);
+    rerender(el(2, [1, 2]));
+    await tick();
+    expect(criados.length - n0).toBe(2);
+    expect(primeiro.destruido).toBe(true);
+    expect(criados.at(-1)!.cfg.data.datasets[0].data).toEqual([1, 2]);
+    expect(window.__charts!["ch-inline"].data).toBe(criados.at(-1)!.cfg.data);
   });
 
   it("troca de tema: reconstrói a config com as cores novas num Chart novo", async () => {
@@ -176,7 +200,7 @@ describe("Grafico", () => {
       type: "line", data: { labels: ["Jan"], datasets: [{ data: [1] }] },
       options: { scales: { x: { ticks: { color: axisClr() } } }, plugins: { title: { text: escuro ? "escuro" : "claro" } } },
     });
-    render(<Grafico id="ch-tema" construir={construir} />);
+    render(<Grafico id="ch-tema" chave="k" construir={construir} />);
     await tick();
     const antes = criados.at(-1)!;
     expect((antes.cfg.options as { scales: { x: { ticks: { color: string } } } }).scales.x.ticks.color).toBe("#8b949e");
