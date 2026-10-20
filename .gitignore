@@ -27,3 +27,8 @@ venv/
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# ── App Next.js (web/) ──
+web/parity/data/
+web/parity/.golden/
+web/.env*.local

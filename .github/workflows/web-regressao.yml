@@ -1,0 +1,28 @@
+name: web-regressao
+
+on:
+  push:
+    paths: ['web/**', '.github/workflows/web-regressao.yml']
+  pull_request:
+    paths: ['web/**', '.github/workflows/web-regressao.yml']
+
+defaults:
+  run:
+    working-directory: web
+
+env:
+  TZ: America/Sao_Paulo
+
+jobs:
+  regressao:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run regressao
