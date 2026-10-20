@@ -172,6 +172,29 @@ describe("aba Retenção", () => {
     expect(pag.textContent).toContain("Página 1 de 2");
   });
 
+  it("página do detalhe volta a 1 com filtro global, Limpar filtros global e troca da base", () => {
+    const { container, rerender } = render(<Raiz linhas={MUITAS} />);
+    const pag = container.querySelector("#ret-detail-pagination") as HTMLElement;
+    const pagina2 = () => { fireEvent.click(screen.getByText("Próxima →")); expect(pag.textContent).toContain("Página 2 de 2"); };
+    pagina2();
+    fireEvent.click(container.querySelector("#ms-col input[data-valor='CAROL']")!);
+    expect(pag.textContent).toContain("Página 1 de 2");
+    pagina2();
+    fireEvent.click(screen.getByText("↻ Limpar filtros"));
+    expect(pag.textContent).toContain("Página 1 de 2");
+    pagina2();
+    rerender(<Raiz linhas={[...MUITAS]} />);
+    expect(pag.textContent).toContain("Página 1 de 2");
+  });
+
+  it("página do detalhe NÃO volta a 1 em re-render sem mudança (ordenar a tabela por produtor)", () => {
+    const { container } = render(<Raiz linhas={MUITAS} />);
+    const pag = container.querySelector("#ret-detail-pagination") as HTMLElement;
+    fireEvent.click(screen.getByText("Próxima →"));
+    fireEvent.click(container.querySelectorAll("#ret-prod-table-wrap th")[1]);
+    expect(pag.textContent).toContain("Página 2 de 2");
+  });
+
   it("colaborador: opções remontadas com os marcados atuais quando os dados são recarregados", () => {
     const L1 = [linha({ colab: "ANA", vig: "2026-02-01" }), linha({ colab: "BIA", vig: "2026-02-01" })];
     const L2 = [linha({ colab: "BIA", vig: "2026-02-01" })];

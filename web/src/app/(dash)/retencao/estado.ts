@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { useEstadoAba } from "@/client/estadoAbas";
 import { useFiltros } from "@/client/filtros";
 import { usePainel } from "@/client/painel";
@@ -19,13 +20,22 @@ const VISUAL_LIMPO: VisualBotoes = { R: false, N: false, evitavel: false };
 
 export function useEstadoRetencao() {
   const { base } = usePainel();
-  const { geracaoLimpeza } = useFiltros();
+  const { geracaoLimpeza, fd } = useFiltros();
   const [filtros, setFiltrosBruto] = useEstadoAba<FiltrosRetencao>("retencao:filtros", FILTROS_RET_INICIAIS);
   const [periodo, setPeriodoBruto] = useEstadoAba<PeriodoRet>("retencao:periodo", periodoPadraoRet(base.hoje));
   // Geração de renderRetTab: cada ação que o chamava no antigo (filtro, período, visão, situação, Limpar)
   // incrementa; o detalhe volta à página 1 a cada incremento (retDetailPage = 1), mesmo sem mudar valor.
   const [renderRet, setRenderRet] = useEstadoAba<number>("retencao:render", 0);
   const bump = () => setRenderRet((n) => n + 1);
+  // applyFilters/resetFilters/carga de dados também chamam renderRetTab (retDetailPage = 1): mudou a
+  // identidade de `fd` (memoizado no provider), a geração de limpeza ou a base.
+  const [vistos, setVistos] = useEstadoAba<{ fd: unknown; geracao: number; linhas: unknown } | null>("retencao:vistos", null);
+  useEffect(() => {
+    if (!vistos || vistos.fd !== fd || vistos.geracao !== geracaoLimpeza || vistos.linhas !== base.linhas) {
+      setVistos({ fd, geracao: geracaoLimpeza, linhas: base.linhas });
+      bump();
+    }
+  });
   const setFiltros = (v: FiltrosRetencao) => { setFiltrosBruto(v); bump(); };
   const setPeriodo = (v: PeriodoRet) => { setPeriodoBruto(v); bump(); };
   const [colRemontagem, setColRemontagem] = useEstadoAba<string[]>("retencao:col-remontagem", []);
