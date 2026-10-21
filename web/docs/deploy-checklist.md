@@ -32,6 +32,11 @@ Variáveis e scripts: ver `README.md`.
 
 ## d. Paridade com dados reais
 
+> **Portão de merge e de virada do domínio:** sem `npm run regressao:real` com saída 0 (ou só com divergências
+> aceitas e listadas em `docs/divergencias.md`) sobre as planilhas reais do dia, não se faz o merge de
+> `nextjs-migracao` nem a virada. Primeira execução (2026-10-21, 6 planilhas de produção + saúde, sem sinistros):
+> 0 diferença em 111 cenários.
+
 - [ ] Copiar as planilhas reais para `web/parity/data/` (`producao*.xlsx`, `sinistrosAvisados.xlsx`, `sinistrosPagamentos.xlsx`, `saude_fernando.xlsx` se houver). Não vão para o git.
 - [ ] `npm run regressao:real` (cobre as abas já portadas; Sinistros fica de fora, por decisão do Mitz).
   - Verificar: saída 0 e `parity/.golden/relatorio.md` sem diferenças. Anexar o relatório ao PR.
