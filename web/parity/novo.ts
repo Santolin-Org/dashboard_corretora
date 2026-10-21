@@ -106,6 +106,7 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
 
   await page.addInitScript("window.__name = (f) => f;");
   await page.clock.install({ time: new Date(HOJE_FIXO) });
+  await page.clock.setFixedTime(new Date(HOJE_FIXO)); // Date.now() parado: o LTV do Cross-sell divide por (agora − 1ª vigência)
   await page.goto(`${baseUrl}/${c.aba}`, { waitUntil: "load", timeout: 120_000 });
   // Dados carregados: o badge sai de "" / "—" quando a base chega (fica "—" também se o fetch falhar).
   try {
@@ -119,7 +120,9 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
 
   if (existe) {
     for (const p of c.passos) {
-      if (p.tipo === "preencher") {
+      if (p.tipo === "digitar") {
+        await page.fill(`#${p.id}`, p.valor, { timeout: 10_000 }); // dispara input (o React escuta input)
+      } else if (p.tipo === "preencher") {
         // fill() dispara input e change nativos (os campos de data são não controlados).
         await page.fill(`#${p.id}`, p.valor, { timeout: 10_000 });
       } else if (p.tipo === "clicar") {

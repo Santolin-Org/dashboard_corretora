@@ -53,6 +53,7 @@ function lerDados(dir: string) {
 export async function abrirAntigo(page: Page): Promise<void> {
   await page.addInitScript("window.__name = (f) => f;");
   await page.clock.install({ time: new Date(HOJE_FIXO) });
+  await page.clock.setFixedTime(new Date(HOJE_FIXO)); // Date.now() parado: o LTV do Cross-sell divide por (agora − 1ª vigência)
   await page.goto(`http://127.0.0.1:${PORTA_ANTIGO}/index.html`, { waitUntil: "load" });
   await page.waitForFunction("typeof XLSX !== 'undefined' && typeof Chart !== 'undefined'", undefined, { timeout: 60000 });
 }
@@ -89,6 +90,7 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
   // tsx/esbuild injeta __name() nas funções serializadas para page.evaluate.
   await page.addInitScript("window.__name = (f) => f;");
   await page.clock.install({ time: new Date(HOJE_FIXO) });
+  await page.clock.setFixedTime(new Date(HOJE_FIXO)); // Date.now() parado: o LTV do Cross-sell divide por (agora − 1ª vigência)
   await page.goto(`http://127.0.0.1:${PORTA_ANTIGO}/index.html`, { waitUntil: "load" });
   await page.waitForFunction("typeof XLSX !== 'undefined' && typeof Chart !== 'undefined'", undefined, { timeout: 60000 });
 
@@ -109,6 +111,13 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
         if (!el) throw new Error(`#${id} não existe`);
         el.value = valor;
         el.dispatchEvent(new Event("change", { bubbles: true }));
+      }, p);
+    } else if (p.tipo === "digitar") {
+      await page.evaluate(({ id, valor }) => {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (!el) throw new Error(`#${id} não existe`);
+        el.value = valor;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
       }, p);
     } else if (p.tipo === "clicar") {
       await page.click(p.seletor, { timeout: 10000 });

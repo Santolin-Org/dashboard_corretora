@@ -27,6 +27,7 @@ test("parseProducao (Node) == parseProducaoArrayBuffer antigo + fmtD", async ({ 
     const loc = (d: any) => (d instanceof Date ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "");
     const locais = (r: any) => ({
       ...(loc(r.vig) && loc(r.vig) !== fmtD(r.vig) ? { vigLocal: loc(r.vig) } : {}),
+      ...(r.vig instanceof Date ? { vigMs: r.vig.getTime() } : {}), // instante exato (Cross-sell)
       ...(loc(r.em) && loc(r.em) !== fmtD(r.em) ? { emLocal: loc(r.em) } : {}),
     });
       const bin = atob(b64); const u = new Uint8Array(bin.length);
@@ -63,6 +64,7 @@ test("parse com células de data com hora == antigo (inclui horário de verão a
     const loc = (d: any) => (d instanceof Date ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` : "");
     const locais = (r: any) => ({
       ...(loc(r.vig) && loc(r.vig) !== fmtD(r.vig) ? { vigLocal: loc(r.vig) } : {}),
+      ...(r.vig instanceof Date ? { vigMs: r.vig.getTime() } : {}), // instante exato (Cross-sell)
       ...(loc(r.em) && loc(r.em) !== fmtD(r.em) ? { emLocal: loc(r.em) } : {}),
     });
     const bin = atob(b64); const u = new Uint8Array(bin.length);

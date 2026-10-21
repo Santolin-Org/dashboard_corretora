@@ -71,6 +71,45 @@ export function dataLocalDeCelula(v: number, comFormatoDeData: boolean): DataISO
   return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
 }
 
+// Instante (ms) do Date que o app antigo guarda em r.vig, para a conta de tempo do Cross-sell
+// (Date.now() - vig.getTime()). Mesmos casos de celulaParaISO/dataLocalDeCelula:
+//  - número com formato de data (SheetJS cellDates:true => Date): numdate do SheetJS 0.18.5 (numdateSheetJS);
+//  - número sem formato de data (toDate de number): serial em UTC;
+//  - string 'YYYY-MM-DD': meia-noite local; com hora: hora local de São Paulo.
+// numdate() do SheetJS 0.18.5 (o da CDN do app antigo) rodando no navegador em São Paulo: o serial vira
+// serial + 3h (o deslocamento de hoje, 180 min); depois a função corrige datas cujo deslocamento (horário de verão
+// antigo) difere do de hoje, para o relógio local do Date bater com o da célula.
+// Só a fixture sintética foge disso: o SheetJS do Node grava as datas ISO dela como serial 28 s abaixo do exato (o V8
+// usa minutos inteiros no fuso de 1899), enquanto o antigo lê o ISO direto. Um instante que fica a 28 s de um
+// minuto redondo (e não está num) é reposto nesse minuto; no Excel real as células são de minuto redondo.
+const SKEW_SHEETJS_NODE = 28000;
+function numdateSheetJS(v: number): number {
+  let t = Math.trunc(v * 24 * 60 * 60 * 1000 + Date.UTC(1899, 11, 30) + 3 * 3600000);
+  const off = -offsetSP(t) / 60000; // getTimezoneOffset (minutos, positivo a oeste) no instante t
+  if (off !== 180) t += (off - 180) * 60000;
+  const noMinuto = (x: number) => Math.abs(x - Math.round(x / 60000) * 60000) <= 2;
+  if (!noMinuto(t) && noMinuto(t + SKEW_SHEETJS_NODE)) t = Math.round((t + SKEW_SHEETJS_NODE) / 60000) * 60000;
+  return t;
+}
+export function celulaParaMs(v: unknown, comFormatoDeData: boolean): number | undefined {
+  if (!v) return undefined;
+  let ms: number;
+  if (v instanceof Date) ms = v.getTime();
+  else if (typeof v === 'number') {
+    if (comFormatoDeData) ms = numdateSheetJS(v);
+    else ms = Math.round((v - 25569) * 86400 * 1000);
+  } else if (typeof v === 'string') {
+    if (ISO_RE.test(v)) ms = instanteDeParedeSP(Date.parse(v + 'T00:00:00Z'));
+    else {
+      const m = COM_HORA_RE.exec(v);
+      ms = m ? instanteDeParedeSP(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] ?? 0))) : new Date(v).getTime();
+    }
+  } else ms = new Date(v as never).getTime();
+  return isNaN(ms) ? undefined : ms;
+}
+/** Instante de uma data civil 'YYYY-MM-DD' à meia-noite de São Paulo (quando a linha não traz o instante exato). */
+export const instanteDeDataISO = (d: DataISO): number => instanteDeParedeSP(Date.parse(d + 'T00:00:00Z'));
+
 // Aritmética de calendário em UTC: nunca sofre deslocamento de horário de verão.
 export function addDiasISO(d: DataISO, n: number): DataISO {
   if (!d) return '';

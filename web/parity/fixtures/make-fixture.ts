@@ -273,6 +273,17 @@ export function gerarFixture(dir: string): void {
     }));
   }
 
+  // Campanha SANTOLIN 360 (3º trimestre de 2026): marca, sem consumir `rnd`, algumas apólices do trimestre para a
+  // aba Cross-sell ter metas e pódio com valores. Caixa variada de propósito (a comparação é normalizada).
+  const msDe = (v: Date | number | string) => (v instanceof Date ? v.getTime() : typeof v === "number" ? (v - 25569) * DIA : NaN);
+  let marcadas = 0;
+  for (const l of arq2026) {
+    const ms = msDe(l["INÍCIO DE VIGÊNCIA"]);
+    if (l["TIPO DOCUMENTO"] !== "APÓLICE" || !(ms >= utc(2026, 7, 1) && ms <= utc(2026, 9, 29))) continue;
+    l.CAMPANHA = marcadas % 3 === 2 ? "santolin 360" : "SANTOLIN 360";
+    marcadas++;
+  }
+
   gravar(join(dir, "producao_2024.xlsx"), COLUNAS_PRODUCAO, arq2024);
   gravar(join(dir, "producao_2026.xlsx"), COLUNAS_PRODUCAO, arq2026);
 

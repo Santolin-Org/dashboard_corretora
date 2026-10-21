@@ -1,0 +1,131 @@
+/* styles.css: CROSS-SELL TAB — penetration bars (.pen-*) e RETENÇÃO .ret-filter-card/.f-group/.f-label (filtros próprios da aba). */
+.retFilterCard {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  box-shadow: var(--shadow-card);
+}
+
+.fGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.fLabel {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.penWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Alvo de altura: casa com a altura do card vizinho (Clientes por nível, 240px)
+     no charts-grid — só é atingido quando poucas barras cabem, aí elas crescem
+     para preencher esse espaço. Com muitas barras, o conteúdo excede esse valor
+     e cada linha fica na espessura mínima (.penRow min-height), sem espremer. */
+  min-height: 240px;
+}
+
+.penRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1 1 0;
+  min-height: 28px;
+}
+
+.penLabel {
+  width: 200px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.penBar {
+  flex: 1;
+  display: flex;
+  height: 100%;
+  border-radius: var(--r-sm);
+  background: var(--bg-elevated);
+  min-width: 0;
+}
+
+.penSegYes {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: var(--r-sm) 0 0 var(--r-sm);
+  background: linear-gradient(90deg, #BA7517, #F5A623);
+  white-space: nowrap;
+  overflow: visible;
+  z-index: 1;
+}
+
+.penSegYes span {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  /* Fundo próprio (não a cor direta do gradiente) porque em barras estreitas o
+     texto transborda pra fora do dourado, caindo sobre o fundo escuro do card —
+     texto escuro direto no dourado ficava ilegível nessa sobra. */
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.penSegNo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px;
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  min-width: 0;
+}
+
+.penSegNo span {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--neg-text);
+  white-space: nowrap;
+}
+
+.penSegOpp {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, #3654A6, #4E80FF);
+  white-space: nowrap;
+  overflow: visible;
+  z-index: 1;
+}
+
+.penSegOpp span {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+}

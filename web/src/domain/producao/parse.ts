@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { Linha } from '../tipos';
-import { celulaParaISO, dataLocalDeCelula } from '../datas';
+import { celulaParaISO, celulaParaMs, dataLocalDeCelula } from '../datas';
 import { canonRamo, normRamo } from '../ramos';
 import { normSit } from '../situacoes';
 
@@ -39,6 +39,13 @@ export function parseProducao(buf: ArrayBuffer): Linha[] {
     const l = dataLocalDeCelula(v, !!cel?.z && XLSX.SSF.is_date(cel.z));
     return l && l !== iso ? l : undefined;
   };
+  // Instante exato do Date de vig (ver celulaParaMs).
+  const instante = (r: Record<string, unknown>, c: number): number | undefined => {
+    const v = r[COL.vig];
+    if (typeof v !== 'number' || c < 0) return celulaParaMs(v, false);
+    const cel = ws[XLSX.utils.encode_cell({ r: (r as { __rowNum__: number }).__rowNum__, c })];
+    return celulaParaMs(v, !!cel?.z && XLSX.SSF.is_date(cel.z));
+  };
   return rows.map(r => {
     const docDigits = String(r[COL.doc] || '').replace(/\D/g, '');
     const pessoaTxt = normRamo(r[COL.pessoa]);
@@ -48,9 +55,10 @@ export function parseProducao(buf: ArrayBuffer): Linha[] {
       : docDigits.length === 11 ? 'PF' : docDigits.length > 11 ? 'PJ' : '';
     const vig = celulaParaISO(r[COL.vig]), em = celulaParaISO(r[COL.em]);
     const vigLocal = local(r, cVig, COL.vig, vig), emLocal = local(r, cEm, COL.em, em);
+    const vigMs = vig ? instante(r, cVig) : undefined;
     return {
       tipo: String(r[COL.tipo] || '').trim(), vig, em,
-      ...(vigLocal ? { vigLocal } : {}), ...(emLocal ? { emLocal } : {}),
+      ...(vigLocal ? { vigLocal } : {}), ...(emLocal ? { emLocal } : {}), ...(vigMs !== undefined ? { vigMs } : {}),
       fim: celulaParaISO(r[COL.fim]), cli: String(r[COL.cli] || ''), seg: String(r[COL.seg] || ''),
       ramo: canonRamo(r[COL.ramo]), grp: String(r[COL.grp] || ''),
       premio: parseFloat(String(r[COL.premio])) || 0, com: parseFloat(String(r[COL.com])) || 0,

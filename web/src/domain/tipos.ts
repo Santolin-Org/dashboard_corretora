@@ -6,5 +6,7 @@ export type Linha = {
   docDigits: string; tipoPessoa: 'PF' | 'PJ' | ''; tipoDoc: string; campanha: string; apolice: string; endosso: string;
   /** Data civil LOCAL (São Paulo) do Date do app antigo, só quando difere de vig/em (ver dataLocalDeCelula). */
   vigLocal?: DataISO; emLocal?: DataISO;
+  /** Instante (ms) exato do Date de r.vig do app antigo; só o Cross-sell usa (tempo desde a 1ª vigência). Ausente em linhas que não vêm da produção (saúde criada à parte). */
+  vigMs?: number;
   trocaSeg: boolean; saudeManual?: boolean; saudeFaturaDe?: string; // preenchidos pelos enriquecimentos (Task 4)
 };

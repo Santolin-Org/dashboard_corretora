@@ -4,6 +4,7 @@ export type AbaId =
 
 export type Passo =
   | { tipo: "preencher"; id: string; valor: string } // input date/text: define value e dispara 'change'
+  | { tipo: "digitar"; id: string; valor: string } // input de texto: define value e dispara 'input' (oninput do antigo)
   | { tipo: "clicar"; seletor: string }
   | { tipo: "multiselect"; id: "ms-col" | "ms-grp" | "ms-ram" | "ms-seg" | "ms-ret-col" | "ms-ret-ram" | "ms-ret-grp" | "ms-ret-mot"; valores: string[] };
 
@@ -122,6 +123,14 @@ export const CENARIOS: Cenario[] = [
   { nome: "producao-ordenacao-nome", aba: "producao", passos: [{ tipo: "clicar", seletor: "#prod-table-wrap th:nth-child(2)" }] },
   { nome: "producao-grupo", aba: "producao", passos: [{ tipo: "clicar", seletor: 'label[for="vt-grp"]' }] },
   { nome: "producao-metrica-tabela", aba: "producao", passos: [{ tipo: "clicar", seletor: 'label[for="mt-tbl-p"]' }] },
+  { nome: "crosssell-pj", aba: "crosssell", passos: [{ tipo: "clicar", seletor: 'label[for="cp-pj"]' }] },
+  { nome: "crosssell-oportunidade", aba: "crosssell", passos: [{ tipo: "clicar", seletor: 'label[for="cpm-opp"]' }] },
+  { nome: "crosssell-pagina2", aba: "crosssell", passos: [{ tipo: "clicar", seletor: "#cross-table-pagination button:nth-of-type(2)" }] }, // Próxima →
+  { nome: "crosssell-busca", aba: "crosssell", passos: [{ tipo: "digitar", id: "cross-search", valor: "Silva" }] },
+  {
+    nome: "crosssell-ordenacao-ltv-asc", aba: "crosssell", // LTV já é a ordenação padrão (desc): um clique inverte para asc
+    passos: [{ tipo: "clicar", seletor: "#cross-table-wrap th:last-child" }],
+  },
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
   {

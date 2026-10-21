@@ -9,7 +9,11 @@ const ab = (b: Buffer) => b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLeng
 export function carregarFixture() {
   const dir = mkdtempSync(join(tmpdir(), 'fx-'));
   try {
-    gerarFixture(dir);
+    // O SheetJS grava as células Date da fixture pelo fuso do processo; os dourados vêm do app antigo em São Paulo
+    // (o instante da 1ª vigência do Cross-sell depende disso), então a fixture é sempre gerada nesse fuso.
+    const tz = process.env.TZ;
+    process.env.TZ = 'America/Sao_Paulo';
+    try { gerarFixture(dir); } finally { if (tz === undefined) delete process.env.TZ; else process.env.TZ = tz; }
     const nomes = readdirSync(dir);
     const fontes: FonteProducao[] = nomes.filter(n => /^producao.*\.xlsx$/.test(n)).sort((a, b) => a.localeCompare(b))
       .map(nome => ({ nome, linhas: parseProducao(ab(readFileSync(join(dir, nome)))), modificadoEm: '2026-10-14T12:00:00Z' }));

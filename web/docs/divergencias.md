@@ -91,3 +91,36 @@
   marcada, a ordem de criação do agregado e não a ordenação da tela) e `Export_Detalhe.xlsx` (aba "Detalhe",
   todas as perdidas no filtro de situação atual, sem paginar). Comparados célula a célula com o antigo em
   `tests/parity/exportar-retencao.test.ts`.
+
+## Task 17 — Cross-sell
+
+- **A aba lê `ALL` inteiro** (`base.linhas`): os filtros globais do cabeçalho não mudam nada nela (o subtítulo "no total (PF+PJ)" e
+  as listas de ramo/colaborador também usam a base toda). Estado próprio (pessoa, ramo, colaborador, busca, ordenação, página, modo
+  penetração/oportunidade) na store da casca, sobrevive à troca de aba; "Limpar filtros" global não mexe nele (só `initDashboard` zera, ao carregar).
+- **Quirk reproduzido: a busca só redesenha a tabela.** `onCrossSearch` chama só `renderCrossTable`; KPIs, penetração e "Clientes por nível"
+  ficam com a lista de antes da busca (o cenário `crosssell-busca` mostra "53 clientes" nos KPIs e "7 clientes" na tabela). Voltam a bater
+  quando algo chama `renderCrossTab` (trocar a pessoa, marcar ramo/colaborador, "↻ Limpar", voltar à aba). `setCrossPenMode` redesenha só a
+  penetração, e com a busca de agora. Reproduzido com `buscaKpi`/`buscaPen` em `crosssell/estado.ts`.
+- **Quirk reproduzido: trocar a pessoa NÃO limpa a busca** (limpa ramo e colaborador e remarca os ramos principais da pessoa). "↻ Limpar" limpa
+  ramo, colaborador e busca, mas **não remarca** os ramos principais (fica "Todos", universo inteiro) e não volta a pessoa para PF.
+- **Paginação:** `crossPage` volta a 1 na busca, na troca de pessoa, ao marcar/desmarcar ramo ou colaborador e no "↻ Limpar"; ordenar e mudar o
+  modo de penetração NÃO zeram; voltar à aba não zera. Reproduzido por evento (`estado.ts`).
+- **Tempo e LTV usam `Date.now()` do antigo**: `anos = (agora − 1ª vigência) / 365,25 dias` e `ltv` só com `anos > 1`. O domínio recebe `agora`
+  por parâmetro (`client/agora.ts` na UI). A 1ª vigência é o instante exato do `Date` do antigo: nova coluna opcional `Linha.vigMs`, preenchida por
+  `parseProducao` (`celulaParaMs`), reproduz o `numdate` do SheetJS 0.18.5 no navegador (serial + 3h, com a correção de horário de verão antigo).
+  Linhas sem `vigMs` (saúde criada à parte) caem na meia-noite de São Paulo da data ISO. Detalhe de fixture: o SheetJS do Node grava as datas ISO
+  da fixture 28 s abaixo do serial exato; `numdateSheetJS` devolve esses casos ao minuto redondo para bater com o antigo (no Excel real as células
+  são de minuto redondo, então o ajuste não age).
+- **Fixture:** a fixture não tinha apólices SANTOLIN 360 no 3º trimestre (metas e pódios ficavam zerados). `make-fixture.ts` marca, sem consumir o
+  `rnd`, as apólices do trimestre; só mudaram os dourados `crosssell-*` e `exibicao-tv-padrao`. Os dourados das outras abas ficaram idênticos.
+  O fuso de geração da fixture nos testes de domínio (`tests/domain/fixture.ts`) é fixado em São Paulo, porque o SheetJS grava `Date` pelo fuso do processo.
+- **Ids de checkbox duplicados:** os seletores de ramo/colaborador da aba usam as chaves `ram`/`col` como os globais, então os checkboxes `ms-ram-…`
+  e `ms-col-…` existem duas vezes no DOM (cabeçalho e aba), como no antigo. Reproduzido.
+- **Campanha 360 é fixa** (CAMPANHA_360_INICIO/FIM = 2026-07-01..2026-09-30, fases 120/150/180 e R$ 77/97/115 mil): depois do trimestre as
+  metas ficam zeradas. Independe dos filtros da aba. Nada mudou.
+- **Ordenação por LTV** com dois clientes sem LTV: o comparador do antigo devolve `NaN` (`-Infinity - -Infinity`), tratado como empate (ordem de
+  origem). Reproduzido sem alterar.
+- **Harness:** `crosssell-busca` precisou do passo novo `digitar` (define o valor e dispara `input`), porque o campo de busca usa `oninput` e o passo
+  `preencher` só dispara `change`.
+- **CSS:** `.tier-goal*`/`.podium*` entraram como CSS **global** (`src/styles/campanha.css`) porque a Exibição TV (Task 22) reutiliza os seletores;
+  `.pen-*` e o cartão de filtros ficaram em `Crosssell.module.css`.
