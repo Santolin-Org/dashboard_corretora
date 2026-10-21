@@ -42,6 +42,13 @@ Variáveis e scripts: ver `README.md`.
 - [ ] Conta do tenant que não está na lista cai em `/sem-acesso`.
 - [ ] `curl -i https://<preview>/api/dados` (sem cookie) responde 401.
 - [ ] O site antigo continua igual, e `curl -i https://<site antigo>/web/package.json` responde 404.
+- [ ] **Tamanho de `/api/dados` com a base real.** Logado como `admin`, no Network do preview (ou
+  `curl -sS -o /dev/null -D - -H 'Accept-Encoding: gzip' -H 'Cookie: <cookie da sessão>' https://<preview>/api/dados -w '%{size_download}\n'`):
+  - Verificar: status 200, `content-encoding: gzip`, `etag` presente, `cache-control: private, no-cache`, e o
+    tamanho transferido (gzip) anotado aqui: ______ B (esperado abaixo de 4,5 MB; ver README, "Limite de 4,5 MB").
+  - Verificar: um segundo carregamento responde 304; nos logs da Function não aparece `FUNCTION_PAYLOAD_TOO_LARGE` (413).
+  - Se falhar (413 ou tamanho perto de 4,5 MB): não seguir; dividir `/api/dados` por ano ou mover agregações para o
+    servidor (spec §5.3).
 - [ ] Medir no Network do preview a primeira carga de `/visao-geral` e comparar com a seção "Desempenho" do README (indicativo: aquela medição foi local, com NODE_ENV=development no processo por causa do guard do bypass; refazer no preview da Vercel com a base real).
 
 ## f. Pendências antes de virar o domínio

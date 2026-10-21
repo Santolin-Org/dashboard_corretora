@@ -62,6 +62,15 @@ function dependencias(): Dependencias {
   return deps ?? { fonte: criarFonte, armazem: criarArmazem(), hoje: hojeServidor };
 }
 
+/** "Hoje" da ingestão (o mesmo que a base usaria), sem montar a base. */
+export function hojeDaIngestao(): DataISO {
+  try {
+    return dependencias().hoje();
+  } catch {
+    return hojeServidor();
+  }
+}
+
 const hash = (partes: unknown) => createHash("sha256").update(JSON.stringify(partes)).digest("hex").slice(0, 16);
 
 const msgErro = (e: unknown): string =>

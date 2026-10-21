@@ -7,7 +7,11 @@ import {
   decodificarLinhas, decodificarSinistros, type LinhasColunares, type SinistrosColunares,
 } from "@/domain/serializacao";
 
-export type BaseCliente = Omit<Base, "linhas" | "sinistros"> & { linhas: Linha[]; sinistros: Sinistro[] };
+export type BaseCliente = Omit<Base, "linhas" | "sinistros"> & {
+  linhas: Linha[]; sinistros: Sinistro[];
+  /** Escopo "nada": o servidor não mandou dados (tela "acesso será liberado"). */
+  semAcesso?: true;
+};
 /** Revalida /api/dados a cada 5 min: a TV fica ligada o dia todo e a chamada também renova o token (proxy). */
 export const INTERVALO_REVALIDACAO_MS = 5 * 60 * 1000;
 /** Falhas contínuas por mais que isto viram o aviso "Sem conexão com o servidor". */

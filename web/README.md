@@ -142,6 +142,27 @@ inteiros: o tamanho real não foi medido (a fixture tem ~890 B/linha, o que extr
 reais têm strings compartilhadas e ficam menores, mas a ordem esperada é de dezenas de MB para 150 mil linhas),
 além dos ~550 KB de JS. Confirmar com `npm run regressao:real` e o Network do navegador no preview.
 
+### Limite de 4,5 MB de resposta da Vercel (decisão)
+
+A página de limites das Vercel Functions (https://vercel.com/docs/functions/limitations, seção "Request body size",
+lida em 2026-10-21) diz que o corpo da requisição **ou da resposta** de uma Function tem no máximo 4,5 MB (acima disso,
+`413 FUNCTION_PAYLOAD_TOO_LARGE`). A página não diz se o limite vale para o tamanho comprimido ou descomprimido. O guia
+https://vercel.com/kb/guide/how-to-bypass-vercel-body-size-limit-serverless-functions recomenda streaming e diz que
+as funções em streaming não têm esse limite. Com dados reais, o JSON colunar de `/api/dados` passa de 19 MB (150 mil
+linhas); em gzip fica entre 1,4 MB (teste sintético) e 1,8 MB (medição da revisão final). Por isso, `/api/dados`:
+
+- calcula o corpo **já em gzip** uma vez por (versão, dia, escopo) e guarda em memória só o da versão atual
+  (`src/server/corpo-dados.ts`; o recorte de escopo acontece antes de codificar);
+- envia esse gzip com `Content-Encoding: gzip` (e `Vary: Accept-Encoding`), **em streaming** (pedaços de 64 KB). O
+  navegador descomprime sozinho; um cliente sem `gzip` no `Accept-Encoding` recebe o JSON descomprimido;
+- mantém ETag, 304 e `Cache-Control: private, no-cache` como antes.
+
+Medido localmente (dados sintéticos do teste de tamanho): 150 mil linhas = 1.413.151 B em gzip, 192 ms para comprimir;
+300 mil linhas = 2.810.066 B, 422 ms; requisições seguintes reusam o buffer. Mesmo se o limite valesse para o corpo
+comprimido e sem streaming, a base caberia até perto de 380 mil linhas (na proporção da medição da revisão). A
+confirmação com a base real é o passo "Tamanho de `/api/dados`" de `docs/deploy-checklist.md` §e; se falhar, a saída
+é dividir `/api/dados` por ano ou mover agregações para o servidor (spec §5.3).
+
 ## Pendências antes de virar o domínio
 
 Ver `docs/deploy-checklist.md`. Resumo: Azure/Vercel/Neon/Blob e seed (Mitz); planilhas reais e `regressao:real` com

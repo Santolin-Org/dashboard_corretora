@@ -12,7 +12,7 @@ import { Cabecalho, textoRecBadge } from "./Cabecalho";
 import { FiltrosGlobais } from "./FiltrosGlobais";
 import { PainelFontes } from "./PainelFontes";
 import { ModoTvEfeito } from "./ModoTv";
-import { TelaCarregando, TelaErro, textoErroProducao } from "./TelaErro";
+import { TelaCarregando, TelaErro, TelaSemAcesso, textoErroProducao } from "./TelaErro";
 
 const ROTAS_COM_CASCA = new Set<string>(ABAS.map((a) => a.id));
 
@@ -35,6 +35,10 @@ export function Casca({ children }: { children: ReactNode }) {
     } else {
       conteudo = <TelaCarregando />;
     }
+  } else if (base.semAcesso) {
+    // Escopo "nada" (vendedor na Etapa 1): o servidor não manda dados; em vez de um painel zerado,
+    // uma tela clara.
+    conteudo = <TelaSemAcesso />;
   } else if (base.erroProducao && base.sinistros.length === 0) {
     // Sem produção e sem sinistros: nada para mostrar além do motivo (sem upload). Com
     // sinistros, o painel abre e as abas de produção mostram o motivo (PainelAba).
@@ -63,7 +67,7 @@ export function Casca({ children }: { children: ReactNode }) {
       {base && estado === "sessao-expirada" && <AvisoSessao desde={ultimaBoaEm} />}
       {base && estado !== "sessao-expirada" && semConexaoDesde !== undefined && <AvisoSemConexao desde={semConexaoDesde} />}
       {conteudo}
-      {base && (
+      {base && !base.semAcesso && (
         <PainelFontes aberto={fontesAberto} onFechar={fecharFontes} manifesto={base.manifesto} totalLinhas={base.linhas.length}
           avisosSaude={base.avisosSaude} podeReprocessar={podeReprocessar} recarregar={recarregar} />
       )}

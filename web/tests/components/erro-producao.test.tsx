@@ -118,3 +118,18 @@ describe("painel de fontes na casca", () => {
     expect(screen.queryByText(/Reprocessar fontes/)).toBeNull();
   });
 });
+
+describe("escopo nada (semAcesso)", () => {
+  for (const r of ["/visao-geral", "/exibicao-tv", "/"]) {
+    it(`rota ${r}: mostra a tela de acesso pendente no lugar das abas`, async () => {
+      rota = r;
+      responder({ ...corpo({}), versao: "sem-acesso", semAcesso: true });
+      render(<Casca><PainelAba id="visao-geral"><p>conteudo-da-aba</p></PainelAba></Casca>);
+      await waitFor(() => expect(document.getElementById("sem-acesso-dash")).not.toBeNull());
+      expect(document.getElementById("sem-acesso-dash")!.textContent).toBe("Seu acesso ao dashboard será liberado na próxima etapa.");
+      expect(screen.queryByText("conteudo-da-aba")).toBeNull();
+      expect(document.getElementById("dash")).toBeNull();
+      expect(document.getElementById("sp-error")).toBeNull();
+    });
+  }
+});

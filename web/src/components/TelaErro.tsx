@@ -40,3 +40,14 @@ export function TelaCarregando() {
     </div>
   );
 }
+
+/** Escopo "nada" (vendedor na Etapa 1): o acesso aos dados chega numa etapa seguinte. */
+export function TelaSemAcesso() {
+  return (
+    <div className={s.tela}>
+      <div className={s.progresso}>
+        <p id="sem-acesso-dash" className={s.rotulo}>Seu acesso ao dashboard será liberado na próxima etapa.</p>
+      </div>
+    </div>
+  );
+}
