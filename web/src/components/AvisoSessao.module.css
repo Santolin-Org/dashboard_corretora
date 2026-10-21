@@ -1,7 +1,7 @@
 .aviso {
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 10000; /* acima da Exibição TV (#tv-exibicao, 9999): a TV fica ligada o dia todo e o aviso precisa aparecer nela */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -123,6 +123,7 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
 
   // tsx/esbuild injeta __name() nas funções serializadas para page.evaluate.
   await page.addInitScript("window.__name = (f) => f;");
+  await page.addInitScript(`try { localStorage.setItem('tvMode', '${c.modoTv ? 1 : 0}'); } catch (e) {}`);
   await page.clock.install({ time: new Date(HOJE_FIXO) });
   await page.clock.setFixedTime(new Date(HOJE_FIXO)); // Date.now() parado: o LTV do Cross-sell divide por (agora − 1ª vigência)
   await page.goto(`http://127.0.0.1:${PORTA_ANTIGO}/index.html`, { waitUntil: "load" });
@@ -160,8 +161,8 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
     if (!raiz) throw new Error(`contêiner ${container} não existe`);
     coleta(raiz);
     raiz.querySelectorAll("[id]").forEach(coleta);
-    // A apresentação é uma tela cheia por cima do painel: o cabeçalho do painel não faz parte dela.
-    if (container !== "#kickoff-mode") for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
+    // A apresentação e a Exibição TV são telas cheias por cima do painel: o cabeçalho do painel não faz parte delas.
+    if (container !== "#kickoff-mode" && container !== "#tv-exibicao") for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
 
     const num = (v: unknown) => (v === null || v === undefined || Number.isNaN(Number(v)) ? null : Number(v));
     const graficos: Snapshot["graficos"] = {};

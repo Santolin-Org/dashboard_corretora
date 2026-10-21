@@ -12,7 +12,11 @@ export type Passo =
  * `pos` (só da apresentação): passos executados depois de abrir o modo apresentação (no antigo, openKickoff(); no novo, o
  * clique em "▶ Modo apresentação" da aba Metas). Os `passos` rodam antes, nos filtros globais.
  */
-export type Cenario = { nome: string; aba: AbaId; passos: Passo[]; pos?: Passo[] };
+export type Cenario = {
+  nome: string; aba: AbaId; passos: Passo[]; pos?: Passo[];
+  /** Modo TV ligado desde o carregamento (localStorage['tvMode'] = '1', a preferência que o botão "Modo TV" grava). */
+  modoTv?: boolean;
+};
 
 export const HOJE_FIXO = "2026-10-15T12:00:00-03:00";
 
@@ -193,6 +197,7 @@ export const CENARIOS: Cenario[] = [
   })(),
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
+  { nome: "exibicao-tv-modo-tv", aba: "exibicao-tv", passos: [], modoTv: true }, // a Exibição TV ignora o Modo TV (só esconde as barras de filtro do painel)
   // Modo apresentação: um cenário por slide (clica em "Próximo ›" até o slide). Outubro/2026: 4 semanas (o fragmento de 3 dias
   // do dia 1 funde com a semana seguinte); o mês anterior (setembro) tem dados na fixture.
   ...(() => {

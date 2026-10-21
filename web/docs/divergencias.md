@@ -203,3 +203,28 @@
   não inclui `#dash-subtitle`/`#rec-badge` (cabeçalho do painel, que está atrás do overlay no antigo e não existe na rota nova). 34 cenários: escolha, sem vigência,
   cada slide do fechamento (14) e da semana 3 (10), semanas 1 e 4, setembro, % 25/vazio, fim da fila, Anterior e ponto.
 - **Dados reais:** pulado, sem `parity/data/` (Ruling 3).
+
+## Task 22 — Exibição TV
+
+- **Rota em vez de overlay:** no antigo `#tv-exibicao` é um overlay (`openTvExibicao()`, z-index 9999, `display:none` até abrir) sobre a aba ativa. No novo é a rota
+  `/exibicao-tv` (tela cheia, sem a casca); o botão "📺 Exibição TV" do cabeçalho guarda a aba de origem (`sessionStorage['tvVoltarPara']`) e navega preservando `?f=`;
+  "✕" e Esc voltam para essa aba com os mesmos filtros (abertura direta pela URL, sem aba de origem: volta para `/visao-geral`). Sem dados de produção: alerta
+  "Carregue os dados antes de abrir a exibição." (no botão; numa visita direta o alerta aparece e volta).
+- **Atualização sem recarregar (intencional, novo):** o antigo desenhava a tela uma vez, ao abrir. No novo ela acompanha a revalidação do painel (`/api/dados` a cada 5 min,
+  a mesma que renova o token): chegando `base` nova, tudo é recalculado e cada gráfico só é redesenhado se os números dele mudaram (a TV não pisca a cada 5 min).
+  O ETag inclui o "hoje", então a virada do dia também atualiza.
+- **Avisos da Task 13 visíveis na TV:** "sessão expirou" e "sem conexão" (faixa fixa no topo da casca) tinham z-index 1000, atrás do `#tv-exibicao` (9999). Passaram a 10000.
+- **Modo TV não afeta a Exibição TV:** `body.tv-mode` só esconde as barras de filtro do painel (que nem existem nesta rota); o cenário `exibicao-tv-modo-tv` liga a preferência
+  (`localStorage['tvMode']='1'`, via `Cenario.modoTv`) nos dois lados antes de carregar e o resultado é idêntico ao padrão.
+- **Regras reproduzidas literalmente** (METRICAS.md §6/§6.1): `TV_COLAB_EXCLUIDOS` por prefixo (meta mensal, cards e pódio da Santolin 360; "Clientes por nível" e a carteira por ano NÃO excluem
+  ninguém), `×1,40` sobre o mesmo mês do ano anterior (tipo N, `classifyRamo !== 'excluded'`), carteira = apólice N/R com ≥ 350 dias de vigência (sem término passa — furo documentado no
+  `main.js`) e fora viagem/carta verde, ano corrente = `SITUAÇÃO 'Ativa'` deduplicada por seguradora+apólice com folga de 15 dias.
+- **Duração/datas em instantes:** o antigo subtrai `Date`s (`fim - vig`) e compara `vig <= new Date(y,11,31)`. O novo usa `vigMs ?? instanteDeDataISO(vig)` e `instanteDeDataISO(fim)` (meia-noite de SP),
+  o que reproduz o deslocamento de horário de verão de anos antigos e o instante exato das células numéricas sem formato de data; o ano de agrupamento usa `vigLocal || vig` (padrão da Task 14).
+- **Clientes por nível:** o antigo monta `tvExClientes()` (PF+PJ, com `primeiraVig` que ninguém usa); o novo conta direto as apólices da carteira por CPF/CNPJ e reaproveita `contarNiveis`/`CROSS_NIVEIS` do Cross-sell
+  (`getCrossClients` não serve: conta `tipoDoc === 'APÓLICE'` ativas sem os filtros de duração/ramo da TV). Mesmos números.
+- **Quirk reproduzido:** `fP(0)` mostra "0.00%" (ponto decimal, formato do `fP` do antigo) nos percentuais da meta mensal.
+- **Harness:** o snapshot da Exibição TV não inclui `#dash-subtitle`/`#rec-badge` (cabeçalho do painel, atrás do overlay no antigo e inexistente na rota nova); o lado novo
+  espera o registro do gráfico da carteira como sinal de dados carregados. Cenários: `exibicao-tv-padrao` e `exibicao-tv-modo-tv`. A fixture tem realizado zero no mês
+  (os cálculos de real/meta/exclusões são cobertos por testes de domínio com linhas sintéticas).
+- **Dados reais:** pulado, sem `parity/data/` (Ruling 3).

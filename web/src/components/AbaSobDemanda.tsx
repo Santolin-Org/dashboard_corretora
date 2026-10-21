@@ -16,7 +16,7 @@ const CONTEUDO: Record<string, ComponentType> = {
   comparativo: dynamic(() => import("@/app/(dash)/comparativo/Comparativo")),
   metas: dynamic(() => import("@/app/(dash)/metas/Metas")),
   sinistros: dynamic(emMigracao),
-  "exibicao-tv": dynamic(emMigracao),
+  "exibicao-tv": dynamic(() => import("@/app/(dash)/exibicao-tv/ExibicaoTv")),
   apresentacao: dynamic(() => import("@/app/(dash)/apresentacao/Apresentacao")),
 };
 

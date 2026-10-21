@@ -5,6 +5,7 @@ import "@/styles/tabelas.css";
 import "@/styles/campanha.css";
 import "@/styles/metas.css";
 import "@/styles/apresentacao.css";
+import "@/styles/exibicao-tv.css";
 
 // Mesmas famílias e pesos que o index.html carregava do Google Fonts (aqui auto-hospedadas).
 // tokens.css usa os nomes originais ('Inter', 'Syne', 'JetBrains Mono'), que são os nomes das

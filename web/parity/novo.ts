@@ -120,15 +120,20 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
   page.on("dialog", (d) => { erros.push(`dialog: ${d.message()}`); void d.dismiss(); });
 
   await page.addInitScript("window.__name = (f) => f;");
+  await page.addInitScript(`try { localStorage.setItem('tvMode', '${c.modoTv ? 1 : 0}'); } catch (e) {}`);
   await page.clock.install({ time: new Date(HOJE_FIXO) });
   await page.clock.setFixedTime(new Date(HOJE_FIXO)); // Date.now() parado: o LTV do Cross-sell divide por (agora − 1ª vigência)
   // A apresentação abre pelo botão "▶ Modo apresentação" da aba Metas (como o usuário); o antigo chama openKickoff().
   await page.goto(`${baseUrl}/${c.aba === "apresentacao" ? "metas" : c.aba}`, { waitUntil: "load", timeout: 120_000 });
   // Dados carregados: o badge sai de "" / "—" quando a base chega (fica "—" também se o fetch falhar).
+  // A Exibição TV é tela cheia, sem o cabeçalho (#rec-badge): lá os dados chegaram quando o gráfico da carteira se registra.
+  const sinalDeDados = c.aba === "exibicao-tv"
+    ? "!!(window.__charts && window.__charts['tv-ex-ano-chart'])"
+    : "(() => { const t = (document.getElementById('rec-badge')?.textContent ?? '').trim(); return t !== '' && t !== '—'; })()";
   try {
-    await page.waitForFunction("(() => { const t = (document.getElementById('rec-badge')?.textContent ?? '').trim(); return t !== '' && t !== '—'; })()", undefined, { timeout: 120_000 });
+    await page.waitForFunction(sinalDeDados, undefined, { timeout: 120_000 });
   } catch {
-    throw new Error(`dados/gráficos não carregaram (${c.nome}): #rec-badge continua vazio ou "—"`);
+    throw new Error(`dados/gráficos não carregaram (${c.nome}): sinal de dados ausente (#rec-badge vazio ou "—"; na Exibição TV, gráfico da carteira)`);
   }
 
   const container = conteinerDe(c);
@@ -181,8 +186,8 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
       coleta(raiz);
       raiz.querySelectorAll("[id]").forEach(coleta);
     }
-    // A apresentação é uma tela cheia por cima do painel: o cabeçalho do painel não faz parte dela.
-    if (container !== "#kickoff-mode") for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
+    // A apresentação e a Exibição TV são telas cheias por cima do painel: o cabeçalho do painel não faz parte delas.
+    if (container !== "#kickoff-mode" && container !== "#tv-exibicao") for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
 
     const num = (v: unknown) => (v === null || v === undefined || Number.isNaN(Number(v)) ? null : Number(v));
     const graficos: Snapshot["graficos"] = {};

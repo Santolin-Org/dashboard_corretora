@@ -5,7 +5,7 @@ import { campanha360, type MetaFases } from "@/domain/crosssell";
 import { SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoRecolhivel";
 
 // renderTierGoal: barra de meta de 3 fases (também usada na Exibição TV).
-function MetaDeFases({ m }: { m: MetaFases }) {
+export function MetaDeFases({ m }: { m: MetaFases }) {
   return (
     <div className="tier-goal">
       <div className="tier-goal-header">
@@ -28,7 +28,7 @@ function MetaDeFases({ m }: { m: MetaFases }) {
 }
 
 // renderPodium: só os nomes, 2º à esquerda, 1º no centro, 3º à direita.
-function Podio({ nomes }: { nomes: [string, string, string] }) {
+export function Podio({ nomes }: { nomes: [string, string, string] }) {
   const passo = (i: number, cls: string, rank: string) => (
     <div className={`podium-step ${cls}`}>
       <div className="podium-name" title={nomes[i]}>{nomes[i]}</div>
