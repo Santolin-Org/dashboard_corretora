@@ -4,11 +4,11 @@
 import { spawn, type ChildProcess } from "node:child_process";
 import { createServer } from "node:net";
 import { randomBytes } from "node:crypto";
-import { closeSync, openSync, readFileSync } from "node:fs";
+import { closeSync, openSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import type { Page } from "@playwright/test";
-import { HOJE_FIXO, type Cenario } from "./cenarios";
+import { HOJE_FIXO, type Cenario, type Passo } from "./cenarios";
 import type { Snapshot } from "./snapshot";
 
 export const RAIZ_WEB = resolve(__dirname, "..");
@@ -29,13 +29,17 @@ async function portaLivre(): Promise<number> {
   });
 }
 
-export type ServidorNovo = { baseUrl: string; parar(): void };
+/** `parar()` devolve uma promessa que só resolve quando o grupo de processos do `next dev` morreu (o próximo servidor reusa o mesmo distDir). */
+export type ServidorNovo = { baseUrl: string; parar(): Promise<void> };
 
 /**
  * Sobe `next dev` (não `next start`: o bypass de autenticação recusa NODE_ENV=production de propósito).
- * Usa um distDir próprio (.next-parity) e porta livre, para não colidir com o dev server do desenvolvedor.
+ * Usa um distDir próprio (.next-parity, ou o informado) e porta livre, para não colidir com o dev server do desenvolvedor.
  */
-export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> {
+export async function subirServidorNovo(dataDir: string, distDir = ".next-parity"): Promise<ServidorNovo> {
+  // distDir sempre limpo: o cache persistente do Turbopack deixado por um servidor anterior (morto, às vezes no meio da gravação,
+  // ou que carregou html2canvas/jsPDF) faz o servidor seguinte travar o carregamento ou recarregar a página em laço.
+  rmSync(join(RAIZ_WEB, distDir), { recursive: true, force: true });
   const porta = await portaLivre();
   const baseUrl = `http://127.0.0.1:${porta}`;
   const logPath = join(tmpdir(), `parity-next-${porta}.log`);
@@ -53,7 +57,7 @@ export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> 
       PARITY_AUTH_BYPASS: "1",
       PARITY_HOJE: "2026-10-15",
       AUTH_SECRET: randomBytes(24).toString("hex"),
-      NEXT_DIST_DIR: ".next-parity",
+      NEXT_DIST_DIR: distDir,
       NEXT_TSCONFIG: "tsconfig.parity.json",
       NEXT_TELEMETRY_DISABLED: "1",
     },
@@ -62,18 +66,27 @@ export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> 
   let saiu = false;
   filho.once("exit", () => { saiu = true; });
   const sinais = ["SIGINT", "SIGTERM"] as const;
-  const aoSinal = (sig: NodeJS.Signals) => { parar(); process.exit(sig === "SIGINT" ? 130 : 143); };
-  function parar() {
+  const aoSinal = (sig: NodeJS.Signals) => { void parar(); process.exit(sig === "SIGINT" ? 130 : 143); };
+  const aoSair = () => { void parar(); };
+  let parada: Promise<void> | undefined;
+  const grupoVivo = (pid: number) => { try { process.kill(-pid, 0); return true; } catch { return false; } };
+  function parar(): Promise<void> {
     for (const sg of sinais) process.removeListener(sg, aoSinal);
-    process.removeListener("exit", parar);
+    process.removeListener("exit", aoSair);
+    if (parada) return parada;
     const pid = filho.pid;
-    if (!saiu && pid) {
-      try { process.kill(-pid, "SIGTERM"); } catch { /* já saiu */ }
-      setTimeout(() => { try { process.kill(-pid, "SIGKILL"); } catch { /* já saiu */ } }, 3000).unref();
-    }
+    if (!pid) return (parada = Promise.resolve());
+    try { process.kill(-pid, "SIGTERM"); } catch { /* já saiu */ }
+    // Um dev server que acabou de compilar muito leva alguns segundos para gravar o cache; matar no meio estraga o
+    // distDir (.next-parity) do próximo servidor (recarrega a página em laço). Espera o grupo morrer (SIGKILL só em 20s).
+    return (parada = (async () => {
+      const limite = Date.now() + 20_000;
+      while (grupoVivo(pid) && Date.now() < limite) await new Promise((r) => setTimeout(r, 100));
+      if (grupoVivo(pid)) { try { process.kill(-pid, "SIGKILL"); } catch { /* já saiu */ } }
+    })());
   }
   for (const sg of sinais) process.once(sg, aoSinal);
-  process.once("exit", parar);
+  process.once("exit", aoSair);
   try {
     const limite = Date.now() + 240_000;
     for (;;) {
@@ -86,7 +99,7 @@ export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> 
       await new Promise((r) => setTimeout(r, 1000));
     }
   } catch (e) {
-    parar();
+    await parar();
     const log = readFileSync(logPath, "utf8").split("\n").slice(-30).join("\n");
     throw new Error(`${(e as Error).message}\n--- log do next dev (${logPath}) ---\n${log}`);
   }
@@ -107,7 +120,8 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
   await page.addInitScript("window.__name = (f) => f;");
   await page.clock.install({ time: new Date(HOJE_FIXO) });
   await page.clock.setFixedTime(new Date(HOJE_FIXO)); // Date.now() parado: o LTV do Cross-sell divide por (agora − 1ª vigência)
-  await page.goto(`${baseUrl}/${c.aba}`, { waitUntil: "load", timeout: 120_000 });
+  // A apresentação abre pelo botão "▶ Modo apresentação" da aba Metas (como o usuário); o antigo chama openKickoff().
+  await page.goto(`${baseUrl}/${c.aba === "apresentacao" ? "metas" : c.aba}`, { waitUntil: "load", timeout: 120_000 });
   // Dados carregados: o badge sai de "" / "—" quando a base chega (fica "—" também se o fetch falhar).
   try {
     await page.waitForFunction("(() => { const t = (document.getElementById('rec-badge')?.textContent ?? '').trim(); return t !== '' && t !== '—'; })()", undefined, { timeout: 120_000 });
@@ -116,10 +130,12 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
   }
 
   const container = conteinerDe(c);
-  const existe = await page.waitForSelector(container, { timeout: 15_000, state: "attached" }).then(() => true, () => false);
+  const apresentacao = c.aba === "apresentacao";
+  // Na apresentação os `passos` valem para a aba Metas (filtros e %); o contêiner só existe depois de abrir.
+  const existe = apresentacao || (await page.waitForSelector(container, { timeout: 15_000, state: "attached" }).then(() => true, () => false));
 
   if (existe) {
-    for (const p of c.passos) {
+    const aplicar = async (p: Passo) => {
       if (p.tipo === "digitar") {
         await page.fill(`#${p.id}`, p.valor, { timeout: 10_000 }); // dispara input (o React escuta input)
       } else if (p.tipo === "preencher") {
@@ -136,10 +152,12 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
         await page.mouse.click(1, 1); // clique fora fecha os dropdowns
       }
       await page.waitForTimeout(150);
-    }
-    if (c.aba === "apresentacao") {
-      const escolher = page.locator("#kickoff-mode .kf-choose-main");
-      if (await escolher.count()) await escolher.first().click({ timeout: 10_000 });
+    };
+    for (const p of c.passos) await aplicar(p);
+    if (apresentacao) {
+      await page.click("#sc-metas-semanal .kickoff-btn", { timeout: 10_000 });
+      await page.waitForSelector(container, { timeout: 30_000, state: "attached" });
+      for (const p of c.pos ?? []) await aplicar(p);
     }
     await page.waitForTimeout(600);
   }
@@ -161,7 +179,8 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
       coleta(raiz);
       raiz.querySelectorAll("[id]").forEach(coleta);
     }
-    for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
+    // A apresentação é uma tela cheia por cima do painel: o cabeçalho do painel não faz parte dela.
+    if (container !== "#kickoff-mode") for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
 
     const num = (v: unknown) => (v === null || v === undefined || Number.isNaN(Number(v)) ? null : Number(v));
     const graficos: Snapshot["graficos"] = {};

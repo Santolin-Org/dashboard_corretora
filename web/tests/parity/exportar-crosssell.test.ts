@@ -20,8 +20,8 @@ test.beforeAll(async () => {
   srv = await servirRaiz();
   novo = await subirServidorNovo(dir);
 });
-test.afterAll(() => {
-  novo?.parar();
+test.afterAll(async () => {
+  await novo?.parar();
   srv?.close();
   for (const d of [dir, saida]) if (d) rmSync(d, { recursive: true, force: true });
 });

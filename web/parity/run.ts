@@ -92,7 +92,9 @@ async function lado_novo(dados: string, goldenDir: string, nomes: string[]): Pro
   try {
     // Aquece cada rota (primeira visita compila no next dev) antes de medir/capturar.
     const aq = await browser.newPage();
-    await aquecer(aq, srv.baseUrl, [...new Set(nomes.map((n) => CENARIOS.find((x) => x.nome === n)!.aba))]);
+    const abasAquecer = new Set<string>(nomes.map((n) => CENARIOS.find((x) => x.nome === n)!.aba));
+    if (abasAquecer.has("apresentacao")) abasAquecer.add("metas"); // a apresentação abre pelo botão da aba Metas
+    await aquecer(aq, srv.baseUrl, [...abasAquecer]);
     await aq.close();
     for (const nome of nomes) {
       const c = CENARIOS.find((x) => x.nome === nome)!;
@@ -113,7 +115,7 @@ async function lado_novo(dados: string, goldenDir: string, nomes: string[]): Pro
     }
   } finally {
     await browser.close();
-    srv.parar();
+    await srv.parar();
   }
   return difs;
 }

@@ -175,3 +175,31 @@
 - **Cenários extras:** `metas-equipe-pessoais`, `-patrimoniais`, `-metrica-comissao`, `-comissao-patrimoniais`, `-ordenacao`, `-ordenacao-nome`, `-detalhe`, `-pct`
   (digitando 25 e vazio nos %) e `-mes-curto` (outubro/2026: fragmento de 3 dias funde). Exportações `.xlsx` comparadas em `tests/parity/exportar-metas.test.ts`.
 - **Dados reais:** pulado, sem `parity/data/` (Ruling 3).
+
+## Task 20 — Modo apresentação / kickoff
+
+- **Rota em vez de overlay:** no antigo `#kickoff-mode` é um overlay (`openKickoff()`, z-index 9999) por cima do painel. No novo é a rota `/apresentacao`
+  (tela cheia, sem a casca); o botão "▶ Modo apresentação" da aba Metas navega para `/apresentacao` preservando `?f=`, e "Sair ✕" / Esc voltam para `/metas`
+  com os mesmos filtros (o antigo só escondia o overlay, e a aba aberta era sempre a Metas, de onde o botão vive). Reabrir mostra a tela de escolha de novo.
+  Sem dados de produção: alerta "Carregue os dados antes de gerar a apresentação." (no botão; numa visita direta a `/apresentacao` o alerta aparece e volta para `/metas`).
+- **Quirk reproduzido: "↩ Opções" nunca aparece.** O CSS define `.kf-back { display:none }` e o JS, ao abrir os slides, só limpa o `style.display` inline
+  (`back.style.display = ''`), que devolve o botão ao `display:none` da folha de estilo. O botão existe (e o texto "↩ Opções" entra no `textContent`), mas fica
+  invisível; para voltar à escolha só se sai (Sair/Esc) e abre de novo. Reproduzido (mesmo CSS e mesma lógica de visibilidade).
+- **Chooser:** precisa das duas pontas da vigência (senão a mensagem "Selecione um período de vigência na aba Metas para gerar a apresentação."); os slides só
+  conferem a vigência inicial. Fechamento de mês = capa, 3 divisórias, 3 slides do mês anterior (acumulado, com base do ano anterior), 3 de evolução semanal,
+  3 da meta do mês e "BORA TIME!" (14 slides); semana = capa, divisória, 3 da semana, divisória, 3 do mês, fechamento (10). Equipes: pessoais, patrimoniais, geral.
+  `kfStart` sem slides: alerta "Não há dados suficientes para gerar a apresentação neste período.".
+- **`withKfPeriod`:** o antigo troca temporariamente `#f-vig-s/#f-vig-e` e restaura; o novo passa `FiltrosGlobais` com a vigência trocada (mesmos números).
+  O mês anterior (`kfPrevMonthPeriod`) é calculado em UTC (o antigo usava `Date` local; só aritmética de mês, sem diferença).
+- **"Hoje"** da semana padrão (`findIndex` por `fmtD(today())`): o novo usa `base.hoje`. A tela de escolha sempre passa o número da semana, então o caminho só
+  vale na API de domínio (`buildKickoffSlides` sem `weekIdx`, e `weekIdx` 0 = "sem número").
+- **% de meta:** os digitados na aba Metas (estado `metas:novos/renov`), como o `getMetaPcts()` do antigo lendo os inputs.
+- **Teclado:** Esc em qualquer tela; → PageDown Espaço / ← PageUp só nos slides (com `preventDefault`). O antigo registrava o `keydown` em `document` ao abrir
+  (e abrir duas vezes empilharia ouvintes); o novo registra ao montar a rota.
+- **PDF:** `kickoff-<mês>-<ano>.pdf` (mês/ano da capa, minúsculo, hífen), paisagem 1280×720 px, JPEG 0,92, `scale: 2`, uma página por slide (como o antigo, slide sem
+  `.kf-page` é pulado), animações do Chart.js desligadas durante a captura e `kf-in` fixado no clone; `html2canvas` 1.4.1 e `jspdf` 2.5.1 por `import()` dinâmico só no clique.
+  Falha ao carregá-las: alerta "Bibliotecas de PDF não carregaram…"; outro erro: "Não foi possível gerar o PDF: …". O botão mostra "Gerando... i/n". O antigo as carrega por `<script>` da CDN.
+- **Harness:** a apresentação abre pelo botão da Metas no novo e por `openKickoff()` no antigo; `Cenario.pos` são os passos depois de aberta. O snapshot da apresentação
+  não inclui `#dash-subtitle`/`#rec-badge` (cabeçalho do painel, que está atrás do overlay no antigo e não existe na rota nova). 34 cenários: escolha, sem vigência,
+  cada slide do fechamento (14) e da semana 3 (10), semanas 1 e 4, setembro, % 25/vazio, fim da fila, Anterior e ponto.
+- **Dados reais:** pulado, sem `parity/data/` (Ruling 3).

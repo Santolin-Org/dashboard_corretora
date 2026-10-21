@@ -1,0 +1,33 @@
+{
+  "graficos": {
+    "ch-kickoff": {
+      "datasets": [
+        {
+          "data": [
+            40095.572,
+            4972.165000000001
+          ],
+          "label": "Meta"
+        },
+        {
+          "data": [
+            11057.56,
+            1401.17
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "Prêmio",
+        "Comissão"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kickoff": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossosobjetivos Geral Meta do mês Outubro Outubro de 2026 Prêmio/25: R$ 36.450,52 Comissão/25: R$ 4.520,15 % Médio: 12.40%",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossosobjetivos Geral Meta do mês Outubro Outubro de 2026 Prêmio/25: R$ 36.450,52 Comissão/25: R$ 4.520,15 % Médio: 12.40% ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

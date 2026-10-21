@@ -1,0 +1,74 @@
+{
+  "graficos": {
+    "ch-kfw-c": {
+      "datasets": [
+        {
+          "data": [
+            256.2285,
+            358.71990000000005,
+            358.71990000000005,
+            358.71990000000005,
+            204.9828
+          ],
+          "label": "Esperado"
+        },
+        {
+          "data": [
+            444.07,
+            776.71,
+            0,
+            1099.12,
+            0
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5"
+      ]
+    },
+    "ch-kfw-p": {
+      "datasets": [
+        {
+          "data": [
+            2432.8498333333337,
+            3405.989766666667,
+            3405.989766666667,
+            3405.989766666667,
+            1946.279866666667
+          ],
+          "label": "Esperado"
+        },
+        {
+          "data": [
+            3239.22,
+            4843.64,
+            0,
+            6199.73,
+            0
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "S1",
+        "S2",
+        "S3",
+        "S4",
+        "S5"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kfw-c": "",
+    "ch-kfw-p": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossaevolução Pessoais Evolução semanal Setembro Realizado vs. esperado Prêmio Comissão",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossaevolução Pessoais Evolução semanal Setembro Realizado vs. esperado Prêmio Comissão ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

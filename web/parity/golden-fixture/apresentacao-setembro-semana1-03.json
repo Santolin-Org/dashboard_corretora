@@ -1,0 +1,33 @@
+{
+  "graficos": {
+    "ch-kickoff": {
+      "datasets": [
+        {
+          "data": [
+            2432.8498333333337,
+            256.2285
+          ],
+          "label": "Meta"
+        },
+        {
+          "data": [
+            3239.22,
+            444.07
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "Prêmio",
+        "Comissão"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kickoff": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossosobjetivos Pessoais Produção da semana Semana 1 01/09–05/09",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossosobjetivos Pessoais Produção da semana Semana 1 01/09–05/09 ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

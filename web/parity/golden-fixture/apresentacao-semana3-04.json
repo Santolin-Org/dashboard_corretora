@@ -1,0 +1,33 @@
+{
+  "graficos": {
+    "ch-kickoff": {
+      "datasets": [
+        {
+          "data": [
+            4478.963322580645,
+            632.8108387096775
+          ],
+          "label": "Meta"
+        },
+        {
+          "data": [
+            0,
+            0
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "Prêmio",
+        "Comissão"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kickoff": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossosobjetivos Patrimoniais Produção da semana Semana 3 18/10–24/10",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossosobjetivos Patrimoniais Produção da semana Semana 3 18/10–24/10 ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

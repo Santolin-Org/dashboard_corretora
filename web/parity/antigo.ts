@@ -5,7 +5,7 @@ import { createServer, type Server } from "node:http";
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, resolve, extname } from "node:path";
 import type { Page } from "@playwright/test";
-import { HOJE_FIXO, type Cenario } from "./cenarios";
+import { HOJE_FIXO, type Cenario, type Passo } from "./cenarios";
 import type { Snapshot } from "./snapshot";
 
 declare const charts: Record<string, any>; // global do app antigo; só existe dentro de page.evaluate
@@ -81,6 +81,40 @@ export async function injetarDadosAntigo(page: Page, dataDir: string): Promise<v
   await page.waitForFunction("document.getElementById('dash') && document.getElementById('dash').style.display !== 'none'");
 }
 
+async function aplicarPasso(page: Page, p: Passo): Promise<void> {
+  if (p.tipo === "preencher") {
+    await page.evaluate(({ id, valor }) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (!el) throw new Error(`#${id} não existe`);
+      el.value = valor;
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }, p);
+  } else if (p.tipo === "digitar") {
+    await page.evaluate(({ id, valor }) => {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (!el) throw new Error(`#${id} não existe`);
+      el.value = valor;
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    }, p);
+  } else if (p.tipo === "clicar") {
+    await page.click(p.seletor, { timeout: 10000 });
+  } else {
+    await page.evaluate(({ id, valores }) => {
+      const wrap = document.getElementById(id) as any;
+      if (!wrap || !wrap._msObj) throw new Error(`#${id} não é um multiselect montado`);
+      const w = window as any;
+      for (const v of valores) {
+        if (!wrap._vals.includes(v)) throw new Error(`valor "${v}" não existe em #${id}`);
+        wrap._msObj[wrap._key].add(v);
+      }
+      w.renderMsListGeneric(wrap._list, wrap._vals, wrap._msObj, wrap._key);
+      w.updateMsTriggerGeneric(wrap, wrap._msObj, wrap._key, wrap._placeholder);
+      w.triggerFilter(wrap._cid);
+    }, p);
+  }
+  await page.waitForTimeout(150);
+}
+
 export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): Promise<Snapshot> {
   const erros: string[] = [];
   page.on("console", (m) => { if (m.type() === "error") erros.push(`console: ${m.text()}`); });
@@ -104,39 +138,7 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
     w.showTab(aba, btn);
   }, abaTab);
 
-  for (const p of c.passos) {
-    if (p.tipo === "preencher") {
-      await page.evaluate(({ id, valor }) => {
-        const el = document.getElementById(id) as HTMLInputElement | null;
-        if (!el) throw new Error(`#${id} não existe`);
-        el.value = valor;
-        el.dispatchEvent(new Event("change", { bubbles: true }));
-      }, p);
-    } else if (p.tipo === "digitar") {
-      await page.evaluate(({ id, valor }) => {
-        const el = document.getElementById(id) as HTMLInputElement | null;
-        if (!el) throw new Error(`#${id} não existe`);
-        el.value = valor;
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-      }, p);
-    } else if (p.tipo === "clicar") {
-      await page.click(p.seletor, { timeout: 10000 });
-    } else {
-      await page.evaluate(({ id, valores }) => {
-        const wrap = document.getElementById(id) as any;
-        if (!wrap || !wrap._msObj) throw new Error(`#${id} não é um multiselect montado`);
-        const w = window as any;
-        for (const v of valores) {
-          if (!wrap._vals.includes(v)) throw new Error(`valor "${v}" não existe em #${id}`);
-          wrap._msObj[wrap._key].add(v);
-        }
-        w.renderMsListGeneric(wrap._list, wrap._vals, wrap._msObj, wrap._key);
-        w.updateMsTriggerGeneric(wrap, wrap._msObj, wrap._key, wrap._placeholder);
-        w.triggerFilter(wrap._cid);
-      }, p);
-    }
-    await page.waitForTimeout(150);
-  }
+  for (const p of c.passos) await aplicarPasso(page, p);
 
   let container = `#tab-${c.aba}`;
   if (c.aba === "exibicao-tv") {
@@ -144,8 +146,7 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
     container = "#tv-exibicao";
   } else if (c.aba === "apresentacao") {
     await page.evaluate(() => (window as any).openKickoff());
-    // Baralho padrão: "Fechamento de mês"; o primeiro slide é o snapshot.
-    await page.click("#kickoff-mode .kf-choose-main", { timeout: 10000 });
+    for (const p of c.pos ?? []) await aplicarPasso(page, p);
     container = "#kickoff-mode";
   }
   await page.waitForTimeout(600);
@@ -159,7 +160,8 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
     if (!raiz) throw new Error(`contêiner ${container} não existe`);
     coleta(raiz);
     raiz.querySelectorAll("[id]").forEach(coleta);
-    for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
+    // A apresentação é uma tela cheia por cima do painel: o cabeçalho do painel não faz parte dela.
+    if (container !== "#kickoff-mode") for (const id of ["dash-subtitle", "rec-badge"]) { const e = document.getElementById(id); if (e) coleta(e); }
 
     const num = (v: unknown) => (v === null || v === undefined || Number.isNaN(Number(v)) ? null : Number(v));
     const graficos: Snapshot["graficos"] = {};

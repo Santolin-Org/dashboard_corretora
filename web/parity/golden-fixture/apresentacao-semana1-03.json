@@ -1,0 +1,33 @@
+{
+  "graficos": {
+    "ch-kickoff": {
+      "datasets": [
+        {
+          "data": [
+            6535.536451612903,
+            699.9087096774196
+          ],
+          "label": "Meta"
+        },
+        {
+          "data": [
+            9833.289999999999,
+            1182.1399999999999
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "Prêmio",
+        "Comissão"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kickoff": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossosobjetivos Pessoais Produção da semana Semana 1 01/10–10/10",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossosobjetivos Pessoais Produção da semana Semana 1 01/10–10/10 ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

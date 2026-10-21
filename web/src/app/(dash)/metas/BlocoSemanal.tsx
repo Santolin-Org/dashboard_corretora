@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, type CSSProperties } from "react";
+import { useRouter } from "next/navigation";
 import { Grafico } from "@/components/Grafico";
 import { SecaoBadge, SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoRecolhivel";
 import { axisClr, gridClr } from "@/client/tema";
@@ -78,16 +79,21 @@ function Tabela({ d, e }: { d: Com; e: EstadoMetas }) {
 
 // #sc-metas-semanal: cartões-resumo (#metas-sem-mtd), gráfico ch-metas-semanal e tabela (#metas-sem-table-wrap) da
 // equipe/métrica focadas. Sem as duas pontas da vigência: a dica, o gráfico some e o badge fica vazio. O botão
-// "▶ Modo apresentação" entra na Task 20 (openKickoff); aqui só o botão.
+// "▶ Modo apresentação" (openKickoff): abre a rota /apresentacao com os filtros (?f=); sem dados, o alerta do antigo.
 export function BlocoSemanal({ dados, temDados, e }: { dados: DadosSemanal; temDados: boolean; e: EstadoMetas }) {
   const com = temDados && dados.hasPeriod ? dados : null;
   const g = useMemo(() => (com ? graficoSemanal(com.weeks, e.equipe, e.metrica) : null), [com, e.equipe, e.metrica]);
+  const router = useRouter();
+  const abrirApresentacao = () => {
+    if (!temDados) { alert("Carregue os dados antes de gerar a apresentação."); return; }
+    router.push(`/apresentacao${window.location.search}`);
+  };
   const badge = com ? `${com.weeks.length} semanas · ${e.metrica === "comissao" ? "Comissão" : "Prêmio"}` : "";
   return (
     <SecaoRecolhivel
       chave="metas-semanal"
       cabecalho={<SecaoTitulo>Acompanhamento semanal{" "}<SecaoBadge id="metas-semanal-badge">{badge}</SecaoBadge></SecaoTitulo>}
-      controles={<button type="button" className="kickoff-btn" title="Gerar apresentação de kickoff semanal">▶ Modo apresentação</button>}
+      controles={<button type="button" className="kickoff-btn" title="Gerar apresentação de kickoff semanal" onClick={abrirApresentacao}>▶ Modo apresentação</button>}
     >
       <div className="metas-sem-mtd" id="metas-sem-mtd">
         {com ? (

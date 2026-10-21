@@ -17,7 +17,7 @@ const CONTEUDO: Record<string, ComponentType> = {
   metas: dynamic(() => import("@/app/(dash)/metas/Metas")),
   sinistros: dynamic(emMigracao),
   "exibicao-tv": dynamic(emMigracao),
-  apresentacao: dynamic(emMigracao),
+  apresentacao: dynamic(() => import("@/app/(dash)/apresentacao/Apresentacao")),
 };
 
 // Telas cheias (sem .tab-pane): contêiner com o id que o app antigo usava.

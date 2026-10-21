@@ -8,7 +8,11 @@ export type Passo =
   | { tipo: "clicar"; seletor: string }
   | { tipo: "multiselect"; id: "ms-col" | "ms-grp" | "ms-ram" | "ms-seg" | "ms-ret-col" | "ms-ret-ram" | "ms-ret-grp" | "ms-ret-mot"; valores: string[] };
 
-export type Cenario = { nome: string; aba: AbaId; passos: Passo[] };
+/**
+ * `pos` (só da apresentação): passos executados depois de abrir o modo apresentação (no antigo, openKickoff(); no novo, o
+ * clique em "▶ Modo apresentação" da aba Metas). Os `passos` rodam antes, nos filtros globais.
+ */
+export type Cenario = { nome: string; aba: AbaId; passos: Passo[]; pos?: Passo[] };
 
 export const HOJE_FIXO = "2026-10-15T12:00:00-03:00";
 
@@ -189,11 +193,38 @@ export const CENARIOS: Cenario[] = [
   })(),
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
-  {
-    nome: "apresentacao-padrao", aba: "apresentacao",
-    passos: [
-      { tipo: "preencher", id: "f-vig-s", valor: "2026-10-01" },
-      { tipo: "preencher", id: "f-vig-e", valor: "2026-10-31" },
-    ],
-  },
+  // Modo apresentação: um cenário por slide (clica em "Próximo ›" até o slide). Outubro/2026: 4 semanas (o fragmento de 3 dias
+  // do dia 1 funde com a semana seguinte); o mês anterior (setembro) tem dados na fixture.
+  ...(() => {
+    const OUT: Passo[] = [{ tipo: "preencher", id: "f-vig-s", valor: "2026-10-01" }, { tipo: "preencher", id: "f-vig-e", valor: "2026-10-31" }];
+    const FECHAMENTO: Passo = { tipo: "clicar", seletor: "#kickoff-mode .kf-choose-main" };
+    const semana = (n: number): Passo => ({ tipo: "clicar", seletor: `#kickoff-mode .kf-wk-grid .kf-wk-btn:nth-child(${n})` });
+    const proximo: Passo = { tipo: "clicar", seletor: "#kickoff-mode .kf-controls .kf-nav:nth-child(3)" };
+    const anterior: Passo = { tipo: "clicar", seletor: "#kickoff-mode .kf-controls .kf-nav:nth-child(1)" };
+    const avancar = (n: number): Passo[] => Array.from({ length: n }, () => proximo);
+    const dois = (n: number) => String(n).padStart(2, "0");
+    const out: Cenario[] = [
+      { nome: "apresentacao-padrao", aba: "apresentacao", passos: OUT, pos: [] }, // tela de escolha (Fechamento de mês / semanas)
+      { nome: "apresentacao-sem-vigencia", aba: "apresentacao", passos: [], pos: [] }, // sem período: mensagem no lugar das opções
+    ];
+    for (let i = 0; i < 14; i++) out.push({ nome: `apresentacao-fechamento-${dois(i + 1)}`, aba: "apresentacao", passos: OUT, pos: [FECHAMENTO, ...avancar(i)] });
+    for (let i = 0; i < 10; i++) out.push({ nome: `apresentacao-semana3-${dois(i + 1)}`, aba: "apresentacao", passos: OUT, pos: [semana(3), ...avancar(i)] });
+    out.push(
+      { nome: "apresentacao-semana1-03", aba: "apresentacao", passos: OUT, pos: [semana(1), ...avancar(2)] },
+      { nome: "apresentacao-semana4-06", aba: "apresentacao", passos: OUT, pos: [semana(4), ...avancar(5)] },
+      // Slides de gráficos com meta de 25% em Novos e 0% (texto vazio) em Renovações, digitados na aba Metas antes de abrir.
+      {
+        nome: "apresentacao-pct-fechamento-12", aba: "apresentacao",
+        passos: [...OUT, { tipo: "digitar", id: "meta-novos-pct", valor: "25" }, { tipo: "digitar", id: "meta-renov-pct", valor: "" }],
+        pos: [FECHAMENTO, ...avancar(11)],
+      },
+      // Fim da fila (Próximo além do último não passa) e volta de um slide.
+      { nome: "apresentacao-fechamento-fim", aba: "apresentacao", passos: OUT, pos: [FECHAMENTO, ...avancar(16)] },
+      { nome: "apresentacao-fechamento-anterior", aba: "apresentacao", passos: OUT, pos: [FECHAMENTO, ...avancar(5), anterior, anterior] },
+      { nome: "apresentacao-fechamento-ponto", aba: "apresentacao", passos: OUT, pos: [FECHAMENTO, { tipo: "clicar", seletor: "#kickoff-mode .kf-dots .kf-pgdot:nth-child(8)" }] },
+      // Setembro/2026: a semana 1 tem 5 dias (sem fusão).
+      { nome: "apresentacao-setembro-semana1-03", aba: "apresentacao", passos: [{ tipo: "preencher", id: "f-vig-s", valor: "2026-09-01" }, { tipo: "preencher", id: "f-vig-e", valor: "2026-09-30" }], pos: [semana(1), ...avancar(2)] },
+    );
+    return out;
+  })(),
 ];
