@@ -28,7 +28,13 @@ export type Dependencias = {
   hoje: () => DataISO;
   /** Quanto tempo uma falha de rede/HTTP é servida sem tentar de novo (padrão 30 s). */
   ttlNegativoMs?: number;
+  /** Quanto tempo uma listagem bem-sucedida da pasta é reaproveitada (padrão 30 s). A montagem forçada
+   *  (reprocessar) sempre lista de novo. */
+  ttlListagemMs?: number;
 };
+
+/** Quantas planilhas de produção são baixadas/parseadas ao mesmo tempo (limita a memória na partida fria). */
+const PARALELO_PRODUCAO = 2;
 
 const SIN_AVISADOS = "sinistrosAvisados.xlsx";
 const SIN_PAGAMENTOS = "sinistrosPagamentos.xlsx";
@@ -44,6 +50,12 @@ let emAndamento: Promise<Base> | null = null;
 let forcadaEmAndamento: { p: Promise<Base>; limpa: boolean } | null = null;
 // Sinistros e saúde são pequenos: ficam em memória por nome@tag (não vão ao armazém).
 const buffers = new Map<string, ArrayBuffer>();
+// Dependências padrão e fonte: uma instância por processo (a GraphFonte guarda token e driveId;
+// recriá-la a cada requisição custava ~4 chamadas ao Graph).
+let padrao: Dependencias | null = null;
+const fontes = new WeakMap<Dependencias, FonteArquivos>();
+// Última listagem bem-sucedida, reaproveitada por ttlListagemMs.
+let listagem: { d: Dependencias; ate: number; metas: ArquivoMeta[] } | null = null;
 
 export function definirDependencias(d: Dependencias | null): void {
   deps = d;
@@ -56,10 +68,43 @@ export function reiniciarIngestao(): void {
   emAndamento = null;
   forcadaEmAndamento = null;
   buffers.clear();
+  listagem = null;
 }
 
 function dependencias(): Dependencias {
-  return deps ?? { fonte: criarFonte, armazem: criarArmazem(), hoje: hojeServidor };
+  return deps ?? (padrao ??= { fonte: criarFonte, armazem: criarArmazem(), hoje: hojeServidor });
+}
+
+/** A fonte das dependências, criada uma vez (uma falha ao criar não fica guardada). */
+function fonteDe(d: Dependencias): FonteArquivos {
+  let f = fontes.get(d);
+  if (!f) {
+    f = d.fonte();
+    fontes.set(d, f);
+  }
+  return f;
+}
+
+async function listarPasta(d: Dependencias, fonte: FonteArquivos, forcar: boolean): Promise<ArquivoMeta[]> {
+  const agora = Date.now();
+  if (!forcar && listagem && listagem.d === d && agora < listagem.ate) return listagem.metas;
+  const metas = await fonte.listar();
+  listagem = { d, ate: Date.now() + (d.ttlListagemMs ?? 30_000), metas };
+  return metas;
+}
+
+/** `fn` sobre cada item com no máximo `n` ao mesmo tempo; resultados na ordem de `itens`. */
+async function emParalelo<T, R>(itens: T[], n: number, fn: (x: T) => Promise<R>): Promise<R[]> {
+  const out = new Array<R>(itens.length);
+  let prox = 0;
+  const trabalhador = async () => {
+    while (prox < itens.length) {
+      const i = prox++;
+      out[i] = await fn(itens[i]);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(n, itens.length) }, trabalhador));
+  return out;
 }
 
 /** "Hoje" da ingestão (o mesmo que a base usaria), sem montar a base. */
@@ -160,8 +205,8 @@ async function montar(forcar: boolean): Promise<Resultado> {
     return falhaInicial(e, hojeServidor());
   }
   try {
-    fonte = d.fonte();
-    metas = await fonte.listar(); // uma listagem por montagem: as tags usadas são as dela
+    fonte = fonteDe(d);
+    metas = await listarPasta(d, fonte, forcar); // uma listagem por montagem: as tags usadas são as dela
   } catch (e) {
     return falhaInicial(e, hoje);
   }
@@ -185,12 +230,23 @@ async function montar(forcar: boolean): Promise<Resultado> {
   const rede = { v: false }; // houve falha de rede/HTTP (transitória)?
   let erroProducao: Base["erroProducao"];
 
-  // Produção: um snapshot por arquivo; só o que mudou é reparseado.
-  const fontes: FonteProducao[] = [];
-  for (const a of prod) {
+  // Produção: um snapshot por arquivo; só o que mudou é reparseado. Até PARALELO_PRODUCAO arquivos
+  // por vez; os resultados são tratados na ordem da listagem (a ordem decide o dedup "primeiro vence").
+  const carregados = await emParalelo(prod, PARALELO_PRODUCAO, async (a) => {
     try {
-      fontes.push({ nome: a.nome, linhas: await carregarProducao(fonte, d.armazem, a), modificadoEm: a.modificadoEm });
+      return { ok: true as const, linhas: await carregarProducao(fonte, d.armazem, a) };
     } catch (e) {
+      return { ok: false as const, e };
+    }
+  });
+  const fontesProd: FonteProducao[] = [];
+  for (let i = 0; i < prod.length; i++) {
+    const a = prod[i];
+    const c = carregados[i];
+    if (c.ok) {
+      fontesProd.push({ nome: a.nome, linhas: c.linhas, modificadoEm: a.modificadoEm });
+    } else {
+      const e = c.e;
       if (e instanceof ErroFonte) {
         if (e.status !== 404) {
           // 404: como no app antigo, o arquivo é ignorado sem aviso
@@ -204,7 +260,7 @@ async function montar(forcar: boolean): Promise<Resultado> {
       }
     }
   }
-  if (!erroProducao && !fontes.length) {
+  if (!erroProducao && !fontesProd.length) {
     erroProducao = prod.length
       ? { mensagem: `Não foi possível ler nenhuma planilha de produção (${avisos.join("; ")}).`, arquivosNaPasta: metas.map((m) => m.nome) }
       : { mensagem: mensagemSemProducao(metas.map((m) => m.nome)), arquivosNaPasta: metas.map((m) => m.nome) };
@@ -237,7 +293,7 @@ async function montar(forcar: boolean): Promise<Resultado> {
   let avisosSaude: string[] = [];
   if (!erroProducao) {
     try {
-      ({ linhas, manifesto, avisosSaude } = montarBase(fontes, saude, hoje));
+      ({ linhas, manifesto, avisosSaude } = montarBase(fontesProd, saude, hoje));
     } catch (e) {
       erroProducao = { mensagem: `Falha ao montar a base: ${msgErro(e)}`, arquivosNaPasta: metas.map((m) => m.nome) };
     }

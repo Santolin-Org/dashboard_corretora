@@ -35,7 +35,8 @@ beforeEach(() => {
   fonte = new PastaLocalFonte(dir);
   armazem = criarArmazemMemoria();
   reiniciarIngestao();
-  definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
+  // ttlListagemMs: 0 — estes testes mudam a pasta entre chamadas e esperam a listagem nova na hora.
+  definirDependencias({ fonte: () => fonte, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0, ttlListagemMs: 0 });
   parse.mockClear();
   usuario.mockReset();
 });
@@ -223,7 +224,7 @@ describe("obterBase", () => {
       },
       baixar: (a) => fonte.baixar(a),
     };
-    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0 });
+    definirDependencias({ fonte: () => f2, armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0, ttlListagemMs: 0 });
     const ok = await obterBase();
     falha = true;
     const b = await obterBase();
@@ -264,6 +265,117 @@ describe("obterBase", () => {
     await armazem.apagarTudo();
     await obterBase({ forcar: true });
     expect(parse).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe("fonte única por processo e TTL da listagem", () => {
+  const contar = (ttlListagemMs?: number) => {
+    const n = { criadas: 0, listagens: 0 };
+    definirDependencias({
+      fonte: () => {
+        n.criadas++;
+        return { listar: async () => { n.listagens++; return fonte.listar(); }, baixar: (a) => fonte.baixar(a) };
+      },
+      armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0, ...(ttlListagemMs === undefined ? {} : { ttlListagemMs }),
+    });
+    return n;
+  };
+
+  it("várias montagens usam a mesma instância da fonte (token/drive do Graph preservados)", async () => {
+    const n = contar(0);
+    await obterBase();
+    await obterBase();
+    await obterBase({ forcar: true });
+    expect(n.criadas).toBe(1);
+    expect(n.listagens).toBe(3);
+  });
+
+  it("padrão: a listagem vale 30 s (requisições seguidas não listam de novo)", async () => {
+    const n = contar();
+    const b1 = await obterBase();
+    const b2 = await obterBase();
+    expect(n.listagens).toBe(1);
+    expect(b2).toBe(b1);
+  });
+
+  it("listagem expirada lista de novo", async () => {
+    const n = contar(30_000);
+    const agora = vi.spyOn(Date, "now");
+    try {
+      agora.mockReturnValue(1_000_000);
+      await obterBase();
+      agora.mockReturnValue(1_000_000 + 29_999);
+      await obterBase();
+      expect(n.listagens).toBe(1);
+      agora.mockReturnValue(1_000_000 + 30_001);
+      await obterBase();
+      expect(n.listagens).toBe(2);
+    } finally {
+      agora.mockRestore();
+    }
+  });
+
+  it("reprocessamento forçado ignora o TTL da listagem", async () => {
+    const n = contar(30_000);
+    await obterBase();
+    await obterBase({ forcar: true });
+    expect(n.listagens).toBe(2);
+    await reprocessarTudo();
+    expect(n.listagens).toBe(3);
+    await obterBase(); // a listagem do reprocessamento vale para as próximas
+    expect(n.listagens).toBe(3);
+  });
+
+  it("falha de listagem não fica guardada", async () => {
+    let falha = true;
+    let listagens = 0;
+    definirDependencias({
+      fonte: () => ({
+        listar: async () => { listagens++; if (falha) throw new ErroFonte("rede", "sem rede"); return fonte.listar(); },
+        baixar: (a) => fonte.baixar(a),
+      }),
+      armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0, ttlListagemMs: 30_000,
+    });
+    expect((await obterBase()).erroProducao).toBeDefined();
+    falha = false;
+    expect((await obterBase()).erroProducao).toBeUndefined();
+    expect(listagens).toBe(2);
+  });
+
+  it("produção em paralelo (até 2 por vez) mantém a ordem da listagem no resultado", async () => {
+    const real = await vi.importActual<typeof import("@/domain/producao/parse")>("@/domain/producao/parse");
+    let ativos = 0;
+    let pico = 0;
+    const ordemChegada: string[] = [];
+    const atrasos: Record<string, number> = { "producao_2024.xlsx": 40, "producao_2025.xlsx": 5, "producao_2026.xlsx": 1 };
+    const nomes = (await fonte.listar()).filter((m) => m.nome.startsWith("producao")).map((m) => m.nome);
+    expect(nomes.length).toBe(3);
+    definirDependencias({
+      fonte: () => ({
+        listar: () => fonte.listar(),
+        baixar: async (a) => {
+          if (!a.nome.startsWith("producao")) return fonte.baixar(a);
+          ativos++;
+          pico = Math.max(pico, ativos);
+          await new Promise((r) => setTimeout(r, atrasos[a.nome] ?? 1));
+          ordemChegada.push(a.nome);
+          ativos--;
+          return fonte.baixar(a);
+        },
+      }),
+      armazem, hoje: () => "2026-10-15", ttlNegativoMs: 0, ttlListagemMs: 0,
+    });
+    const b = await obterBase();
+    expect(pico).toBe(2);
+    expect(ordemChegada[0]).not.toBe(nomes[0]); // o primeiro da lista terminou depois: rodaram juntos
+    expect(b.manifesto.filter((m) => m.nome.startsWith("producao")).map((m) => m.nome)).toEqual(nomes);
+    // mesmo resultado da montagem sequencial (base de referência sem atrasos)
+    reiniciarIngestao();
+    definirDependencias({ fonte: () => fonte, armazem: criarArmazemMemoria(), hoje: () => "2026-10-15", ttlNegativoMs: 0, ttlListagemMs: 0 });
+    parse.mockImplementation(real.parseProducao);
+    const ref = await obterBase();
+    expect(b.linhas).toEqual(ref.linhas);
+    expect(b.versao).toBe(ref.versao);
   });
 });
 
