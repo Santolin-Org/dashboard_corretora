@@ -46,18 +46,18 @@ Lista conferida contra `grep process.env` em `src/`, `parity/` e nos arquivos de
 | `AZURE_TENANT_ID` | Credencial de aplicativo para ler o SharePoint (Graph). Tenant `59190e65-5cad-4885-9f2d-77a59385667b` | `docs/azure-setup.md`, passo 1 |
 | `AZURE_CLIENT_ID` | ID do aplicativo (Graph) | `docs/azure-setup.md`, passo 1 |
 | `AZURE_CLIENT_SECRET` | Segredo do aplicativo (Graph) | `docs/azure-setup.md`, passo 2 (aparece uma vez) |
-| `AUTH_SECRET` | Segredo de sessão do Auth.js | `openssl rand -base64 32` |
+| `AUTH_SECRET` | Segredo de sessão, lido pelo próprio Auth.js | `openssl rand -base64 32` |
 | `AUTH_MICROSOFT_ENTRA_ID_ID` | Client ID do login (mesmo valor de `AZURE_CLIENT_ID`) | `docs/azure-setup.md` |
 | `AUTH_MICROSOFT_ENTRA_ID_SECRET` | Segredo do login (mesmo valor de `AZURE_CLIENT_SECRET`) | `docs/azure-setup.md` |
-| `AUTH_MICROSOFT_ENTRA_ID_ISSUER` | Emissor OIDC; deve ser `https://login.microsoftonline.com/59190e65-5cad-4885-9f2d-77a59385667b/v2.0` (o código recusa outro tenant). Lido pelo Auth.js | `.env.example` |
+| `AUTH_MICROSOFT_ENTRA_ID_ISSUER` | Emissor OIDC; deve ser `https://login.microsoftonline.com/59190e65-5cad-4885-9f2d-77a59385667b/v2.0` (o código recusa outro tenant). Lido pelo Auth.js e conferido em `src/server/auth-core.ts` (`assertIssuerSeguro`) | `.env.example` |
 | `DATABASE_URL` | Conexão Neon/Postgres (migrations, seed e app) | Marketplace Neon na Vercel, ou console do Neon |
 | `BLOB_READ_WRITE_TOKEN` | Vercel Blob (guarda os snapshots). Sem ele, usa armazenamento local | Blob store do projeto na Vercel |
 | `FONTE` | `local` troca o SharePoint por uma pasta local (dev) | defina manualmente |
 | `FONTE_DIR` | Pasta com as planilhas quando `FONTE=local` (obrigatória nesse caso) | defina manualmente |
-| `AUTH_TRUST_HOST` | `true` ao rodar `next start` fora da Vercel (localhost) | defina manualmente |
+| `AUTH_TRUST_HOST` | `true` ao rodar `next start` fora da Vercel (localhost); lido pelo próprio Auth.js | defina manualmente |
 | `PARITY_AUTH_BYPASS` | `1` desliga o login (só dev/harness; erro com `VERCEL` ou `NODE_ENV=production`) | defina só localmente |
 | `PARITY_HOJE` | "Hoje" fixo `YYYY-MM-DD`, honrado só com o bypass ativo | só harness |
-| `TZ` | O harness e `test:tz` fixam `America/Sao_Paulo`; na Vercel o servidor roda em UTC e o domínio já trata isso | não definir na Vercel |
+| `TZ` | O harness e harness fixa `America/Sao_Paulo`; `test:tz` roda os testes de domínio em `UTC` e em `America/Sao_Paulo`. Na Vercel o servidor roda em UTC; o tratamento de datas está em `src/domain/datas.ts` e `src/server/hoje.ts` | não definir na Vercel |
 | `NEXT_DIST_DIR`, `NEXT_TSCONFIG` | Uso interno do harness (`.next-parity`, `tsconfig.parity.json`) | não definir |
 
 **Nunca defina nenhuma `PARITY_*` na Vercel.**
@@ -126,14 +126,16 @@ arquivo), que o app antigo baixa do SharePoint. Requisições duplicadas por red
 | CSS | 14.078 (4 arquivos, inclui o da aba) | 12.506 + 1.456 (Google Fonts) = 13.962 |
 | Fontes (woff2) | 115.232 (3, hospedadas junto) | 48.982 (1 vista na carga; o Google carrega as demais sob demanda) |
 | Dados | 84.342 (`/api/dados`, JSON gzip) | 491.102 (5 `.xlsx` da fixture) |
-| **Total** | **446.176** | **~1.110.900** |
-| Total sem fontes | 330.944 | ~1.061.900 |
+| **Total** | **446.176** | **1.110.359** |
+| Total sem fontes | 330.944 | 1.061.377 |
+
+Indicativo: medido localmente com NODE_ENV=development no processo (por causa do guard do bypass); refazer no preview da Vercel com a base real.
 
 Leitura: com a fixture o app novo transfere cerca de 40% do total do antigo. A diferença de JS vem de o app novo
 não carregar `xlsx`, `msal`, `html2canvas` e `jsPDF` na primeira carga. O app novo também dispensa a leitura do Excel
 no navegador (parse no servidor).
 
-**Estimativa para a base real (não medida).** Na Task 9 mediu-se com 150 mil linhas: JSON ingênuo em gzip 3.785.097 B
+**Estimativa para a base real (não medida).** Medido no teste de tamanho `tests/domain/serializacao.test.ts` ("150 mil linhas", Task 9; `npx vitest run tests/domain/serializacao.test.ts` imprime `gzip ingênuo=... colunar=...` via console.log), com dados sintéticos de 150 mil linhas, portanto é estimativa para a base real: JSON ingênuo em gzip 3.785.097 B
 contra o formato colunar atual em 1.409.589 B. Logo `/api/dados` deve ficar na ordem de 1,4 MB em gzip com a base inteira,
 e o conjunto novo em torno de 1,7 MB (JS+CSS+HTML ≈ 0,25 MB mais fontes). O app antigo continuará baixando os `.xlsx`
 inteiros: o tamanho real não foi medido (a fixture tem ~890 B/linha, o que extrapolaria a valores irreais; planilhas

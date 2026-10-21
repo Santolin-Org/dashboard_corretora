@@ -33,7 +33,7 @@ Variáveis e scripts: ver `README.md`.
 ## d. Paridade com dados reais
 
 - [ ] Copiar as planilhas reais para `web/parity/data/` (`producao*.xlsx`, `sinistrosAvisados.xlsx`, `sinistrosPagamentos.xlsx`, `saude_fernando.xlsx` se houver). Não vão para o git.
-- [ ] `npm run regressao:real`.
+- [ ] `npm run regressao:real` (cobre as abas já portadas; Sinistros fica de fora, por decisão do Mitz).
   - Verificar: saída 0 e `parity/.golden/relatorio.md` sem diferenças. Anexar o relatório ao PR.
 
 ## e. Checagens no preview da Vercel
@@ -42,7 +42,7 @@ Variáveis e scripts: ver `README.md`.
 - [ ] Conta do tenant que não está na lista cai em `/sem-acesso`.
 - [ ] `curl -i https://<preview>/api/dados` (sem cookie) responde 401.
 - [ ] O site antigo continua igual, e `curl -i https://<site antigo>/web/package.json` responde 404.
-- [ ] Medir no Network do preview a primeira carga de `/visao-geral` e comparar com a seção "Desempenho" do README.
+- [ ] Medir no Network do preview a primeira carga de `/visao-geral` e comparar com a seção "Desempenho" do README (indicativo: aquela medição foi local, com NODE_ENV=development no processo por causa do guard do bypass; refazer no preview da Vercel com a base real).
 
 ## f. Pendências antes de virar o domínio
 
