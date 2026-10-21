@@ -97,13 +97,15 @@ async function aplicarPasso(page: Page, p: Passo): Promise<void> {
       el.dispatchEvent(new Event("input", { bubbles: true }));
     }, p);
   } else if (p.tipo === "clicar") {
-    await page.click(p.seletor, { timeout: 10000 });
+    const sel = p.senao && (await page.locator(p.seletor).count()) === 0 ? p.senao : p.seletor;
+    await page.locator(sel).first().click({ timeout: 10_000 });
   } else {
-    await page.evaluate(({ id, valores }) => {
+    await page.evaluate(({ id, valores, senaoPrimeiro }) => {
       const wrap = document.getElementById(id) as any;
       if (!wrap || !wrap._msObj) throw new Error(`#${id} não é um multiselect montado`);
       const w = window as any;
-      for (const v of valores) {
+      for (let v of valores) {
+        if (!wrap._vals.includes(v) && senaoPrimeiro && wrap._vals.length) v = wrap._vals[0];
         if (!wrap._vals.includes(v)) throw new Error(`valor "${v}" não existe em #${id}`);
         wrap._msObj[wrap._key].add(v);
       }
@@ -170,6 +172,9 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
       const cv = document.getElementById(id);
       if (!cv || !raiz.contains(cv)) continue;
       const ch = charts[id];
+      // Destruído (ex.: renderCancelChart sem cancelamentos chama destroy() e deixa a referência em `charts`):
+      // na tela não há gráfico, só o canvas vazio. Chart.js 4 zera `canvas` no destroy().
+      if (!ch || !ch.canvas) continue;
       graficos[id] = {
         labels: (ch.data.labels ?? []).map((l: unknown) => String(l)),
         datasets: ch.data.datasets.map((d: any) => ({

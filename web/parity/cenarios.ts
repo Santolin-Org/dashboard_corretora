@@ -5,8 +5,13 @@ export type AbaId =
 export type Passo =
   | { tipo: "preencher"; id: string; valor: string } // input date/text: define value e dispara 'change'
   | { tipo: "digitar"; id: string; valor: string } // input de texto: define value e dispara 'input' (oninput do antigo)
-  | { tipo: "clicar"; seletor: string }
-  | { tipo: "multiselect"; id: "ms-col" | "ms-grp" | "ms-ram" | "ms-seg" | "ms-ret-col" | "ms-ret-ram" | "ms-ret-grp" | "ms-ret-mot"; valores: string[] };
+  | { tipo: "clicar"; seletor: string; /** usado quando `seletor` não existe (valor da fixture ausente nos dados reais) */ senao?: string }
+  | {
+      tipo: "multiselect"; id: "ms-col" | "ms-grp" | "ms-ram" | "ms-seg" | "ms-ret-col" | "ms-ret-ram" | "ms-ret-grp" | "ms-ret-mot"; valores: string[];
+      /** Valor que não existe na lista (dados reais têm outros nomes que a fixture) vira a 1ª opção da lista,
+       *  nos dois lados. Sem isto, valor ausente é erro. */
+      senaoPrimeiro?: true;
+    };
 
 /**
  * `pos` (só da apresentação): passos executados depois de abrir o modo apresentação (no antigo, openKickoff(); no novo, o
@@ -32,7 +37,7 @@ function cenariosDaAba(aba: AbaId): Cenario[] {
         { tipo: "preencher", id: "f-vig-e", valor: "2026-09-30" },
       ],
     },
-    { nome: `${aba}-colab`, aba, passos: [{ tipo: "multiselect", id: "ms-col", valores: ["ANA CLARA MENDES"] }] },
+    { nome: `${aba}-colab`, aba, passos: [{ tipo: "multiselect", id: "ms-col", valores: ["ANA CLARA MENDES"], senaoPrimeiro: true }] },
     {
       nome: `${aba}-tipos`, aba,
       passos: [
@@ -43,8 +48,8 @@ function cenariosDaAba(aba: AbaId): Cenario[] {
     {
       nome: `${aba}-ramo-seg`, aba,
       passos: [
-        { tipo: "multiselect", id: "ms-ram", valores: ["Automóvel - Casco"] },
-        { tipo: "multiselect", id: "ms-seg", valores: ["Porto Seguro"] },
+        { tipo: "multiselect", id: "ms-ram", valores: ["Automóvel - Casco"], senaoPrimeiro: true },
+        { tipo: "multiselect", id: "ms-seg", valores: ["Porto Seguro"], senaoPrimeiro: true },
       ],
     },
   ];
@@ -71,12 +76,12 @@ export const CENARIOS: Cenario[] = [
   // O detalhe não tem busca por texto: `retDetailFilter` é o filtro de situação (Todas/Canceladas/Vencidas).
   { nome: "retencao-detalhe-busca", aba: "retencao", passos: [{ tipo: "clicar", seletor: "#ret-filter-canc-btn" }] },
   { nome: "retencao-detalhe-vencidas", aba: "retencao", passos: [{ tipo: "clicar", seletor: "#ret-filter-venc-btn" }] },
-  { nome: "retencao-motivo", aba: "retencao", passos: [{ tipo: "multiselect", id: "ms-ret-mot", valores: ["Insatisfação com atendimento"] }] },
+  { nome: "retencao-motivo", aba: "retencao", passos: [{ tipo: "multiselect", id: "ms-ret-mot", valores: ["Insatisfação com atendimento"], senaoPrimeiro: true }] },
   {
     nome: "retencao-filtros-proprios", aba: "retencao",
     passos: [
-      { tipo: "multiselect", id: "ms-ret-col", valores: ["CARLA NOGUEIRA"] },
-      { tipo: "multiselect", id: "ms-ret-ram", valores: ["Responsabilidade Civil Geral"] },
+      { tipo: "multiselect", id: "ms-ret-col", valores: ["CARLA NOGUEIRA"], senaoPrimeiro: true },
+      { tipo: "multiselect", id: "ms-ret-ram", valores: ["Responsabilidade Civil Geral"], senaoPrimeiro: true },
       { tipo: "clicar", seletor: "#ret-tipo-R" },
     ],
   },
@@ -94,7 +99,7 @@ export const CENARIOS: Cenario[] = [
     passos: [
       { tipo: "clicar", seletor: "#cancel-filter .cancel-filter-header" }, // abre a lista de motivos
       { tipo: "clicar", seletor: "#cancel-filter .cancel-filter-footer button:nth-child(2)" }, // Desmarcar todos
-      { tipo: "clicar", seletor: "#cb-Pre_o" }, // marca só "Preço"
+      { tipo: "clicar", seletor: "#cb-Pre_o", senao: "#cancel-cb-list input[type=checkbox]" }, // marca só "Preço" (dados reais: o 1º motivo)
     ],
   },
   {

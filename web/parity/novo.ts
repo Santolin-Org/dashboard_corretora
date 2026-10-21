@@ -154,9 +154,13 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
         // fill() dispara input e change nativos (os campos de data são não controlados).
         await page.fill(`#${p.id}`, p.valor, { timeout: 10_000 });
       } else if (p.tipo === "clicar") {
-        await page.click(p.seletor, { timeout: 10_000 });
+        const sel = p.senao && (await page.locator(p.seletor).count()) === 0 ? p.senao : p.seletor;
+        await page.locator(sel).first().click({ timeout: 10_000 });
       } else {
-        for (const v of p.valores) {
+        for (let v of p.valores) {
+          if (p.senaoPrimeiro && (await page.locator(`#${p.id} input[type=checkbox][data-valor="${v}"]`).count()) === 0) {
+            v = (await page.locator(`#${p.id} input[type=checkbox][data-valor]`).first().getAttribute("data-valor", { timeout: 10_000 })) ?? v;
+          }
           const caixa = page.locator(`#${p.id} input[type=checkbox][data-valor="${v}"]`);
           if (!(await caixa.isVisible())) await page.click(`#${p.id} .ms-trigger`, { timeout: 10_000 });
           await caixa.click({ timeout: 10_000 });

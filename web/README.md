@@ -165,6 +165,12 @@ linhas); em gzip fica entre 1,4 MB (teste sintético) e 1,8 MB (medição da rev
   navegador descomprime sozinho; um cliente sem `gzip` no `Accept-Encoding` recebe o JSON descomprimido;
 - mantém ETag, 304 e `Cache-Control: private, no-cache` como antes.
 
+**Com a base real** (planilhas de `parity/data/`, 2026-10-21, local): 50.909 linhas de produção (7 fontes), JSON
+cru de 7.744.922 B (acima de 4,5 MB, então o gzip é necessário), corpo gzip enviado de 1.474.124 B (`curl` no
+`next dev`: `content-encoding: gzip`, `Transfer-Encoding: chunked`, 304 com ETag), 192 ms para comprimir uma vez.
+Montagem da base no servidor: fria, sem snapshots, 9,4 s; processo novo com snapshots, 0,16 s (armazém em
+memória; com Blob soma o download); quente, base em memória, ~0 ms.
+
 Medido localmente (dados sintéticos do teste de tamanho): 150 mil linhas = 1.413.151 B em gzip, 192 ms para comprimir;
 300 mil linhas = 2.810.066 B, 422 ms; requisições seguintes reusam o buffer. Mesmo se o limite valesse para o corpo
 comprimido e sem streaming, a base caberia até perto de 380 mil linhas (na proporção da medição da revisão). A
