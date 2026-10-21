@@ -1,0 +1,112 @@
+{
+  "graficos": {
+    "ch-comp-main": {
+      "datasets": [
+        {
+          "data": [
+            5404.030000000001,
+            16912.14,
+            25563.140000000003,
+            46024.9,
+            32879.96000000001,
+            34880.75,
+            26598.19,
+            2786.72,
+            2690.54,
+            0
+          ],
+          "label": "Atual — Prêmio Novo"
+        },
+        {
+          "data": [
+            20125.72,
+            27390.230000000003,
+            17315.52,
+            31781.950000000004,
+            20189.66,
+            4641.92,
+            13839.4,
+            6901.5,
+            8910.44,
+            5646.04
+          ],
+          "label": "Anterior — Prêmio Novo"
+        },
+        {
+          "data": [
+            -73.14863766364633,
+            -38.25484488447159,
+            47.63137347304616,
+            44.81458815459717,
+            62.85544184498405,
+            651.4293654349925,
+            92.19178577105943,
+            -59.621531551112085,
+            -69.80463366567756,
+            -100
+          ],
+          "label": "Variação %"
+        }
+      ],
+      "labels": [
+        "Jan/26",
+        "Fev/26",
+        "Mar/26",
+        "Abr/26",
+        "Mai/26",
+        "Jun/26",
+        "Jul/26",
+        "Ago/26",
+        "Set/26",
+        "Out/26"
+      ]
+    }
+  },
+  "textos": {
+    "cb-comp-chart": "−",
+    "cb-comp-kpis": "−",
+    "cb-comp-pivot": "−",
+    "cb-comp-rank": "−",
+    "ch-comp-main": "",
+    "cm-cn": "",
+    "cm-ct": "",
+    "cm-pn": "",
+    "cm-pt": "",
+    "cm-qn": "",
+    "cm-qt": "",
+    "comp-clear-period-btn": "↻ Seguir filtro global",
+    "comp-end": "",
+    "comp-kpis-grid": "Resultado do período Prêmio total ▲ 3.8% R$ 360.089,04 ant. R$ 346.997,44 · Δ +R$ 13.091,60 Comissão total ▲ 6.1% R$ 49.471,32 ant. R$ 46.644,89 · Δ +R$ 2.826,43 Apólices ▲ 3.3% 95 ant. 92 · Δ +3 Clientes únicos ▼ 5.2% 55 ant. 58 · Δ −3 Novo × Renovação Prêmio novo ▲ 23.6% R$ 200.614,50 ant. R$ 162.267,92 · Δ +R$ 38.346,58 Prêmio renovação ▼ 13.7% R$ 159.474,54 ant. R$ 184.729,52 · Δ −R$ 25.254,98 Taxa de renovação ▲ 2.6% 61.54% 32 renov. · 20 venc. · ant. 60.00% Mix novo ▲ 19.1% 55.71% ant. 46.76% · Δ +8.9 p.p. Eficiência & risco Ticket médio ▲ 0.5% R$ 3.790,41 ant. R$ 3.771,71 · Δ +R$ 18,70 Comissão média (%) ▲ 2.2% 13.74% ant. 13.44% · Δ +0.3 p.p. Taxa de churn ▼ 30.4% 49.30% 36 renov. ÷ 71 N+R ano ant. · ant. 70.83% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 4.8% 20 ant. 21 · Δ −1",
+    "comp-periodo-atual-tag": "Atual: 01/01/2026 → 15/10/2026",
+    "comp-periodo-prev-tag": "Anterior: 01/01/2025 → 15/10/2025",
+    "comp-pivot-bulk": "− Recolher + Expandir",
+    "comp-pivot-table": "Seguradora 2021202420252026 Valor%Valor%Valor%Valor% Bradesco SegurosR$ 0,000.00%R$ 102.084,7514.67%R$ 100.630,1526.02%R$ 78.508,5922.25%HDI SegurosR$ 0,000.00%R$ 124.424,2317.88%R$ 76.488,3719.78%R$ 76.199,8221.59%Tokio MarineR$ 0,000.00%R$ 144.796,6620.81%R$ 49.160,2312.71%R$ 52.759,8614.95%Porto SeguroR$ 0,000.00%R$ 130.560,5318.76%R$ 56.911,8314.71%R$ 44.115,1012.50%MapfreR$ 0,000.00%R$ 115.446,3116.59%R$ 50.236,4012.99%R$ 52.696,6414.93%AllianzR$ 1.100,00100.00%R$ 78.496,1211.28%R$ 53.340,4913.79%R$ 48.588,0113.77%Total geralR$ 1.100,00100.00%R$ 695.808,60100.00%R$ 386.767,47100.00%R$ 352.868,02100.00%",
+    "comp-pivot-wrap": "Seguradora 2021202420252026 Valor%Valor%Valor%Valor% Bradesco SegurosR$ 0,000.00%R$ 102.084,7514.67%R$ 100.630,1526.02%R$ 78.508,5922.25%HDI SegurosR$ 0,000.00%R$ 124.424,2317.88%R$ 76.488,3719.78%R$ 76.199,8221.59%Tokio MarineR$ 0,000.00%R$ 144.796,6620.81%R$ 49.160,2312.71%R$ 52.759,8614.95%Porto SeguroR$ 0,000.00%R$ 130.560,5318.76%R$ 56.911,8314.71%R$ 44.115,1012.50%MapfreR$ 0,000.00%R$ 115.446,3116.59%R$ 50.236,4012.99%R$ 52.696,6414.93%AllianzR$ 1.100,00100.00%R$ 78.496,1211.28%R$ 53.340,4913.79%R$ 48.588,0113.77%Total geralR$ 1.100,00100.00%R$ 695.808,60100.00%R$ 386.767,47100.00%R$ 352.868,02100.00%",
+    "comp-rank-counter": "",
+    "comp-rank-table": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 20.564,32+143.8% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 60.561,19+40.6% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.966,31R$ 38.830,18-48.6% R$ 78.783,50R$ 67.832,36+16.1% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 43.442,03R$ 57.225,62-24.1% R$ 79.624,60R$ 79.617,62+0.0% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 13.253,53R$ 25.655,05-48.3% R$ 40.373,52R$ 80.479,27-49.8%",
+    "comp-rank-wrap": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 20.564,32+143.8% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 60.561,19+40.6% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.966,31R$ 38.830,18-48.6% R$ 78.783,50R$ 67.832,36+16.1% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 43.442,03R$ 57.225,62-24.1% R$ 79.624,60R$ 79.617,62+0.0% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 13.253,53R$ 25.655,05-48.3% R$ 40.373,52R$ 80.479,27-49.8%",
+    "comp-scope-chips": "Sem filtros globais — carteira completa",
+    "comp-start": "",
+    "crd-colab": "",
+    "crd-ramo": "",
+    "crd-seg": "",
+    "crm-com": "",
+    "crm-premio": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "mt-comp-pivot-c": "",
+    "mt-comp-pivot-p": "",
+    "rec-badge": "0 registros",
+    "sb-comp-chart": "",
+    "sb-comp-kpis": "Resultado do período Prêmio total ▲ 3.8% R$ 360.089,04 ant. R$ 346.997,44 · Δ +R$ 13.091,60 Comissão total ▲ 6.1% R$ 49.471,32 ant. R$ 46.644,89 · Δ +R$ 2.826,43 Apólices ▲ 3.3% 95 ant. 92 · Δ +3 Clientes únicos ▼ 5.2% 55 ant. 58 · Δ −3 Novo × Renovação Prêmio novo ▲ 23.6% R$ 200.614,50 ant. R$ 162.267,92 · Δ +R$ 38.346,58 Prêmio renovação ▼ 13.7% R$ 159.474,54 ant. R$ 184.729,52 · Δ −R$ 25.254,98 Taxa de renovação ▲ 2.6% 61.54% 32 renov. · 20 venc. · ant. 60.00% Mix novo ▲ 19.1% 55.71% ant. 46.76% · Δ +8.9 p.p. Eficiência & risco Ticket médio ▲ 0.5% R$ 3.790,41 ant. R$ 3.771,71 · Δ +R$ 18,70 Comissão média (%) ▲ 2.2% 13.74% ant. 13.44% · Δ +0.3 p.p. Taxa de churn ▼ 30.4% 49.30% 36 renov. ÷ 71 N+R ano ant. · ant. 70.83% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 4.8% 20 ant. 21 · Δ −1",
+    "sb-comp-pivot": "Seguradora 2021202420252026 Valor%Valor%Valor%Valor% Bradesco SegurosR$ 0,000.00%R$ 102.084,7514.67%R$ 100.630,1526.02%R$ 78.508,5922.25%HDI SegurosR$ 0,000.00%R$ 124.424,2317.88%R$ 76.488,3719.78%R$ 76.199,8221.59%Tokio MarineR$ 0,000.00%R$ 144.796,6620.81%R$ 49.160,2312.71%R$ 52.759,8614.95%Porto SeguroR$ 0,000.00%R$ 130.560,5318.76%R$ 56.911,8314.71%R$ 44.115,1012.50%MapfreR$ 0,000.00%R$ 115.446,3116.59%R$ 50.236,4012.99%R$ 52.696,6414.93%AllianzR$ 1.100,00100.00%R$ 78.496,1211.28%R$ 53.340,4913.79%R$ 48.588,0113.77%Total geralR$ 1.100,00100.00%R$ 695.808,60100.00%R$ 386.767,47100.00%R$ 352.868,02100.00%",
+    "sb-comp-rank": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 20.564,32+143.8% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 60.561,19+40.6% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.966,31R$ 38.830,18-48.6% R$ 78.783,50R$ 67.832,36+16.1% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 43.442,03R$ 57.225,62-24.1% R$ 79.624,60R$ 79.617,62+0.0% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 13.253,53R$ 25.655,05-48.3% R$ 40.373,52R$ 80.479,27-49.8%",
+    "sc-comp-chart": "Evolução mensal comparativa Período atual Período anterior Variação % Prêmio Novo Prêmio Total Com. Nova Com. Total Qtd Nova Qtd Total −",
+    "sc-comp-kpis": "Indicadores complementares − Resultado do período Prêmio total ▲ 3.8% R$ 360.089,04 ant. R$ 346.997,44 · Δ +R$ 13.091,60 Comissão total ▲ 6.1% R$ 49.471,32 ant. R$ 46.644,89 · Δ +R$ 2.826,43 Apólices ▲ 3.3% 95 ant. 92 · Δ +3 Clientes únicos ▼ 5.2% 55 ant. 58 · Δ −3 Novo × Renovação Prêmio novo ▲ 23.6% R$ 200.614,50 ant. R$ 162.267,92 · Δ +R$ 38.346,58 Prêmio renovação ▼ 13.7% R$ 159.474,54 ant. R$ 184.729,52 · Δ −R$ 25.254,98 Taxa de renovação ▲ 2.6% 61.54% 32 renov. · 20 venc. · ant. 60.00% Mix novo ▲ 19.1% 55.71% ant. 46.76% · Δ +8.9 p.p. Eficiência & risco Ticket médio ▲ 0.5% R$ 3.790,41 ant. R$ 3.771,71 · Δ +R$ 18,70 Comissão média (%) ▲ 2.2% 13.74% ant. 13.44% · Δ +0.3 p.p. Taxa de churn ▼ 30.4% 49.30% 36 renov. ÷ 71 N+R ano ant. · ant. 70.83% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 4.8% 20 ant. 21 · Δ −1",
+    "sc-comp-pivot": "Comparativo por seguradora e ramo Seguradora Ramo Seguradora + ramo − Recolher + Expandir Prêmio líquido Comissão ↑ Exportar − Seguradora 2021202420252026 Valor%Valor%Valor%Valor% Bradesco SegurosR$ 0,000.00%R$ 102.084,7514.67%R$ 100.630,1526.02%R$ 78.508,5922.25%HDI SegurosR$ 0,000.00%R$ 124.424,2317.88%R$ 76.488,3719.78%R$ 76.199,8221.59%Tokio MarineR$ 0,000.00%R$ 144.796,6620.81%R$ 49.160,2312.71%R$ 52.759,8614.95%Porto SeguroR$ 0,000.00%R$ 130.560,5318.76%R$ 56.911,8314.71%R$ 44.115,1012.50%MapfreR$ 0,000.00%R$ 115.446,3116.59%R$ 50.236,4012.99%R$ 52.696,6414.93%AllianzR$ 1.100,00100.00%R$ 78.496,1211.28%R$ 53.340,4913.79%R$ 48.588,0113.77%Total geralR$ 1.100,00100.00%R$ 695.808,60100.00%R$ 386.767,47100.00%R$ 352.868,02100.00%",
+    "sc-comp-rank": "Maiores variações Produtor Seguradora Ramo Prêmio Comissão − Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 20.564,32+143.8% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 60.561,19+40.6% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.966,31R$ 38.830,18-48.6% R$ 78.783,50R$ 67.832,36+16.1% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 43.442,03R$ 57.225,62-24.1% R$ 79.624,60R$ 79.617,62+0.0% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 13.253,53R$ 25.655,05-48.3% R$ 40.373,52R$ 80.479,27-49.8%",
+    "tab-comparativo": "Período atual — início de vigência → Comparar ↻ Seguir filtro global Atual: 01/01/2026 → 15/10/2026 vs. Anterior: 01/01/2025 → 15/10/2025 Sem filtros globais — carteira completa Evolução mensal comparativa Período atual Período anterior Variação % Prêmio Novo Prêmio Total Com. Nova Com. Total Qtd Nova Qtd Total − Indicadores complementares − Resultado do período Prêmio total ▲ 3.8% R$ 360.089,04 ant. R$ 346.997,44 · Δ +R$ 13.091,60 Comissão total ▲ 6.1% R$ 49.471,32 ant. R$ 46.644,89 · Δ +R$ 2.826,43 Apólices ▲ 3.3% 95 ant. 92 · Δ +3 Clientes únicos ▼ 5.2% 55 ant. 58 · Δ −3 Novo × Renovação Prêmio novo ▲ 23.6% R$ 200.614,50 ant. R$ 162.267,92 · Δ +R$ 38.346,58 Prêmio renovação ▼ 13.7% R$ 159.474,54 ant. R$ 184.729,52 · Δ −R$ 25.254,98 Taxa de renovação ▲ 2.6% 61.54% 32 renov. · 20 venc. · ant. 60.00% Mix novo ▲ 19.1% 55.71% ant. 46.76% · Δ +8.9 p.p. Eficiência & risco Ticket médio ▲ 0.5% R$ 3.790,41 ant. R$ 3.771,71 · Δ +R$ 18,70 Comissão média (%) ▲ 2.2% 13.74% ant. 13.44% · Δ +0.3 p.p. Taxa de churn ▼ 30.4% 49.30% 36 renov. ÷ 71 N+R ano ant. · ant. 70.83% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 4.8% 20 ant. 21 · Δ −1 Comparativo por seguradora e ramo Seguradora Ramo Seguradora + ramo − Recolher + Expandir Prêmio líquido Comissão ↑ Exportar − Seguradora 2021202420252026 Valor%Valor%Valor%Valor% Bradesco SegurosR$ 0,000.00%R$ 102.084,7514.67%R$ 100.630,1526.02%R$ 78.508,5922.25%HDI SegurosR$ 0,000.00%R$ 124.424,2317.88%R$ 76.488,3719.78%R$ 76.199,8221.59%Tokio MarineR$ 0,000.00%R$ 144.796,6620.81%R$ 49.160,2312.71%R$ 52.759,8614.95%Porto SeguroR$ 0,000.00%R$ 130.560,5318.76%R$ 56.911,8314.71%R$ 44.115,1012.50%MapfreR$ 0,000.00%R$ 115.446,3116.59%R$ 50.236,4012.99%R$ 52.696,6414.93%AllianzR$ 1.100,00100.00%R$ 78.496,1211.28%R$ 53.340,4913.79%R$ 48.588,0113.77%Total geralR$ 1.100,00100.00%R$ 695.808,60100.00%R$ 386.767,47100.00%R$ 352.868,02100.00% Maiores variações Produtor Seguradora Ramo Prêmio Comissão − Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 20.564,32+143.8% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 60.561,19+40.6% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.966,31R$ 38.830,18-48.6% R$ 78.783,50R$ 67.832,36+16.1% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 43.442,03R$ 57.225,62-24.1% R$ 79.624,60R$ 79.617,62+0.0% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 13.253,53R$ 25.655,05-48.3% R$ 40.373,52R$ 80.479,27-49.8%",
+    "vw-comp-pivot-a": "",
+    "vw-comp-pivot-r": "",
+    "vw-comp-pivot-s": ""
+  }
+}

@@ -124,3 +124,28 @@
   `preencher` só dispara `change`.
 - **CSS:** `.tier-goal*`/`.podium*` entraram como CSS **global** (`src/styles/campanha.css`) porque a Exibição TV (Task 22) reutiliza os seletores;
   `.pen-*` e o cartão de filtros ficaram em `Crosssell.module.css`.
+
+## Task 18 — Comparativo de períodos
+
+- **Fontes de dados:** gráfico, KPIs e ranking leem `ALL` (`base.linhas`) com os filtros globais (`matchesCompScope`: colaborador, grupo, ramo,
+  seguradora, tipo, emissão; a vigência global só entra como período). O pivô seguradora/ramo lê `FD` (já filtrado, inclusive pela vigência global);
+  no modo inicial/limpo (FD = ALL) inclui as faturas de saúde que um filtro de tipo descartaria — igual ao antigo.
+- **Período:** manual da aba > vigência global (ambas as pontas) > 1º de janeiro do ano de `hoje` até `hoje`. Como na Retenção, o antigo usa
+  `fmtD(today())` (data UTC); o novo usa `base.hoje` (data civil de São Paulo). Só diferem entre 21h e 24h.
+- **Quirk reproduzido: `comp-start`/`comp-end`** são reescritos a cada render da aba com o período calculado; digitar neles só vale ao clicar
+  "Comparar". O rascunho some a cada render (filtro global, métrica do gráfico, Comparar, Seguir filtro global, voltar à aba).
+- **Quirk reproduzido: "Limpar filtros" global** descarta o período manual (`resetFilters`), mesmo com a aba fechada (via `geracaoLimpeza`).
+- **Quirk reproduzido: recarga de dados** (`initDashboard`) regrava `compStartDate/EndDate` com o default mas NÃO desliga `compPeriodManual`:
+  com período manual ativo, a aba passa a mostrar 1º/jan → hoje ainda marcada "Período: definido na aba", com o botão "Seguir filtro global".
+- **`prevYearDates`:** 29/02 vira 01/03 do ano anterior (overflow do `setFullYear`); os dois períodos podem ter número de meses diferente e o rótulo
+  que falta no gráfico fica "?" (reproduzido em `graficoComp`).
+- **Agrupamento por mês/ano** (gráfico e anos do pivô) usa `vigLocal || vig`; comparações de intervalo usam `vig`/`em`/`fim`.
+- **Taxa de renovação** ancora no término de vigência (`fim`); **churn do Comparativo** é `1 − R(período) ÷ (N+R do ano anterior)` e pode ser negativo
+  (METRICAS.md). Funções próprias do Comparativo (`calcChurnComp`); o antigo também não reusa `retencao.ts` aqui.
+- **Seção recolhida:** o antigo não redesenha seções recolhidas (e o pivô não é refeito ao reabrir); no novo os blocos seguem atualizados (invisíveis).
+- **Modal de exportação** (`#comp-pivot-export-modal`) fica fora de `#tab-comparativo` no antigo; no novo é um portal em `document.body`, só quando aberto.
+- **Exportações:** `.xlsx` (`Comparativo_Seguradora.xlsx`/`_Ramo`/`_Seguradora_Ramo`, aba "Comparativo", exatamente a visão em tela, inclusive grupos
+  recolhidos) comparado novo × antigo em `tests/parity/exportar-comparativo.test.ts`. PDF (`Comparativo_Seguradora_Ramo.pdf`, JPEG 0,92 de
+  `#comp-pivot-wrap`, página do tamanho da imagem, paisagem se largura ≥ altura) com `import()` dinâmico de `html2canvas` 1.4.1 e `jspdf` 2.5.1 só no clique;
+  o antigo as carrega por `<script>` da CDN e sai em silêncio se não carregarem.
+- **Cenários extras:** `comparativo-pivo-recolhido-comissao`, `comparativo-ranking-seg-comissao`, `comparativo-ranking-ramo`, `comparativo-manual-seguir-global` e um por métrica.

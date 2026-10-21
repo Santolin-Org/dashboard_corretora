@@ -1,0 +1,44 @@
+/* styles.css: COMPARATIVO DE PERÍODOS (1450–1670) e "COMPARATIVO — tabela por seguradora/ramo" + modal de exportação. */
+.compFilterCard { background: var(--bg-raised); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); padding: 14px 16px; margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; box-shadow: var(--shadow-card); }
+.fGroup { display: flex; flex-direction: column; gap: 3px; }
+.fLabel { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-secondary); font-weight: 500; }
+.datePair { display: flex; gap: 4px; align-items: center; }
+.dateSep { font-size: 11px; color: var(--text-tertiary); }
+.periodLabels { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: 4px; }
+.periodTag { font-size: 11px; font-family: var(--font-mono); padding: 3px 12px; border-radius: 20px; background: var(--accent-dim); border: 1px solid rgba(78, 128, 255, 0.3); color: #90AFFF; white-space: nowrap; }
+.periodTagPrev { background: rgba(120, 136, 168, 0.09); border-color: rgba(120, 136, 168, 0.22); color: var(--text-secondary); }
+.scopeChips { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+.scopeChips::before { content: 'Escopo'; font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-tertiary); font-weight: 600; margin-right: 2px; }
+.scopeChip { font-size: 10px; padding: 3px 10px; border-radius: 20px; background: var(--accent-dim); border: 1px solid rgba(78, 128, 255, 0.28); color: #90AFFF; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+.scopeChipNeutral { background: var(--neu-bg); border-color: var(--border-subtle); color: var(--text-secondary); }
+.metricToggle { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.metricToggle input[type=radio] { display: none; }
+.metricToggle label { padding: 3px 10px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--r-sm); cursor: pointer; font-size: 11px; font-weight: 500; color: var(--text-secondary); transition: all .15s; white-space: nowrap; }
+.metricToggle label:hover { border-color: rgba(255, 255, 255, 0.2); color: var(--text-primary); }
+.metricToggle input:checked + label { background: var(--accent-dim); border-color: rgba(78, 128, 255, 0.45); color: #90AFFF; font-weight: 600; }
+.kpiBlock { margin-bottom: 22px; }
+.kpiBlock:last-child { margin-bottom: 0; }
+.kpiBlockTitle { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text-secondary); margin-bottom: 10px; }
+.kpiGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.kpiCard { background: var(--bg-elevated); border: 1px solid var(--border-subtle); border-radius: var(--r-md); padding: 12px 14px; box-shadow: var(--shadow-card); display: flex; flex-direction: column; gap: 6px; }
+.kpiTop { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.kpiLabel { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--text-secondary); font-weight: 500; }
+.kpiValue { font-size: 22px; font-weight: 700; font-family: var(--font-mono); color: var(--text-primary); font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpiFoot { font-size: 11px; color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kpiTrend { font-size: 11px; font-weight: 700; font-family: var(--font-mono); padding: 3px 8px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; letter-spacing: -0.2px; }
+.trendUp { background: var(--pos-bg); color: var(--pos-text); }
+.trendDown { background: var(--neg-bg); color: var(--neg-text); }
+.trendNeutral { background: var(--neu-bg); color: var(--neu-text); }
+.pivotTotal td { font-weight: 700; background: var(--bg-elevated); color: var(--text-primary); }
+.pivotSub td:first-child { padding-left: 28px; color: var(--text-secondary); font-weight: 400; }
+.pivotBulk { display: flex; gap: 4px; }
+.pivotToggle { cursor: pointer; user-select: none; }
+.pivotToggle:hover { color: var(--accent); }
+.pivotChevron { display: inline-block; width: 14px; font-size: 9px; color: var(--text-tertiary); }
+.modalOverlay { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.55); }
+.modalCard { background: var(--bg-raised); border: 1px solid var(--border-default); border-radius: var(--r-lg); box-shadow: var(--shadow-dropdown); padding: 20px; min-width: 260px; display: flex; flex-direction: column; gap: 10px; }
+.modalTitle { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.modalOption { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--bg-input); border: 1px solid var(--border-default); border-radius: var(--r-md); color: var(--text-primary); font-size: 13px; font-weight: 600; cursor: pointer; transition: border-color .15s, background .15s; }
+.modalOption:hover { border-color: var(--accent); background: var(--accent-dim); }
+.modalCancel { margin-top: 4px; background: transparent; border: none; color: var(--text-secondary); font-size: 12px; cursor: pointer; padding: 4px; }
+.modalCancel:hover { color: var(--text-primary); }

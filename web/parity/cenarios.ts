@@ -131,6 +131,42 @@ export const CENARIOS: Cenario[] = [
     nome: "crosssell-ordenacao-ltv-asc", aba: "crosssell", // LTV já é a ordenação padrão (desc): um clique inverte para asc
     passos: [{ tipo: "clicar", seletor: "#cross-table-wrap th:last-child" }],
   },
+  {
+    nome: "comparativo-manual", aba: "comparativo",
+    passos: [
+      { tipo: "preencher", id: "comp-start", valor: "2026-01-01" },
+      { tipo: "preencher", id: "comp-end", valor: "2026-06-30" },
+      { tipo: "clicar", seletor: "#tab-comparativo .comp-filter-card button.btn-sm" }, // Comparar
+    ],
+  },
+  { nome: "comparativo-pivo-seg", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="vw-comp-pivot-s"]' }] },
+  { nome: "comparativo-pivo-ramo", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="vw-comp-pivot-r"]' }] },
+  {
+    nome: "comparativo-pivo-recolhido-comissao", aba: "comparativo",
+    passos: [{ tipo: "clicar", seletor: 'label[for="mt-comp-pivot-c"]' }, { tipo: "clicar", seletor: "#comp-pivot-bulk button:nth-child(1)" }],
+  },
+  {
+    nome: "comparativo-ranking-seg-comissao", aba: "comparativo",
+    passos: [{ tipo: "clicar", seletor: 'label[for="crd-seg"]' }, { tipo: "clicar", seletor: 'label[for="crm-com"]' }],
+  },
+  { nome: "comparativo-ranking-ramo", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="crd-ramo"]' }] },
+  {
+    nome: "comparativo-manual-seguir-global", aba: "comparativo", // período manual + vigência global; depois "Seguir filtro global"
+    passos: [
+      { tipo: "preencher", id: "f-vig-s", valor: "2026-01-01" },
+      { tipo: "preencher", id: "f-vig-e", valor: "2026-09-30" },
+      { tipo: "preencher", id: "comp-start", valor: "2026-03-01" },
+      { tipo: "preencher", id: "comp-end", valor: "2026-08-31" },
+      { tipo: "clicar", seletor: "#tab-comparativo .comp-filter-card button.btn-sm" },
+      { tipo: "clicar", seletor: "#comp-clear-period-btn" },
+    ],
+  },
+  { nome: "comparativo-metrica-premio-novo", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-pn"]' }] },
+  { nome: "comparativo-metrica-premio-total", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-pt"]' }] },
+  { nome: "comparativo-metrica-com-nova", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-cn"]' }] },
+  { nome: "comparativo-metrica-com-total", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-ct"]' }] },
+  { nome: "comparativo-metrica-qtd-nova", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-qn"]' }] },
+  { nome: "comparativo-metrica-qtd-total", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-qt"]' }] },
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
   {
