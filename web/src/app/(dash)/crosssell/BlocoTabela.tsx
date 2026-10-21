@@ -1,5 +1,5 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import type { Linha } from "@/domain/tipos";
 import { exportacaoCross, getCrossClients, tabelaCross, type ChaveOrdemCross, type ClienteCross } from "@/domain/crosssell";
 import { fN } from "@/domain/formatos";
@@ -17,6 +17,9 @@ const BTN = { fontSize: 11, padding: "3px 9px" } as const;
 export function BlocoTabela({ todas, clientes, ramos, e }: { todas: Linha[]; clientes: ClienteCross[]; ramos: string[]; e: EstadoCross }) {
   const { ordem, pagina, filtros } = e;
   const t = useMemo(() => tabelaCross(clientes, ramos, ordem, pagina), [clientes, ramos, ordem, pagina]);
+  // renderCrossTable grava a página limitada em crossPage (ex.: a base nova tem menos páginas).
+  const { limitarPagina } = e;
+  useEffect(() => { limitarPagina(t.pagina); }, [t.pagina, limitarPagina]);
   const sp = " ";
   const classe = (k: ChaveOrdemCross) => (k === ordem.chave ? (ordem.dir === "asc" ? "sort-asc" : "sort-desc") : "");
   const th = (k: ChaveOrdemCross, rotulo: string, alinhar: "left" | "right" = "left") => (

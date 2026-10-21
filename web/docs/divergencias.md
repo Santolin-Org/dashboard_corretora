@@ -228,3 +228,18 @@
   espera o registro do gráfico da carteira como sinal de dados carregados. Cenários: `exibicao-tv-padrao` e `exibicao-tv-modo-tv`. A fixture tem realizado zero no mês
   (os cálculos de real/meta/exclusões são cobertos por testes de domínio com linhas sintéticas).
 - **Dados reais:** pulado, sem `parity/data/` (Ruling 3).
+
+## Revisão final — base nova durante o uso (Cross-sell)
+
+- **Revalidação com versão nova = recarga com `keepFilters` do app antigo.** O app antigo nunca recarregava
+  sozinho: a carga do SharePoint chamava `initDashboard` sem `keepFilters` (zerava `CROSS.pessoa = 'PF'`,
+  `CROSS.col`/`CROSS.ram` e `crossSearch`), e o único jeito de trocar a base com o painel aberto era o upload
+  manual (`handleFile`, main.js:1378), que chamava `initDashboard({ keepFilters: true })`. O app novo revalida
+  `/api/dados` a cada 5 min; quando chega uma versão nova com o painel aberto, a aba Cross-sell segue o caminho
+  `keepFilters`: pessoa, ramo, colaborador e busca ficam; `buildCrossFilters` remarca os ramos principais se o
+  ramo estiver vazio (por exemplo depois de "↻ Limpar"); as listas de ramo/colaborador saem da base nova; KPIs,
+  penetração e nível são redesenhados com a busca atual (`showTab` → `renderCrossTab`); a página da tabela é
+  limitada a `[1, totalPaginas]` e o valor limitado fica gravado, como `crossPage` em `renderCrossTable`
+  (main.js:2546). Vale também se a troca aconteceu com a aba fechada. Seleções que não existem mais na base
+  nova continuam marcadas, como no antigo. Decidir se a revalidação deveria zerar os filtros (caminho sem
+  `keepFilters`).

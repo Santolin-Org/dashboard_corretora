@@ -1,5 +1,6 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { Linha } from "@/domain/tipos";
 import { useEstadoAba } from "@/client/estadoAbas";
 import { usePainel } from "@/client/painel";
 import {
@@ -28,6 +29,30 @@ export function useEstadoCross() {
   const [buscaKpi, setBuscaKpi] = useState(filtros.busca);
   const [buscaPen, setBuscaPen] = useState(filtros.busca);
   const redesenhaTudo = (busca: string) => { setBuscaKpi(busca); setBuscaPen(busca); };
+  // Base nova (revalidação com versão nova) = initDashboard({ keepFilters: true }) do antigo (upload com o painel
+  // aberto): pessoa, ramo, colaborador e busca ficam; populateFilters → buildCrossFilters remarca os ramos
+  // principais se o ramo estiver vazio; as listas saem da base nova. A base vista fica na store, para valer
+  // também quando a troca aconteceu com a aba desmontada. Ver docs/divergencias.md.
+  // `{ l }`: um objeto novo por gravação, para a primeira gravação (montagem) chegar à store.
+  const [baseVista, setBaseVista] = useEstadoAba<{ l: Linha[] }>("crosssell:base", { l: todas });
+  const gravada = useRef(false);
+  useEffect(() => {
+    if (baseVista.l === todas) {
+      if (!gravada.current) { gravada.current = true; setBaseVista({ l: todas }); }
+      return;
+    }
+    gravada.current = true;
+    setBaseVista({ l: todas });
+    if (filtros.ram.length === 0) setFiltros({ ...filtros, ram: ramosPadraoCross(todas, filtros.pessoa) });
+  }, [todas, baseVista, setBaseVista, filtros, setFiltros]);
+  // showTab → renderCrossTab: com a base nova, todos os blocos são redesenhados com a busca atual
+  // (ajuste de estado durante a renderização, sem efeito).
+  const [buscaDaBase, setBuscaDaBase] = useState(todas);
+  if (buscaDaBase !== todas) {
+    setBuscaDaBase(todas);
+    setBuscaKpi(filtros.busca);
+    setBuscaPen(filtros.busca);
+  }
   return {
     todas, filtros, modo, ordem, pagina, buscaKpi, buscaPen,
     // setCrossPessoa: limpa ramo e colaborador, remarca os ramos principais da pessoa; a busca fica.
@@ -45,6 +70,8 @@ export function useEstadoCross() {
     setModo(m: ModoPen) { setModoBruto(m); setBuscaPen(filtros.busca); },
     ordenar(chave: ChaveOrdemCross) { setOrdem(alternarOrdemCross(ordem, chave)); },
     irPara(n: number) { setPagina(n); },
+    // renderCrossTable: crossPage fora de [1, totalPaginas] é limitado e gravado no global.
+    limitarPagina(n: number) { if (n !== pagina) setPagina(n); },
   };
 }
 export type EstadoCross = ReturnType<typeof useEstadoCross>;
