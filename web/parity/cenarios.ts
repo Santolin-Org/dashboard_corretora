@@ -167,6 +167,26 @@ export const CENARIOS: Cenario[] = [
   { nome: "comparativo-metrica-com-total", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-ct"]' }] },
   { nome: "comparativo-metrica-qtd-nova", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-qn"]' }] },
   { nome: "comparativo-metrica-qtd-total", aba: "comparativo", passos: [{ tipo: "clicar", seletor: 'label[for="cm-qt"]' }] },
+  // Metas: o acompanhamento semanal só existe com as duas pontas da vigência (setembro de 2026: semana 1 com 5 dias).
+  ...(() => {
+    const SET: Passo[] = [{ tipo: "preencher", id: "f-vig-s", valor: "2026-09-01" }, { tipo: "preencher", id: "f-vig-e", valor: "2026-09-30" }];
+    const card = (linha: number, coluna: number): Passo => ({ tipo: "clicar", seletor: `#metas-sem-mtd .msem-row:nth-child(${linha}) .msem-card:nth-child(${coluna})` });
+    return [
+      { nome: "metas-equipe-pessoais", aba: "metas", passos: [...SET, card(1, 3)] } as Cenario,
+      { nome: "metas-equipe-patrimoniais", aba: "metas", passos: [...SET, card(1, 4)] } as Cenario,
+      { nome: "metas-metrica-comissao", aba: "metas", passos: [...SET, card(2, 2)] } as Cenario,
+      { nome: "metas-comissao-patrimoniais", aba: "metas", passos: [...SET, card(2, 4)] } as Cenario,
+      // 1º clique em coluna nova = desc; o 2º na mesma coluna inverte para asc.
+      { nome: "metas-ordenacao", aba: "metas", passos: [{ tipo: "clicar", seletor: "#metas-colab-wrap th:nth-child(4)" }, { tipo: "clicar", seletor: "#metas-colab-wrap th:nth-child(4)" }] } as Cenario,
+      { nome: "metas-ordenacao-nome", aba: "metas", passos: [{ tipo: "clicar", seletor: "#metas-colab-wrap th:nth-child(1)" }] } as Cenario,
+      { nome: "metas-detalhe", aba: "metas", passos: [{ tipo: "clicar", seletor: 'label[for="vt-metas-det"]' }, { tipo: "clicar", seletor: "#metas-colab-wrap th:nth-child(1)" }] } as Cenario,
+      {
+        nome: "metas-pct", aba: "metas",
+        passos: [...SET, { tipo: "digitar", id: "meta-novos-pct", valor: "25" }, { tipo: "digitar", id: "meta-renov-pct", valor: "" }],
+      } as Cenario,
+      { nome: "metas-mes-curto", aba: "metas", passos: [{ tipo: "preencher", id: "f-vig-s", valor: "2026-10-01" }, { tipo: "preencher", id: "f-vig-e", valor: "2026-10-31" }] } as Cenario,
+    ];
+  })(),
   { nome: "sinistros-padrao", aba: "sinistros", passos: [] },
   { nome: "exibicao-tv-padrao", aba: "exibicao-tv", passos: [] },
   {

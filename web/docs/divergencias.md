@@ -149,3 +149,29 @@
   `#comp-pivot-wrap`, página do tamanho da imagem, paisagem se largura ≥ altura) com `import()` dinâmico de `html2canvas` 1.4.1 e `jspdf` 2.5.1 só no clique;
   o antigo as carrega por `<script>` da CDN e sai em silêncio se não carregarem.
 - **Cenários extras:** `comparativo-pivo-recolhido-comissao`, `comparativo-ranking-seg-comissao`, `comparativo-ranking-ramo`, `comparativo-manual-seguir-global` e um por métrica.
+
+## Task 19 — Metas e Acompanhamento semanal
+
+- **De onde vem a meta:** não há constante nem planilha. Meta = base × (1 + % digitado), com um % para Novos e outro para Renovações (padrão 10, texto
+  vazio/inválido = 0); a base é a vigência global deslocada 1 ano para trás (só o ano muda na string) ou, sem vigência, o ano civil anterior a "hoje".
+  Só N/R/EN/ER entram; N+EN = Novos, R+ER = Renovações; ramos excluídos (`META_EXCLUDED_KEYS`) ficam fora; Pessoais = `META_PESSOAIS_KEYS`, o resto Patrimoniais.
+- **"Hoje"** só entra no ano da base sem vigência: o antigo usa `today().getFullYear()` (data local do navegador); o novo usa o ano de `base.hoje`
+  (data civil de São Paulo). O acompanhamento semanal não depende de "hoje" (só da vigência global).
+- **Fonte de dados:** `ALL` (`base.linhas`) com os filtros globais aplicados por `filterMetasData` (não usa `FD`): comparação de vigência por string,
+  linha sem vigência fica de fora (diferente de `applyFilters`, em que a linha sem data passa); botões de tipo valem pelo tipo literal (marcar só "N" não traz EN).
+- **Quirk reproduzido: rótulo "Base:"** passa pelo `Date`: com vigência até 29/fev de ano bissexto, a base é 29/fev do ano anterior (inexistente) e o rótulo
+  mostra 01/mar (o filtro compara a string e ainda usa 29/fev, que nada casa). Coberto em `tests/domain/metas.test.ts`.
+- **Semanas:** domingo→sábado a partir do dia 1 da vigência; fragmento inicial de até 3 dias funde com a semana seguinte; a última nunca funde. A meta de
+  cada semana é a do período × dias/total de dias. O realizado das semanas é por **emissão** (fora do intervalo, vai à semana da borda mais próxima);
+  os 6 cartões somam por **vigência** — por isso o total do cartão pode diferir da soma das semanas (reproduzido).
+- **Seção recolhida:** como no Comparativo, o antigo não redesenha seção recolhida (badge e conteúdo ficam velhos até reabrir); o novo mantém os blocos
+  atualizados (invisíveis). Só difere com a seção fechada.
+- **Sem dados (`ALL` vazio):** o antigo sai de `renderMetasTab` sem tocar nada (o rótulo fica "—"); o novo mostra "—" e blocos vazios.
+- **Estado:** %, equipe/métrica focadas, ordenação e visão Total/Novos-Renovações sobrevivem à troca de aba (`useEstadoAba`) e NÃO são zerados pelo
+  "Limpar filtros" (o `resetFilters` antigo não os toca).
+- **Modo apresentação:** o botão "▶ Modo apresentação" existe (mesmo texto/classe), mas ainda sem ação — Task 20. `computeMetaWeeks`, `buildMetasSemanal`,
+  `buildMetasEquipeCards`, `META_TEAMS`, `METAS_SEM_TEAM_*` estão exportados (`src/domain/metas*.ts`); o `withKfPeriod` do antigo vira passar `FiltrosGlobais` com a vigência trocada.
+- **CSS:** bloco METAS TAB do `styles.css` (+ `.kickoff-btn`) em **global** (`src/styles/metas.css`) porque a Exibição TV reutiliza `.msem-*` e a apresentação o `.kickoff-btn`.
+- **Cenários extras:** `metas-equipe-pessoais`, `-patrimoniais`, `-metrica-comissao`, `-comissao-patrimoniais`, `-ordenacao`, `-ordenacao-nome`, `-detalhe`, `-pct`
+  (digitando 25 e vazio nos %) e `-mes-curto` (outubro/2026: fragmento de 3 dias funde). Exportações `.xlsx` comparadas em `tests/parity/exportar-metas.test.ts`.
+- **Dados reais:** pulado, sem `parity/data/` (Ruling 3).

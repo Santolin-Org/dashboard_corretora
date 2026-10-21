@@ -1,0 +1,411 @@
+/* styles.css: METAS TAB (2171–2567) + .kickoff-btn (2570–2583). Global porque a Exibição TV (Task 22) reutiliza .msem-* e o modo apresentação (Task 20) a ela. */
+.metas-inputs-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  padding: 14px 20px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.meta-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.meta-input-wrap input[type=number] {
+  width: 72px;
+  padding: 5px 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-align: right;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.meta-input-wrap input[type=number]:focus {
+  border-color: var(--border-focus);
+}
+
+.meta-input-wrap input[type=number]::-webkit-inner-spin-button,
+.meta-input-wrap input[type=number]::-webkit-outer-spin-button {
+  opacity: 0.4;
+}
+
+.meta-pct-sym {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.metas-base-label {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+/* Meta column highlight */
+.prod-table th.meta-cell {
+  background: rgba(78, 128, 255, 0.09);
+  color: var(--accent);
+}
+
+.prod-table td.meta-cell {
+  background: rgba(78, 128, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.prod-table tfoot td.meta-cell {
+  background: rgba(78, 128, 255, 0.13);
+}
+
+/* Group header row in detail view */
+.meta-group-header-row th {
+  background: var(--bg-elevated);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-default);
+  padding: 7px 12px;
+  white-space: nowrap;
+}
+
+.meta-group-header-row th.meta-cell {
+  color: var(--accent);
+}
+
+/* Equipe group separator row */
+.metas-equipe-group td {
+  background: var(--bg-elevated) !important;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-secondary);
+  padding: 7px 12px !important;
+  border-top: 1px solid var(--border-default);
+}
+
+/* Subtotal row */
+.metas-subtotal-row td {
+  background: rgba(255, 255, 255, 0.025) !important;
+  font-weight: 600;
+  font-size: 11px;
+  color: var(--text-primary) !important;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 2px solid var(--border-default);
+}
+
+/* Wide detail table keeps headers sticky */
+.metas-table-det th {
+  white-space: nowrap;
+}
+
+/* ── Cards de meta por equipe ─────────────────────────────────────────────────── */
+.metas-team-section {
+  margin-bottom: 18px;
+}
+
+.metas-team-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.metas-team-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.metas-team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+  gap: 14px;
+}
+
+.meta-team-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: transform .15s, box-shadow .15s;
+}
+
+.meta-team-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-default);
+}
+
+.meta-team-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+  border-radius: var(--r-md) 0 0 var(--r-md);
+}
+
+.meta-team-card.mt-pessoais::before {
+  background: var(--k-teal);
+}
+
+.meta-team-card.mt-patrimoniais::before {
+  background: var(--k-amber);
+}
+
+.meta-team-card.mt-geral {
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+}
+
+.meta-team-card.mt-geral::before {
+  background: var(--accent);
+  width: 4px;
+}
+
+.meta-team-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.meta-team-name {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--text-primary);
+}
+
+.meta-card-ramos {
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 1px 8px;
+  white-space: nowrap;
+  cursor: default;
+}
+
+.mt-geral .meta-card-ramos {
+  background: var(--bg-raised);
+}
+
+.meta-team-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.mt-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.mt-row .mt-lbl {
+  white-space: nowrap;
+}
+
+.mt-row .mt-val {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mt-row-meta {
+  padding: 4px 0;
+}
+
+.mt-row-meta .mt-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.mt-row-meta .mt-val {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -.5px;
+  color: var(--text-primary);
+}
+
+.mt-geral .mt-row-meta .mt-val {
+  font-size: 20px;
+}
+
+.mt-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 9px 0;
+}
+
+.mt-row-base {
+  padding: 3px 0;
+}
+
+.mt-row-base .mt-lbl {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+  color: var(--text-tertiary);
+}
+
+.mt-row-base .mt-val {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.metas-excluidos-note {
+  margin-top: 12px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+  background: var(--bg-raised);
+  border: 1px dashed var(--border-subtle);
+  border-radius: 6px;
+  padding: 7px 11px;
+}
+
+.metas-excluidos-note strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* ── Acompanhamento semanal x meta ───────────────────────────────────────── */
+.metas-sem-mtd {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 6px;
+}
+.msem-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.msem-row-lbl {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  color: var(--text-secondary);
+  margin-bottom: -2px;
+}
+.msem-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--tc, var(--k-blue));
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .1s;
+}
+.msem-card:hover { background: var(--bg-elevated); }
+.msem-card.active {
+  background: var(--bg-elevated);
+  box-shadow: 0 0 0 1px var(--tc, var(--k-blue));
+}
+.msem-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.msem-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tc, var(--k-blue));
+  display: inline-block;
+}
+.msem-pct {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 4px 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+.msem-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border-subtle);
+  overflow: hidden;
+}
+.msem-bar-fg {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--tc, var(--k-blue));
+}
+.msem-nums {
+  margin-top: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+.msem-meta { color: var(--text-secondary); font-weight: 500; }
+.msem-gap { margin-top: 2px; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.msem-gap.pos { color: var(--k-green); }
+.msem-gap.neg { color: var(--k-red); }
+
+.msem-ok { color: var(--k-green); font-weight: 600; }
+.msem-warn { color: var(--k-amber); font-weight: 600; }
+.msem-bad { color: var(--k-red); font-weight: 600; }
+
+.msem-table tfoot td { font-weight: 600; }
+
+.metas-sem-hint {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 720px) {
+  .msem-row { grid-template-columns: 1fr; }
+
+/* ===================== Modo apresentação (kickoff) ===================== */
+.kickoff-btn {
+  background: var(--accent-dim);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.kickoff-btn:hover { background: var(--accent); color: #fff; }
+
