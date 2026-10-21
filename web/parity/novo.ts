@@ -12,6 +12,8 @@ import { HOJE_FIXO, type Cenario, type Passo } from "./cenarios";
 import type { Snapshot } from "./snapshot";
 
 export const RAIZ_WEB = resolve(__dirname, "..");
+/** Constante (não parâmetro): o rmSync abaixo nunca pode apontar para fora de web/. */
+const DIST_PARIDADE = ".next-parity";
 
 /** Contêiner de captura de cada cenário (espelha o id do app antigo). */
 export function conteinerDe(c: Cenario): string {
@@ -34,12 +36,12 @@ export type ServidorNovo = { baseUrl: string; parar(): Promise<void> };
 
 /**
  * Sobe `next dev` (não `next start`: o bypass de autenticação recusa NODE_ENV=production de propósito).
- * Usa um distDir próprio (.next-parity, ou o informado) e porta livre, para não colidir com o dev server do desenvolvedor.
+ * Usa um distDir próprio (.next-parity) e porta livre, para não colidir com o dev server do desenvolvedor.
  */
-export async function subirServidorNovo(dataDir: string, distDir = ".next-parity"): Promise<ServidorNovo> {
+export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> {
   // distDir sempre limpo: o cache persistente do Turbopack deixado por um servidor anterior (morto, às vezes no meio da gravação,
   // ou que carregou html2canvas/jsPDF) faz o servidor seguinte travar o carregamento ou recarregar a página em laço.
-  rmSync(join(RAIZ_WEB, distDir), { recursive: true, force: true });
+  rmSync(join(RAIZ_WEB, DIST_PARIDADE), { recursive: true, force: true });
   const porta = await portaLivre();
   const baseUrl = `http://127.0.0.1:${porta}`;
   const logPath = join(tmpdir(), `parity-next-${porta}.log`);
@@ -57,7 +59,7 @@ export async function subirServidorNovo(dataDir: string, distDir = ".next-parity
       PARITY_AUTH_BYPASS: "1",
       PARITY_HOJE: "2026-10-15",
       AUTH_SECRET: randomBytes(24).toString("hex"),
-      NEXT_DIST_DIR: distDir,
+      NEXT_DIST_DIR: DIST_PARIDADE,
       NEXT_TSCONFIG: "tsconfig.parity.json",
       NEXT_TELEMETRY_DISABLED: "1",
     },
