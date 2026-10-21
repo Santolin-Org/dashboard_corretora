@@ -181,6 +181,8 @@ export async function snapshotAntigo(page: Page, dataDir: string, c: Cenario): P
     return { textos, graficos } as Snapshot;
   }, container);
 
+  // Prova de que o Modo TV foi aplicado de fato (classe no <body>) nos dois lados.
+  if (c.modoTv) snap.textos["body-tv-mode"] = String(await page.evaluate(() => document.body.classList.contains("tv-mode")));
   if (erros.length) throw new Error(`erros na página antiga (${c.nome}):\n${erros.join("\n")}`);
   return snap;
 }

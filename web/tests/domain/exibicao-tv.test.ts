@@ -11,6 +11,8 @@ import {
 } from '../../src/domain/exibicao-tv';
 import { carregarFixture } from './fixture';
 import { linha } from './helpers';
+import { rotaDeVolta } from '../../src/client/exibicaoTv';
+import { vi, afterEach } from 'vitest';
 
 const HOJE = '2026-10-15';
 let ALL: Linha[];
@@ -133,5 +135,60 @@ describe('regras (linhas sintéticas)', () => {
     expect(d.metasSantolin.com.valor).toBe(fBRL(15));
     expect(exibicaoTv([], HOJE).podio.vazio).toBe(true);
     void fP;
+  });
+});
+
+// Fórmula do main.js (renderTvExMetaNovos): pct = meta ? real/meta : 0; gap = real − meta; largura = clamp(pct,0,1)·100 com 1 casa;
+// classe: pct ≥ 1 → msem-ok, ≥ 0,8 → msem-warn, senão msem-bad; sinal "+" quando gap ≥ 0; meta = base do ano anterior × 1,40.
+describe('meta mensal de novos: cartões (linhas sintéticas, Out/2026 × Out/2025)', () => {
+  const rows = [
+    linha({ tipo: 'N', vig: '2025-10-10', premio: 1000, com: 100, ramo: 'Vida Individual', apolice: 'b1' }), // base pessoais → meta 1400 / 140
+    linha({ tipo: 'N', vig: '2026-10-05', premio: 500, com: 210, ramo: 'Vida Individual', apolice: 'r1' }), // real pessoais
+    linha({ tipo: 'N', vig: '2026-10-06', premio: 700, com: 50, ramo: 'Empresarial', apolice: 'r2' }), // real patrimoniais, sem base (meta 0)
+  ];
+  const n = exibicaoTv(rows, HOJE).novos;
+  const c = (metrica: 'premio' | 'comissao', t: string) => n.linhas.find(l => l.metrica === metrica)!.cartoes.find(x => x.team === t)!;
+  it('bad (< 0,8): pessoais prêmio 500 / 1400 → 35,71%, gap −900, largura 35.7', () => {
+    const x = c('premio', 'pessoais');
+    expect(x.pctCls).toBe('msem-bad'); expect(x.pctTxt).toBe('35.71%'); expect(x.gap).toBeCloseTo(-900); expect(x.larguraPct).toBe('35.7');
+  });
+  it('warn (≥ 0,8): geral prêmio 1200 / 1400 → 85,71%, gap −200', () => {
+    const x = c('premio', 'geral');
+    expect(x.pctCls).toBe('msem-warn'); expect(x.pctTxt).toBe('85.71%'); expect(x.gap).toBeCloseTo(-200); expect(x.larguraPct).toBe('85.7');
+  });
+  it('ok (≥ 1) com pct > 1: pessoais comissão 210 / 140 → 150%, largura limitada a 100.0, gap +70', () => {
+    const x = c('comissao', 'pessoais');
+    expect(x.pctCls).toBe('msem-ok'); expect(x.pctTxt).toBe('150.00%'); expect(x.larguraPct).toBe('100.0'); expect(x.gap).toBeCloseTo(70); expect(x.gap >= 0).toBe(true);
+    expect(c('comissao', 'geral').pctCls).toBe('msem-ok'); // 260 / 140
+  });
+  it('meta = 0 com realizado > 0 (patrimoniais): pct 0, classe bad, largura 0.0, gap positivo (+700)', () => {
+    const x = c('premio', 'patrimoniais');
+    expect(x.meta).toBe(0); expect(x.real).toBe(700);
+    expect(x.pct).toBe(0); expect(x.pctTxt).toBe('0.00%'); expect(x.pctCls).toBe('msem-bad'); expect(x.larguraPct).toBe('0.0'); expect(x.gap).toBe(700);
+  });
+  it('limite: pct exatamente 1 é ok', () => {
+    const r = [linha({ tipo: 'N', vig: '2025-10-10', premio: 1000, com: 1, ramo: 'Vida Individual', apolice: 'a' }), linha({ tipo: 'N', vig: '2026-10-05', premio: 1400, com: 1, ramo: 'Vida Individual', apolice: 'b' })];
+    const x = exibicaoTv(r, HOJE).novos.linhas[0].cartoes.find(k => k.team === 'pessoais')!;
+    expect(x.pctCls).toBe('msem-ok'); expect(x.gap).toBeCloseTo(0);
+  });
+});
+
+describe('rotaDeVolta (fechar a Exibição TV)', () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const ambiente = (guardada: string | null, search = '?f=x') => {
+    const mem = new Map<string, string>(); if (guardada) mem.set('tvVoltarPara', guardada);
+    vi.stubGlobal('sessionStorage', { getItem: (k: string) => mem.get(k) ?? null, setItem: (k: string, v: string) => void mem.set(k, v), removeItem: (k: string) => void mem.delete(k) });
+    vi.stubGlobal('window', { location: { search, pathname: '/exibicao-tv' } });
+    return mem;
+  };
+  it('volta para a aba guardada com ?f= e limpa a chave depois de ler', () => {
+    const mem = ambiente('/metas');
+    expect(rotaDeVolta()).toBe('/metas?f=x');
+    expect(mem.has('tvVoltarPara')).toBe(false);
+    expect(rotaDeVolta()).toBe('/visao-geral?f=x'); // segunda leitura: sem aba de origem
+  });
+  it('rota inválida (a própria exibição) cai em /visao-geral', () => {
+    ambiente('/exibicao-tv');
+    expect(rotaDeVolta()).toBe('/visao-geral?f=x');
   });
 });

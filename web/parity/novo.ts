@@ -207,6 +207,8 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
     return { textos, graficos } as Snapshot;
   }, container);
 
+  // Prova de que o Modo TV foi aplicado de fato (classe no <body>) nos dois lados.
+  if (c.modoTv) snap.textos["body-tv-mode"] = String(await page.evaluate(() => document.body.classList.contains("tv-mode")));
   if (existe && !snap.textos[container.slice(1)]) {
     throw new Error(`dados/gráficos não carregaram (${c.nome}): snapshot trivial`);
   }

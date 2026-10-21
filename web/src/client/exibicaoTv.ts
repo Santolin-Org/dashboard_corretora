@@ -10,7 +10,8 @@ export function abrirExibicaoTv(ir: (href: string) => void): void {
 
 export function rotaDeVolta(): string {
   let rota: string | null = null;
-  try { rota = sessionStorage.getItem(CHAVE); } catch { /* sem storage */ }
+  // Lida uma vez só: fechar a exibição consome a aba de origem (a próxima abertura grava de novo).
+  try { rota = sessionStorage.getItem(CHAVE); sessionStorage.removeItem(CHAVE); } catch { /* sem storage */ }
   // Só volta para uma aba do painel (nunca para a própria exibição nem para a apresentação).
   if (!rota || rota === "/exibicao-tv" || rota === "/apresentacao") rota = PADRAO;
   return rota + window.location.search;

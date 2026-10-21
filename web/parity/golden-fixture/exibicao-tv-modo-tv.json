@@ -54,6 +54,7 @@
     }
   },
   "textos": {
+    "body-tv-mode": "true",
     "tv-ex-ano-badge": "74 apólices ativas",
     "tv-ex-ano-chart": "",
     "tv-ex-nivel-badge": "51 clientes",

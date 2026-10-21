@@ -42,7 +42,7 @@ export default function ExibicaoTv() {
   const linhas = base.linhas, hoje = base.hoje;
   const d = useMemo(() => exibicaoTv(linhas, hoje), [linhas, hoje]);
 
-  const fechar = useCallback(() => { router.push(rotaDeVolta()); }, [router]);
+  const fechar = useCallback(() => { router.replace(rotaDeVolta()); }, [router]);
   useEffect(() => {
     if (linhas.length) return;
     alert("Carregue os dados antes de abrir a exibição.");
