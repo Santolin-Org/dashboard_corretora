@@ -110,7 +110,12 @@ export async function subirServidorNovo(dataDir: string): Promise<ServidorNovo> 
 
 /** Visita cada rota uma vez: o primeiro acesso ao next dev compila a rota (lento). */
 export async function aquecer(page: Page, baseUrl: string, abas: string[]): Promise<void> {
-  for (const aba of abas) await page.goto(`${baseUrl}/${aba}`, { waitUntil: "load", timeout: 240_000 }).catch(() => undefined);
+  for (const aba of abas) {
+    const r = await page.goto(`${baseUrl}/${aba}`, { waitUntil: "load", timeout: 240_000 }).catch(() => null);
+    // 5xx no aquecimento é erro de compilação (ex.: a falha de next/font/google que deixava o teste esperando
+    // 120 s pelo #rec-badge): falha na hora, com a mensagem certa, em vez de estourar o tempo depois.
+    if (r && r.status() >= 500) throw new Error(`aquecimento de /${aba}: HTTP ${r.status()} do next dev`);
+  }
 }
 
 export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsGraficos: string[] = []): Promise<Snapshot> {

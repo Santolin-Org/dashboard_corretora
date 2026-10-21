@@ -74,7 +74,7 @@ Lista conferida contra `grep process.env` em `src/`, `parity/` e nos arquivos de
 | `npm run test:tz` | Testes de domínio em `TZ=UTC` e em `TZ=America/Sao_Paulo` |
 | `npm run test:parity` | Testes Playwright em `tests/parity` |
 | `npm run parity -- <flags>` | Harness de paridade (abaixo) |
-| `npm run regressao` | `lint`, `typecheck`, `test`, `test:tz`, `test:parity` e `parity -- --lado ambos --fixture` |
+| `npm run regressao` | `lint`, `typecheck`, `build` (`next build`), `test`, `test:tz`, `test:parity` e `parity -- --lado ambos --fixture` |
 | `npm run regressao:real` | `parity -- --lado ambos --dados parity/data` (planilhas reais) |
 | `npm run db:generate` | Gera migration do Drizzle a partir de `src/server/db/schema.ts` |
 | `npm run db:migrate` | Aplica as migrations em `DATABASE_URL` |
@@ -132,7 +132,7 @@ arquivo), que o app antigo baixa do SharePoint. Requisições duplicadas por red
 | HTML | 3.791 | 8.278 |
 | JS (app + libs) | 228.733 | 74.242 (main.js) + 473.793 (CDNs: msal, xlsx, Chart.js, html2canvas, jsPDF) = 548.035 |
 | CSS | 14.078 (4 arquivos, inclui o da aba) | 12.506 + 1.456 (Google Fonts) = 13.962 |
-| Fontes (woff2) | 115.232 (3, hospedadas junto) | 48.982 (1 vista na carga; o Google carrega as demais sob demanda) |
+| Fontes (woff2) | 115.232 (3, hospedadas junto; hoje em `src/styles/fontes.css`, sem preload) | 48.982 (1 vista na carga; o Google carrega as demais sob demanda) |
 | Dados | 84.342 (`/api/dados`, JSON gzip) | 491.102 (5 `.xlsx` da fixture) |
 | **Total** | **446.176** | **1.110.359** |
 | Total sem fontes | 330.944 | 1.061.377 |

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono, Syne } from "next/font/google";
+import "@/styles/fontes.css";
 import "@/styles/tokens.css";
 import "@/styles/tabelas.css";
 import "@/styles/campanha.css";
@@ -7,13 +7,10 @@ import "@/styles/metas.css";
 import "@/styles/apresentacao.css";
 import "@/styles/exibicao-tv.css";
 
-// Mesmas famílias e pesos que o index.html carregava do Google Fonts (aqui auto-hospedadas).
-// tokens.css usa os nomes originais ('Inter', 'Syne', 'JetBrains Mono'), que são os nomes das
-// @font-face geradas; assim glifos fora do subset (ex.: →) caem em system-ui como no app
-// antigo, e não no "Inter Fallback" (Arial ajustada) que var(--fonte-*) incluiria.
-const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--fonte-inter" });
-const syne = Syne({ subsets: ["latin"], weight: ["600", "800"], variable: "--fonte-syne" });
-const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--fonte-mono" });
+// Mesmas famílias e pesos que o index.html carregava do Google Fonts, auto-hospedadas em
+// src/styles/fontes.css (arquivos no repositório: dev e build não dependem da rede). tokens.css usa os
+// nomes originais ('Inter', 'Syne', 'JetBrains Mono'); glifos fora do subset (ex.: →) caem em system-ui
+// como no app antigo.
 
 export const metadata: Metadata = {
   title: "Dashboard de Produção",
@@ -22,7 +19,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${syne.variable} ${mono.variable}`}>
+    <html lang="pt-BR">
       <body>{children}</body>
     </html>
   );
