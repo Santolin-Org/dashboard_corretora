@@ -79,16 +79,10 @@ export function dataLocalDeCelula(v: number, comFormatoDeData: boolean): DataISO
 // numdate() do SheetJS 0.18.5 (o da CDN do app antigo) rodando no navegador em São Paulo: o serial vira
 // serial + 3h (o deslocamento de hoje, 180 min); depois a função corrige datas cujo deslocamento (horário de verão
 // antigo) difere do de hoje, para o relógio local do Date bater com o da célula.
-// Só a fixture sintética foge disso: o SheetJS do Node grava as datas ISO dela como serial 28 s abaixo do exato (o V8
-// usa minutos inteiros no fuso de 1899), enquanto o antigo lê o ISO direto. Um instante que fica a 28 s de um
-// minuto redondo (e não está num) é reposto nesse minuto; no Excel real as células são de minuto redondo.
-const SKEW_SHEETJS_NODE = 28000;
 function numdateSheetJS(v: number): number {
   let t = Math.trunc(v * 24 * 60 * 60 * 1000 + Date.UTC(1899, 11, 30) + 3 * 3600000);
   const off = -offsetSP(t) / 60000; // getTimezoneOffset (minutos, positivo a oeste) no instante t
   if (off !== 180) t += (off - 180) * 60000;
-  const noMinuto = (x: number) => Math.abs(x - Math.round(x / 60000) * 60000) <= 2;
-  if (!noMinuto(t) && noMinuto(t + SKEW_SHEETJS_NODE)) t = Math.round((t + SKEW_SHEETJS_NODE) / 60000) * 60000;
   return t;
 }
 export function celulaParaMs(v: unknown, comFormatoDeData: boolean): number | undefined {

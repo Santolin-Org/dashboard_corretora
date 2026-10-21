@@ -105,7 +105,9 @@ export function aplicarSaude(linhas: Linha[], saude: SaudeParse, hoje: DataISO):
       if (!vig) { avisos.push(`linha ${s.linha}: ${rotulo} não está na produção e não tem INÍCIO DE VIGÊNCIA — ignorada`); return; }
       const fim = s.fim || maisUmAno(vig);
       const docDigits = s.docDigits;
+      const vigMs = s.vig ? s.vigMs : s.emMs; // o antigo guarda o mesmo Date de vig
       cheia = {
+        ...(vigMs !== undefined ? { vigMs } : {}),
         tipo: s.tipo === 'R' ? 'R' : 'N', vig, em: s.em || vig, fim, cli: s.cli, seg: s.seg,
         ramo: 'Saúde', grp: s.grp, premio: s.premio, com: s.com, colab: s.colab || colabFernando,
         sit: s.sit || (fim > hoje ? SIT.ATIVA : SIT.VENCIDA), motivo: '', cancel: '', docDigits,

@@ -350,6 +350,18 @@ export function gerarFixture(dir: string): void {
 
 function gravar(caminho: string, colunas: string[], linhas: Linha[]) {
   const ws = XLSX.utils.json_to_sheet(linhas, { header: colunas, cellDates: true });
+  // Como num .xlsx do Excel: célula de data = número serial do relógio de parede de São Paulo (UTC-3, sem horário de
+  // verão desde 2019, e a fixture só tem datas de 2021 em diante) com formato de data. Deixar o SheetJS gravar t="d"
+  // faria o leitor do Node perder 28 s no fuso de 1899 (LMT) e a fixture não se pareceria com a produção.
+  for (const ref of Object.keys(ws)) {
+    if (ref[0] === "!") continue;
+    const c = ws[ref];
+    if (c.t === "d" && c.v instanceof Date) {
+      c.t = "n";
+      c.v = (c.v.getTime() - 3 * 3600000) / DIA + 25569;
+      c.z = "dd/mm/yyyy";
+    }
+  }
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Planilha1");
   XLSX.writeFile(wb, caminho, { cellDates: true });

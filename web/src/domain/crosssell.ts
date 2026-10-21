@@ -157,19 +157,25 @@ const MS_ANO = 365.25 * 86400000;
  * É a construção de clientes que a Exibição TV (Task 22) reaproveita (classificação por nível).
  */
 export function getCrossClients(todas: Linha[], f: FiltrosCross, agora: number): ClienteCross[] {
-  let clients = [...buildCrossMap(todas, f.pessoa).values()];
+  return filtrarClientesCross(buildCrossMap(todas, f.pessoa), f, agora);
+}
+
+/**
+ * Filtro por colaborador e busca + anos/LTV sobre um mapa já montado por `buildCrossMap` (a parte cara, que a UI guarda
+ * por (base, pessoa)). Devolve cópias: o mapa não é alterado e pode alimentar listas de buscas diferentes.
+ */
+export function filtrarClientesCross(mapa: Map<string, ClienteCross>, f: Pick<FiltrosCross, 'col' | 'busca'>, agora: number): ClienteCross[] {
+  let clients = [...mapa.values()];
   if (f.col.length > 0) { const col = new Set(f.col); clients = clients.filter(c => [...c.colabs].some(cl => col.has(cl))); }
   if (f.busca) {
     const s = f.busca.toLowerCase().trim();
     const sDigits = s.replace(/\D/g, '');
     clients = clients.filter(c => c.nome.toLowerCase().includes(s) || (sDigits && c.doc.includes(sDigits)));
   }
-  clients.forEach(c => {
+  return clients.map(c => {
     const anos = c.primeiraVig !== null ? (agora - c.primeiraVig) / MS_ANO : 0;
-    c.anos = anos;
-    c.ltv = anos > 1 ? c.comissaoTotal / anos : null;
+    return { ...c, anos, ltv: anos > 1 ? c.comissaoTotal / anos : null };
   });
-  return clients;
 }
 
 // Nível de relacionamento por quantidade de apólices ativas do cliente.

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import * as XLSX from 'xlsx';
 import { parseSaude, parseNumBR } from '../../src/domain/saude/parse';
 import { aplicarSaude, saudeFaturaConta, SAUDE_COLAB_PADRAO } from '../../src/domain/saude/aplicar';
 import { linha, xlsxBuf } from './helpers';
@@ -17,12 +18,32 @@ describe('parseSaude', () => {
     expect(p.linhas[0]).toMatchObject({ linha: 2, apolice: 'S1', docDigits: '11111111111', tipo: 'N', premio: 12000.5, com: 600, vig: '2026-02-01' });
     expect(p.avisos).toEqual(['linha 3 (Bia): sem prêmio nem comissão — ignorada']);
   });
+  it('vigMs/emMs: instante do Date antigo (data com formato = serial + 3h; sem formato = serial UTC); ausente sem data', () => {
+    const wb = XLSX.utils.aoa_to_sheet([[...CAB, 'DATA EMISSÃO'], ['S1', 'Ana', '', 'B', 0, 'N', '', 100, 0, 0, '', 0]]);
+    wb['E2'] = { t: 'n', v: 46054.375, z: 'dd/mm/yyyy' }; // 2026-02-01 09:00 (relógio de SP)
+    wb['L2'] = { t: 'n', v: 46054 }; // sem formato de data
+    const w = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(w, wb, 'P');
+    const b = Buffer.from(XLSX.write(w, { type: 'buffer', bookType: 'xlsx' }));
+    const l = parseSaude(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength) as ArrayBuffer).linhas[0];
+    expect(l.vigMs).toBe(Date.parse('2026-02-01T12:00:00Z'));
+    expect(l.emMs).toBe(Date.parse('2026-02-01T00:00:00Z'));
+    const sem = parseSaude(xlsxBuf(CAB, [['S1', 'Ana', '', 'B', '', 'N', '', 100, 0, 0, '']])).linhas[0];
+    expect(sem.vigMs).toBeUndefined();
+  });
   it('parseNumBR', () => {
     expect([parseNumBR('R$ 1.234,56'), parseNumBR('1234.56'), parseNumBR('2%'), parseNumBR(''), parseNumBR(7)]).toEqual([1234.56, 1234.56, 2, 0, 7]);
   });
 });
 
 describe('aplicarSaude', () => {
+  it('linha criada leva o instante de vig (ou de em, quando não há vig), como o Date guardado pelo antigo', () => {
+    const base = { linha: 2, apolice: 'N1', cli: 'Zed', docDigits: '33333333333', seg: '', vig: '2026-05-04', em: '2026-05-01', fim: '', tipo: 'N', colab: '', grp: '', sit: '', premio: 100, com: 10 };
+    const l1: ReturnType<typeof sau>[] = [], l2: ReturnType<typeof sau>[] = [];
+    aplicarSaude(l1, { linhas: [{ ...base, vigMs: 111, emMs: 222 }], avisos: [] }, '2026-10-15');
+    aplicarSaude(l2, { linhas: [{ ...base, vig: '', vigMs: undefined, emMs: 222 }], avisos: [] }, '2026-10-15');
+    expect(l1[0].vigMs).toBe(111);
+    expect(l2[0].vigMs).toBe(222);
+  });
   it('vincula pela apólice: premio/comissão da planilha, fatura EN marcada, original intacto', () => {
     const orig = sau({ vig: '2026-02-01', fim: '2027-02-01' }), fat = sau({ tipo: 'EN', endosso: '1', tipoDoc: 'ENDOSSO', vig: '2026-03-01', premio: 950 });
     const lin = [orig, fat];

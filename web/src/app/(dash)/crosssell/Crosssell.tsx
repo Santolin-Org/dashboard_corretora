@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { agoraMs } from "@/client/agora";
-import { getCrossClients, getCrossRamoList, type ClienteCross } from "@/domain/crosssell";
+import { buildCrossMap, filtrarClientesCross, getCrossRamoList } from "@/domain/crosssell";
 import { BlocoCampanha } from "./BlocoCampanha";
 import { BlocoKpis } from "./BlocoKpis";
 import { BlocoNivel } from "./BlocoNivel";
@@ -18,27 +18,27 @@ export default function Crosssell() {
   const { todas, filtros, buscaKpi, buscaPen } = e;
   const { pessoa, ram, col, busca } = filtros;
   const ramos = useMemo(() => getCrossRamoList(todas, { pessoa, ram, col: [], busca: "" }), [todas, pessoa, ram]);
-  // getCrossClients por busca distinta (no mais três: KPIs/nível, penetração e tabela), calculado uma vez cada.
-  const porBusca = useMemo(() => {
-    const m = new Map<string, ClienteCross[]>();
-    for (const b of new Set([buscaKpi, buscaPen, busca])) m.set(b, getCrossClients(todas, { pessoa, ram, col, busca: b }, agoraMs()));
-    return m;
-  }, [todas, pessoa, ram, col, buscaKpi, buscaPen, busca]);
+  // O mapa por CPF/CNPJ (a parte cara, uma passada sobre ALL) só depende da base e da pessoa. Cada bloco filtra o mapa
+  // com as próprias entradas: digitar na busca refaz só a lista da tabela (no antigo, onCrossSearch só redesenhava a tabela).
+  const mapa = useMemo(() => buildCrossMap(todas, pessoa), [todas, pessoa]);
+  const clientesKpi = useMemo(() => filtrarClientesCross(mapa, { col, busca: buscaKpi }, agoraMs()), [mapa, col, buscaKpi]);
+  const clientesPen = useMemo(() => filtrarClientesCross(mapa, { col, busca: buscaPen }, agoraMs()), [mapa, col, buscaPen]);
+  const clientesTabela = useMemo(() => filtrarClientesCross(mapa, { col, busca }, agoraMs()), [mapa, col, busca]);
   return (
     <>
       <FiltrosCross e={e} />
       {" "}
-      <BlocoKpis todas={todas} clientes={porBusca.get(buscaKpi)!} ramos={ramos} />
+      <BlocoKpis todas={todas} clientes={clientesKpi} ramos={ramos} />
       {" "}
       <div className="charts-grid" style={{ marginBottom: 14 }}>
-        <BlocoPenetracao todas={todas} clientes={porBusca.get(buscaPen)!} ramos={ramos} modo={e.modo} aoMudarModo={e.setModo} />
+        <BlocoPenetracao todas={todas} clientes={clientesPen} ramos={ramos} modo={e.modo} aoMudarModo={e.setModo} />
         {" "}
-        <BlocoNivel clientes={porBusca.get(buscaKpi)!} />
+        <BlocoNivel clientes={clientesKpi} />
       </div>
       {" "}
       <BlocoCampanha todas={todas} />
       {" "}
-      <BlocoTabela todas={todas} clientes={porBusca.get(busca)!} ramos={ramos} e={e} />
+      <BlocoTabela todas={todas} clientes={clientesTabela} ramos={ramos} e={e} />
     </>
   );
 }
