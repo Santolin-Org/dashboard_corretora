@@ -19,6 +19,7 @@ import {
   sessionCallback,
   usuarioDaSessao,
   USUARIO_BYPASS,
+  codigoErroAuth,
 } from "@/server/auth-core";
 
 const pg = new PGlite();
@@ -116,7 +117,8 @@ describe("renovação do token", () => {
     expect(t).toMatchObject({ accessToken: "novo", refreshToken: "r2", expiresAt: 2000 + 3600 });
     expect(t.error).toBeUndefined();
     const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
-    expect(url).toBe("https://login.microsoftonline.com/T/oauth2/v2.0/token");
+    // sempre o tenant Santolin (ISSUER_PADRAO), mesmo com outra env (que assertIssuerSeguro recusaria no boot)
+    expect(url).toBe(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`);
     const corpo = new URLSearchParams(init.body as string);
     expect(corpo.get("grant_type")).toBe("refresh_token");
     expect(corpo.get("refresh_token")).toBe("r1");
@@ -211,5 +213,18 @@ describe("rotas públicas não consultam o banco", () => {
     setDb(db);
     const fonte = (await import("node:fs")).readFileSync("src/proxy.ts", "utf8");
     expect(fonte.indexOf("ehPublica(pathname)")).toBeLessThan(fonte.indexOf("usuarioDaSessao(req"));
+  });
+});
+
+describe("página de erro do Auth.js", () => {
+  it("/erro-login é pública", () => {
+    expect(ehPublica("/erro-login")).toBe(true);
+  });
+  it("codigoErroAuth: AccessDenied vai para /sem-acesso; outros códigos ficam visíveis; valor inseguro vira Default", () => {
+    expect(codigoErroAuth("AccessDenied")).toEqual({ destino: "/sem-acesso" });
+    expect(codigoErroAuth("Configuration")).toEqual({ codigo: "Configuration" });
+    expect(codigoErroAuth(["Verification", "x"])).toEqual({ codigo: "Verification" });
+    expect(codigoErroAuth(undefined)).toEqual({ codigo: "Default" });
+    expect(codigoErroAuth("<script>")).toEqual({ codigo: "Default" });
   });
 });

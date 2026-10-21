@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { useEstadoAba } from "@/client/estadoAbas";
 import { useFiltros } from "@/client/filtros";
 import { usePainel } from "@/client/painel";
@@ -21,10 +22,12 @@ export function useEstadoComp() {
   // initDashboard (a cada carga de dados) regrava compStartDate/compEndDate com o default, mas NÃO desliga
   // compPeriodManual: com o período manual ativo, a aba passa a mostrar 1º/jan → hoje ainda marcada "definido na aba".
   const manual = manualBruto && linhasVistas !== null && linhasVistas !== base.linhas ? periodoPadraoComp(base.hoje) : manualBruto;
-  if (linhasVistas !== base.linhas) queueMicrotask(() => {
+  // Grava a base vista (e o período regravado) depois da renderização, não durante.
+  useEffect(() => {
+    if (linhasVistas === base.linhas) return;
     setLinhasVistas(base.linhas);
     if (manual !== manualBruto) setGuardado({ manual, geracao: geracaoLimpeza });
-  });
+  }, [base.linhas, linhasVistas, manual, manualBruto, geracaoLimpeza, setLinhasVistas, setGuardado]);
   const [metrica, setMetrica] = useEstadoAba<MetricaComp>("comparativo:metrica", METRICA_COMP_INICIAL);
   const [visao, setVisao] = useEstadoAba<VisaoPivo>("comparativo:visao", "ambos");
   const [metricaPivo, setMetricaPivo] = useEstadoAba<MetricaPivo>("comparativo:metrica-pivo", "premio");

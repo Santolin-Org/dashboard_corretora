@@ -108,8 +108,8 @@ export async function renovarToken(token: TokenApp, deps: DepsRefresh = {}): Pro
   const env = deps.env ?? process.env;
   const falha: TokenApp = { ...token, error: "RefreshFailed" };
   if (!token.refreshToken) return falha;
-  const issuer = env.AUTH_MICROSOFT_ENTRA_ID_ISSUER || ISSUER_PADRAO;
-  const url = `${issuer.replace(/\/v2\.0\/?$/, "")}/oauth2/v2.0/token`;
+  // Tenant fixo: a env do emissor só pode repetir ISSUER_PADRAO (assertIssuerSeguro).
+  const url = `${ISSUER_PADRAO.replace(/\/v2\.0$/, "")}/oauth2/v2.0/token`;
   try {
     const resp = await (deps.fetch ?? fetch)(url, {
       method: "POST",
@@ -185,7 +185,15 @@ export function sessionCallback<S extends { user?: { email?: string | null } }>(
 
 // ---- Decisão do proxy ----
 
-const PAGINAS_PUBLICAS = new Set(["/entrar", "/sem-acesso", "/favicon.ico"]);
+const PAGINAS_PUBLICAS = new Set(["/entrar", "/sem-acesso", "/erro-login", "/favicon.ico"]);
+
+/** `?error=` da página de erro do Auth.js: AccessDenied (fora da lista) vai para /sem-acesso; os demais
+ *  (Configuration, Verification…) aparecem com o código, para não mascarar erro de configuração. */
+export function codigoErroAuth(v: string | string[] | undefined): { destino: "/sem-acesso" } | { codigo: string } {
+  const c = Array.isArray(v) ? v[0] : v;
+  if (c === "AccessDenied") return { destino: "/sem-acesso" };
+  return { codigo: c && /^[A-Za-z]{1,40}$/.test(c) ? c : "Default" };
+}
 const PREFIXOS_PUBLICOS = ["/api/auth/", "/_next/static/", "/_next/image"];
 
 export function ehPublica(pathname: string): boolean {

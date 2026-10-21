@@ -21,7 +21,7 @@ assertIssuerSeguro(); // tenant fixo: env divergente derruba o boot
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: "jwt", maxAge: 60 * 60 * 24 * 30 },
-  pages: { signIn: "/entrar", error: "/sem-acesso" },
+  pages: { signIn: "/entrar", error: "/erro-login" }, // AccessDenied → /sem-acesso (erro-login)
   providers: [
     MicrosoftEntraID({
       clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,

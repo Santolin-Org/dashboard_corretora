@@ -4,7 +4,6 @@ import { celulaParaISO, celulaParaMs } from '../datas';
 import { normRamo } from '../ramos';
 import { normSit } from '../situacoes';
 
-import { SAUDE_FILE } from './modelo';
 export { SAUDE_FILE, SAUDE_MODELO } from './modelo';
 
 // Cada campo aceita mais de uma grafia de cabeçalho (comparadas por normRamo).

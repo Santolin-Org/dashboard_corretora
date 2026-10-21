@@ -9,7 +9,9 @@ Como funciona: o servidor lê as planilhas do SharePoint (Microsoft Graph, ou de
 faz o parse, guarda o resultado (Neon/Postgres + Vercel Blob) e serve `/api/dados` com o recorte permitido ao usuário.
 Login Microsoft Entra ID (Auth.js); quem não está na tabela `users` cai em `/sem-acesso`. Papéis: `admin`, `gestao`,
 `vendedor`. Na Etapa 1, `admin` e `gestao` veem tudo, `vendedor` e quem não está na lista não recebem nada, e só `admin`
-reprocessa as fontes. Não há upload manual de Excel.
+reprocessa as fontes. O `vendedor` vê a tela "Seu acesso ao dashboard será liberado na próxima etapa." (o servidor nem
+monta a base para ele). Outros erros do Auth.js (ex.: `Configuration`) vão para `/erro-login`, que mostra o código.
+Não há upload manual de Excel.
 
 ## Rodar localmente
 
@@ -57,7 +59,7 @@ Lista conferida contra `grep process.env` em `src/`, `parity/` e nos arquivos de
 | `AUTH_TRUST_HOST` | `true` ao rodar `next start` fora da Vercel (localhost); lido pelo próprio Auth.js | defina manualmente |
 | `PARITY_AUTH_BYPASS` | `1` desliga o login (só dev/harness; erro com `VERCEL` ou `NODE_ENV=production`) | defina só localmente |
 | `PARITY_HOJE` | "Hoje" fixo `YYYY-MM-DD`, honrado só com o bypass ativo | só harness |
-| `TZ` | O harness e harness fixa `America/Sao_Paulo`; `test:tz` roda os testes de domínio em `UTC` e em `America/Sao_Paulo`. Na Vercel o servidor roda em UTC; o tratamento de datas está em `src/domain/datas.ts` e `src/server/hoje.ts` | não definir na Vercel |
+| `TZ` | O harness fixa `America/Sao_Paulo`; `test:tz` roda os testes de domínio em `UTC` e em `America/Sao_Paulo`. Na Vercel o servidor roda em UTC; o tratamento de datas está em `src/domain/datas.ts` e `src/server/hoje.ts` | não definir na Vercel |
 | `NEXT_DIST_DIR`, `NEXT_TSCONFIG` | Uso interno do harness (`.next-parity`, `tsconfig.parity.json`) | não definir |
 
 **Nunca defina nenhuma `PARITY_*` na Vercel.**
@@ -90,6 +92,12 @@ Flags de `npm run parity --`: `--lado antigo|novo|ambos`, `--cenario <nome>`, `-
 `--fixture`, `--regerar-antigo`. Com `--fixture` usa a fixture sintética e os dourados versionados em
 `parity/golden-fixture/`; sem ela, usa `parity/data/` e dourados em `parity/.golden/` (ignorado pelo git). Sem
 `--abas`/`--cenario`, roda só as abas listadas em `parity/abas-portadas.ts`.
+
+**Dourados da fixture são cópias congeladas da saída do app antigo.** `parity/golden-fixture/` guarda o que o
+`index.html`/`main.js` da raiz produziram sobre a fixture sintética quando foram gerados; `--lado ambos --fixture`
+compara o app novo com essa cópia (o CI não sobe o app antigo do zero). Se o `main.js` da raiz mudar algum dia,
+os dourados ficam velhos: regere com `npm run parity -- --lado antigo --fixture --regerar-antigo`, confira o diff e
+versione.
 
 **Dados reais:** copie para `parity/data/` as planilhas `producao*.xlsx`, `sinistrosAvisados.xlsx`,
 `sinistrosPagamentos.xlsx` e, se houver, `saude_fernando.xlsx` (nunca vão para o git). Rode `npm run regressao:real` e
