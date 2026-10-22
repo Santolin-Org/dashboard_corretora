@@ -219,7 +219,8 @@ export function getCrossRamoStats(todas: Linha[], clients: ClienteCross[], ramoL
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
-export type CartaoCross = { l: string; v: string; s: string; c: 'k-teal' | 'k-green' | 'k-purple' | 'k-blue' | 'k-red' | 'k-amber' };
+/** `t`: o valor é um nome (de ramo), não um número — o cartão usa a fonte de texto. */
+export type CartaoCross = { l: string; v: string; s: string; c: 'k-teal' | 'k-green' | 'k-purple' | 'k-blue' | 'k-red' | 'k-amber'; t?: boolean };
 export function kpisCross(todas: Linha[], clients: ClienteCross[], ramoList: string[]): CartaoCross[] {
   const totalDocsAll = new Set(todas.filter(r => r.docDigits).map(r => r.docDigits)).size;
   const comissaoTotal = clients.reduce((s, c) => s + c.comissaoTotal, 0);
@@ -254,8 +255,8 @@ export function kpisCross(todas: Linha[], clients: ClienteCross[], ramoList: str
     { l: 'Total de clientes', v: fN(clients.length), s: fN(totalDocsAll) + ' no total (PF+PJ)', c: 'k-teal' },
     { l: 'Comissão total (LTV)', v: fBRL(comissaoTotal), s: fN(ramoList.length) + ' ramos mapeados', c: 'k-green' },
     { l: 'LTV médio por cliente', v: fBRL(ltvMedio), s: fN(withLtv.length) + ' c/ histórico >1 ano', c: 'k-purple' },
-    { l: 'Ramo mais popular', v: maisPopular.ramo, s: fP(maisPopular.pct) + ' dos clientes', c: 'k-blue' },
-    { l: 'Maior oportunidade', v: maiorOportunidade.ramo, s: fBRL(maiorOportunidade.valor) + ' em comissão potencial', c: 'k-red' },
+    { l: 'Ramo mais popular', v: maisPopular.ramo, s: fP(maisPopular.pct) + ' dos clientes', c: 'k-blue', t: true },
+    { l: 'Maior oportunidade', v: maiorOportunidade.ramo, s: fBRL(maiorOportunidade.valor) + ' em comissão potencial', c: 'k-red', t: true },
     { l: 'Ramo com maior LTV', v: fBRL(maiorLtvRamo.valor), s: maiorLtvRamo.ramo, c: 'k-amber' },
     { l: 'Tempo médio de permanência', v: tempoMedio.toFixed(1).replace('.', ',') + ' anos', s: fN(withVig.length) + ' clientes na base', c: 'k-teal' },
   ];
