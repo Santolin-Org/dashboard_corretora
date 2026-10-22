@@ -1,0 +1,14 @@
+# .vercelignore do app novo (projeto Vercel com Root Directory = web).
+# Existe para a Vercel NÃO usar o .vercelignore da raiz do repositório — aquele é do
+# dashboard antigo e ignora justamente a pasta web/. Aqui só fica de fora o que é local.
+.env*.local
+.next-parity/
+.snapshots/
+parity/data/
+parity/.golden/
+parity/fixtures/out/
+seed/usuarios.json
+*.xlsx
+*.xls
+*.XLSX
+*.XLS
