@@ -109,7 +109,7 @@ export default function ExibicaoTv() {
               {sp}
             </div>
             {sp}
-            <div className="podium-grid tv-ex-santolin-podium" id="tv-ex-santolin-podium">
+            <div className={`podium-grid tv-ex-santolin-podium${d.podio.colunas.length === 1 ? " tv-ex-podium-unico" : ""}${d.podio.fotos ? " tv-ex-podium-fotos" : ""}`} id="tv-ex-santolin-podium">
               {d.podio.vazio
                 ? <div className="tv-ex-podium-empty">Nenhuma apólice da campanha Santolin 360 ainda.</div>
                 : d.podio.colunas.map((c, i) => (
@@ -119,7 +119,7 @@ export default function ExibicaoTv() {
                       {sp}
                       <div className="podium-title">{c.titulo}</div>
                       {sp}
-                      <Podio nomes={c.nomes} />
+                      <Podio nomes={c.nomes} colabs={d.podio.fotos ? c.colabs : undefined} />
                       {sp}
                     </div>
                   </Fragment>

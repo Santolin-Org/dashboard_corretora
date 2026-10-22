@@ -188,7 +188,8 @@ export type DadosTv = {
   novos: { badge: string; linhas: LinhaNovos[] };
   /** Barras de meta do painel escolhido; cada painel define quais existem (o 360_tri4 só tem `com`). */
   metasSantolin: { qtd?: MetaFases; com?: MetaFases };
-  podio: { badge: string; vazio: boolean; colunas: { titulo: string; nomes: [string, string, string] }[] };
+  /** `colabs`: nome completo de cada colocado (null sem colocado) — chave da foto do colaborador. */
+  podio: { badge: string; vazio: boolean; fotos: boolean; colunas: { titulo: string; nomes: [string, string, string]; colabs: [string | null, string | null, string | null] }[] };
   ano: { labels: string[]; data: number[]; badge: string };
   nivel: { labels: string[]; counts: number[]; total: number; badge: string };
 };
@@ -218,16 +219,17 @@ export function exibicaoTv(todas: Linha[], hoje: DataISO, painel: PainelTv = pai
     if (m.tipo === 'qtd') metasSantolin.qtd = metaFases('Negócios Realizados', qtd, m.fases, fN);
     else metasSantolin.com = metaFases('Resultado Gerado', comissao, m.fases, fBRL);
   }
-  const nomes = (metric: 'qtd' | 'comissao'): [string, string, string] => {
-    const t = getCampanha360Ranking(rows, metric).map(r => tvNomeCurto(r.colab));
-    return [0, 1, 2].map(i => t[i] ?? '—') as [string, string, string];
+  const coluna = (tipo: 'qtd' | 'com') => {
+    const t = getCampanha360Ranking(rows, tipo === 'qtd' ? 'qtd' : 'comissao');
+    return {
+      titulo: tipo === 'qtd' ? 'Top 3 — Negócios Realizados' : 'Top 3 — Resultado Gerado',
+      nomes: [0, 1, 2].map(i => t[i] ? tvNomeCurto(t[i].colab) : '—') as [string, string, string],
+      colabs: [0, 1, 2].map(i => t[i]?.colab ?? null) as [string | null, string | null, string | null],
+    };
   };
   const podio = {
-    badge: CAMPANHA_360_NOME, vazio: !rows.length,
-    colunas: rows.length ? [
-      { titulo: 'Top 3 — Negócios Realizados', nomes: nomes('qtd') },
-      { titulo: 'Top 3 — Resultado Gerado', nomes: nomes('comissao') },
-    ] : [],
+    badge: CAMPANHA_360_NOME, vazio: !rows.length, fotos: painel.fotos,
+    colunas: rows.length ? painel.podios.map(coluna) : [],
   };
 
   const ano = buildTvAnoCarteira(todas, hoje);

@@ -7,10 +7,10 @@ import type { Metrica } from "@/domain/visao-geral";
 import { useFiltros } from "@/client/filtros";
 import { useEstadoAba } from "@/client/estadoAbas";
 import { baixarPlanilha } from "@/client/exportar";
-import { abrirExibicaoTv } from "@/client/exibicaoTv";
 import { fontesDesatualizadas } from "@/domain/producao/base";
 import type { BaseCliente } from "@/client/useBase";
 import { BotaoModoTv } from "./ModoTv";
+import { MenuExibicaoTv } from "./MenuExibicaoTv";
 import s from "./Cabecalho.module.css";
 
 /** Texto de #rec-badge: updateDashHeader na carga; applyFilters/resetFilters depois. */
@@ -77,13 +77,7 @@ export function Cabecalho({ base, recBadge, onAbrirFontes }: { base: BaseCliente
       <div className={`${s.acoes} topbar-actions`}>
         <span id="rec-badge" className={s.recBadge}>{recBadge}</span>
         <BotaoModoTv />
-        <button type="button" className="btn-sm" onClick={() => {
-          // openTvExibicao: sem dados, avisa e não abre.
-          if (base.linhas.length === 0) { alert("Carregue os dados antes de abrir a exibição."); return; }
-          abrirExibicaoTv(router.push);
-        }} title="Abrir exibição em tela cheia para TV">
-          📺 Exibição TV
-        </button>
+        <MenuExibicaoTv temDados={base.linhas.length > 0} ir={router.push} />
         <button
           type="button"
           className="btn-sm"

@@ -18,6 +18,24 @@ describe('painéis da Exibição TV', () => {
     const t4 = painelTv('360_tri4');
     expect([t4.inicio, t4.fim]).toEqual(['2026-10-01', '2026-12-31']);
     expect(t4.metas).toEqual([{ tipo: 'com', fases: [100000, 120000, 130000] }]);
+    expect(t3.podios).toEqual(['qtd', 'com']);
+    expect(t3.fotos).toBe(false);
+    expect(t4.podios).toEqual(['com']);
+    expect(t4.fotos).toBe(true);
+  });
+
+  it('360_tri4: pódio só por comissão, com o nome completo de cada colocado (para a foto)', () => {
+    const rows = [c('Ana Paula Souza', '2026-10-05', 9000), c('Bruno Lima', '2026-10-06', 3000), c('Bruno Lima', '2026-10-07', 3000), c('Carla Dias', '2026-11-01', 1000)];
+    const p = exibicaoTv(rows, HOJE, painelTv('360_tri4')).podio;
+    expect(p.colunas.map((x) => x.titulo)).toEqual(['Top 3 — Resultado Gerado']);
+    expect(p.colunas[0].nomes).toEqual(['Ana P.', 'Bruno L.', 'Carla D.']);
+    expect(p.colunas[0].colabs).toEqual(['Ana Paula Souza', 'Bruno Lima', 'Carla Dias']);
+  });
+
+  it('360_tri3: os dois pódios de antes', () => {
+    const rows = [c('Ana Paula', '2026-08-05', 9000)];
+    const p = exibicaoTv(rows, HOJE, painelTv('360_tri3')).podio;
+    expect(p.colunas.map((x) => x.titulo)).toEqual(['Top 3 — Negócios Realizados', 'Top 3 — Resultado Gerado']);
   });
 
   it('id desconhecido ou vazio cai no padrão', () => {
@@ -35,7 +53,7 @@ describe('painéis da Exibição TV', () => {
     expect(com.marcadores.map((m) => [m.valor, m.atingida])).toEqual([[fBRL(100000), true], [fBRL(120000), false], [fBRL(130000), false]]);
     expect(com.badge).toBe('Fase 1 de 3 concluída');
     // Pódio no período do painel.
-    expect(d.podio.colunas[1].nomes).toEqual(['Ana P.', 'Bruno L.', '—']);
+    expect(d.podio.colunas[0].nomes).toEqual(['Ana P.', 'Bruno L.', '—']);
   });
 
   it('360_tri3 continua igual ao de antes (duas barras, Jul–Set/2026)', () => {

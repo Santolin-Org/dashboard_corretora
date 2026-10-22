@@ -32,8 +32,15 @@
   grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
-.tv-ex-grid-faixa { grid-template-rows: auto minmax(0, 1fr); row-gap: 18px; }
-.tv-ex-santolin-bar.tv-ex-santolin-bar-larga { grid-column: 1 / -1; padding: 0 56px 0 24px; } /* direita maior: o rótulo da última fase é centrado em 100% */
+/* Painel com uma meta só (ex.: 360_tri4): três faixas — cartões de cima, a barra de largura total no
+   meio e cartões de baixo. As colunas viram `display: contents` e os quatro cartões entram na grade. */
+.tv-ex-grid-faixa { grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr); row-gap: 20px; }
+.tv-ex-grid-faixa > .tv-ex-left, .tv-ex-grid-faixa > .tv-ex-right { display: contents; }
+.tv-ex-grid-faixa > .tv-ex-left > :first-child { grid-column: 1; grid-row: 1; }
+.tv-ex-grid-faixa > .tv-ex-left > :last-child { grid-column: 1; grid-row: 3; }
+.tv-ex-grid-faixa > .tv-ex-right > :first-child { grid-column: 2; grid-row: 1; }
+.tv-ex-grid-faixa > .tv-ex-right > :last-child { grid-column: 2; grid-row: 3; }
+.tv-ex-santolin-bar.tv-ex-santolin-bar-larga { grid-column: 1 / -1; grid-row: 2; padding: 0 56px 0 24px; } /* direita maior: o rótulo da última fase é centrado em 100% */
 .tv-ex-left { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .tv-ex-novos-body {
   flex: 1;
@@ -111,3 +118,11 @@
   .tv-ex-left { display: none; }
 }
 
+
+/* Pódio de um ranking só (ex.: 360_tri4, só Resultado Gerado): uma coluna centralizada e degraus
+   mais largos, com espaço para a foto de cada colaborador. */
+.tv-ex-santolin-podium.tv-ex-podium-unico { grid-template-columns: minmax(0, 560px); justify-content: center; }
+.tv-ex-podium-unico .podium { gap: 28px; }
+.tv-ex-podium-unico .podium-step { max-width: 150px; }
+.tv-ex-podium-fotos .podium-step > [data-foto] { margin-bottom: 0; }
+.tv-ex-podium-fotos .podium-p1 > [data-foto] { width: 76px; height: 76px; font-size: 24px; border-color: var(--rank-1-text); }

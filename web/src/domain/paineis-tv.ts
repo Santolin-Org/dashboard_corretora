@@ -6,18 +6,21 @@ import type { DataISO } from './tipos';
 
 /** `com`: comissão gerada (R$) — "Resultado Gerado"; `qtd`: apólices — "Negócios Realizados". */
 export type MetaPainel = { tipo: 'com' | 'qtd'; fases: number[] };
-export type PainelTv = { id: string; nome: string; inicio: DataISO; fim: DataISO; metas: MetaPainel[] };
+/** `podios`: rankings Top 3 mostrados, na ordem; `fotos`: foto do colaborador em cada degrau do pódio. */
+export type PainelTv = { id: string; nome: string; inicio: DataISO; fim: DataISO; metas: MetaPainel[]; podios: ('qtd' | 'com')[]; fotos: boolean };
 
 export const PAINEIS_TV: PainelTv[] = [
   {
     id: '360_tri3', nome: 'Santolin 360 — 3º tri/2026',
     inicio: CAMPANHA_360_INICIO, fim: CAMPANHA_360_FIM,
     metas: [{ tipo: 'com', fases: CAMPANHA_360_FASES_COM }, { tipo: 'qtd', fases: CAMPANHA_360_FASES_QTD }],
+    podios: ['qtd', 'com'], fotos: false,
   },
   {
     id: '360_tri4', nome: 'Santolin 360 — 4º tri/2026',
     inicio: '2026-10-01', fim: '2026-12-31',
     metas: [{ tipo: 'com', fases: [100000, 120000, 130000] }],
+    podios: ['com'], fotos: true,
   },
 ];
 

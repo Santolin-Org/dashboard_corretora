@@ -3,6 +3,8 @@ import { Fragment, useMemo } from "react";
 import type { Linha } from "@/domain/tipos";
 import { campanha360, type MetaFases } from "@/domain/crosssell";
 import { SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoRecolhivel";
+import { FotoColaborador } from "@/components/FotoColaborador";
+import { fotoDoColaborador } from "@/client/fotosColaboradores";
 
 // renderTierGoal: barra de meta de 3 fases (também usada na Exibição TV).
 export function MetaDeFases({ m }: { m: MetaFases }) {
@@ -27,10 +29,12 @@ export function MetaDeFases({ m }: { m: MetaFases }) {
   );
 }
 
-// renderPodium: só os nomes, 2º à esquerda, 1º no centro, 3º à direita.
-export function Podio({ nomes }: { nomes: [string, string, string] }) {
+// renderPodium: só os nomes, 2º à esquerda, 1º no centro, 3º à direita. Com `colabs` (nome completo de cada
+// colocado, painéis da TV com foto), cada degrau ganha a foto do colaborador — o pódio do antigo não tinha.
+export function Podio({ nomes, colabs }: { nomes: [string, string, string]; colabs?: [string | null, string | null, string | null] }) {
   const passo = (i: number, cls: string, rank: string) => (
     <div className={`podium-step ${cls}`}>
+      {colabs?.[i] ? <FotoColaborador colab={colabs[i]!} url={fotoDoColaborador(colabs[i]!)} /> : null}
       <div className="podium-name" title={nomes[i]}>{nomes[i]}</div>
       {" "}
       <div className="podium-block"><span className={`rank-badge ${rank}`}>{i + 1}</span></div>

@@ -4,7 +4,6 @@ import type { ComponentType } from "react";
 import { usePainel } from "@/client/painel";
 import { PainelAba } from "./PainelAba";
 import { ErroProducao } from "./TelaErro";
-import { SeletorPainelTv } from "./SeletorPainelTv";
 
 // Conteúdo de cada rota carregado sob demanda (um chunk por aba). As tarefas de porte
 // trocam o EmMigracao pelo componente da aba aqui.
@@ -28,10 +27,6 @@ export function AbaSobDemanda({ id }: { id: keyof typeof CONTEUDO & string }) {
   const { base } = usePainel();
   const Conteudo = CONTEUDO[id];
   // Exibição TV e apresentação são só produção: com erro de produção, o motivo no lugar.
-  if (TELA_CHEIA[id]) {
-    const tela = <div id={TELA_CHEIA[id]}>{base.erroProducao ? <ErroProducao erro={base.erroProducao} /> : <Conteudo />}</div>;
-    // Seletor de painel só na Exibição TV, fora do contêiner (o conteúdo segue comparável ao antigo).
-    return id === "exibicao-tv" && !base.erroProducao ? <>{tela}<SeletorPainelTv /></> : tela;
-  }
+  if (TELA_CHEIA[id]) return <div id={TELA_CHEIA[id]}>{base.erroProducao ? <ErroProducao erro={base.erroProducao} /> : <Conteudo />}</div>;
   return <PainelAba id={id}><Conteudo /></PainelAba>;
 }
