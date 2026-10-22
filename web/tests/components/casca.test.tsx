@@ -103,7 +103,11 @@ describe("FiltrosGlobais + useFiltros", () => {
   it("botões de tipo: data-tipo, rótulo e classe active", () => {
     const { container } = montarFiltros();
     const n = container.querySelector<HTMLButtonElement>('#tipo-btns .tipo-btn[data-tipo="N"]')!;
-    expect(n.textContent).toBe("N — Negócio novo");
+    // Controle segmentado compacto: só o código no botão; o nome completo vai no tooltip e no rótulo acessível.
+    expect(n.textContent).toBe("N");
+    expect(n.title).toBe("N — Negócio novo");
+    expect(n.getAttribute("aria-label")).toBe("N — Negócio novo");
+    expect(n.getAttribute("aria-pressed")).toBe("false");
     expect([...container.querySelectorAll("#tipo-btns .tipo-btn")].map((b) => b.getAttribute("data-tipo"))).toEqual(["EN", "N", "R"]);
     act(() => n.click());
     expect(n.classList.contains("active")).toBe(true);

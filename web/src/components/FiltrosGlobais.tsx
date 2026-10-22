@@ -75,7 +75,7 @@ export function FiltrosGlobais({ temProducao }: { temProducao: boolean }) {
         <span className={`${s.rotulo} f-label`}>Seguradora</span>
         <MultiSelect id="ms-seg" chave="seg" valores={opcoes.seg} selecionados={filtros.seg} placeholder="Todas" onChange={(seg) => definir({ seg })} />
       </div>
-      <div className={`${s.grupo} f-group`} style={{ flex: 1, minWidth: 220 }}>
+      <div className={`${s.grupo} f-group`}>
         <span className={`${s.rotulo} f-label`}>Tipo de documento</span>
         <BotoesTipo tipos={tipos} ativos={filtros.tipos} onChange={(t) => definir({ tipos: t })} />
       </div>

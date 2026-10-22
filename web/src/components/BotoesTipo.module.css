@@ -29,3 +29,46 @@
   border-color: rgba(78, 128, 255, 0.45);
   color: #90AFFF;
 }
+
+/* Barra de filtros global: controle segmentado com a mesma altura dos selects. */
+.segmentado {
+  display: inline-flex;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 2px;
+  gap: 2px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+}
+
+.segmento {
+  min-width: 36px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: calc(var(--r-sm) - 2px);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .4px;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+}
+
+.segmento:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.segmento:focus-visible {
+  outline: 2px solid rgba(78, 128, 255, 0.6);
+  outline-offset: 1px;
+}
+
+.segmento:global(.active) {
+  background: var(--accent-dim);
+  border-color: rgba(78, 128, 255, 0.45);
+  color: #90AFFF;
+}
