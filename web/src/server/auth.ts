@@ -5,8 +5,10 @@ import {
   ISSUER_PADRAO,
   assertBypassSeguro,
   assertIssuerSeguro,
+  avaliarLogin,
+  emailDoPerfil,
   jwtCallback,
-  permitirLogin,
+  mascararEmail,
   sessionCallback,
   usuarioDaSessao,
   type Sessao,
@@ -28,12 +30,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
       issuer: ISSUER_PADRAO,
       authorization: { params: { scope: ESCOPOS } },
+      // Perfil próprio: e-mail com fallback para o UPN (a claim `email` pode faltar) e sem buscar a foto no Graph.
+      profile: (p) => ({ id: p.sub, name: p.name, email: emailDoPerfil(p as unknown as Record<string, unknown>) }),
     }),
   ],
   callbacks: {
     // Recusa (e manda para /sem-acesso) quem não está ativo na tabela.
     async signIn({ user, profile }) {
-      return (await permitirLogin(user.email, (profile as { tid?: unknown } | undefined)?.tid)) ? true : "/sem-acesso";
+      const r = await avaliarLogin(user.email, (profile as { tid?: unknown } | undefined)?.tid);
+      if (r.ok) return true;
+      console.warn(`[auth] login recusado (${r.motivo}) para ${mascararEmail(user.email)}`);
+      return "/sem-acesso";
     },
     async jwt({ token, account, user }) {
       return (await jwtCallback({ token: token as TokenApp, account, user })) as typeof token;

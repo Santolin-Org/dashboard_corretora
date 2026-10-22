@@ -20,6 +20,9 @@ import {
   usuarioDaSessao,
   USUARIO_BYPASS,
   codigoErroAuth,
+  avaliarLogin,
+  emailDoPerfil,
+  mascararEmail,
 } from "@/server/auth-core";
 
 const pg = new PGlite();
@@ -200,6 +203,30 @@ describe("tenant fixo", () => {
     expect(await permitirLogin("ana@exemplo.com.br", TENANT_ID)).toBe(true);
     expect(await permitirLogin("ana@exemplo.com.br", "outro-tenant")).toBe(false);
     expect(await permitirLogin("ana@exemplo.com.br", undefined)).toBe(false);
+  });
+});
+
+describe("e-mail do perfil e motivo da recusa (login real em produção caía em /sem-acesso)", () => {
+  it("emailDoPerfil usa a claim email e cai para preferred_username/upn quando ela falta", () => {
+    expect(emailDoPerfil({ email: "Ana@Exemplo.com.br", preferred_username: "x@y.com" })).toBe("ana@exemplo.com.br");
+    expect(emailDoPerfil({ preferred_username: "Mitz@Santolin.com.br" })).toBe("mitz@santolin.com.br");
+    expect(emailDoPerfil({ email: "", upn: "u@s.com" })).toBe("u@s.com");
+    expect(emailDoPerfil({ email: "sem-arroba", preferred_username: "p@s.com" })).toBe("p@s.com");
+    expect(emailDoPerfil({})).toBeNull();
+    expect(emailDoPerfil(undefined)).toBeNull();
+  });
+  it("avaliarLogin diz o motivo: tenant, sem-email, fora-da-lista, erro-banco", async () => {
+    await db.insert(users).values({ email: "ana@exemplo.com.br", nome: "Ana", role: "admin" });
+    expect(await avaliarLogin("ana@exemplo.com.br", TENANT_ID)).toEqual({ ok: true });
+    expect(await avaliarLogin("ana@exemplo.com.br", "outro")).toEqual({ ok: false, motivo: "tenant" });
+    expect(await avaliarLogin(null, TENANT_ID)).toEqual({ ok: false, motivo: "sem-email" });
+    expect(await avaliarLogin("bia@exemplo.com.br", TENANT_ID)).toEqual({ ok: false, motivo: "fora-da-lista" });
+    const quebrado = { select: () => { throw new Error("sem banco"); } } as never;
+    expect(await avaliarLogin("ana@exemplo.com.br", TENANT_ID, quebrado)).toEqual({ ok: false, motivo: "erro-banco" });
+  });
+  it("mascararEmail não expõe o endereço inteiro", () => {
+    expect(mascararEmail("mitzrael.tassinari@santolinseguros.com.br")).toBe("mi***@santolinseguros.com.br");
+    expect(mascararEmail(null)).toBe("(vazio)");
   });
 });
 

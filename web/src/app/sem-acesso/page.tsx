@@ -1,18 +1,18 @@
 import { signOut } from "@/server/auth";
+import { TelaAcesso, estiloAcesso as s } from "@/components/TelaAcesso";
 
 export default function SemAcesso() {
   return (
-    <main style={{ maxWidth: 420, margin: "20vh auto", textAlign: "center", fontFamily: "sans-serif" }}>
-      <h1>Sem acesso</h1>
-      <p>Esta conta não está autorizada a ver o painel. Peça a um administrador para incluí-la na lista.</p>
+    <TelaAcesso titulo="Sem acesso">
+      <p className={s.texto}>Esta conta não está autorizada a ver o painel. Peça a um administrador para incluí-la na lista.</p>
       <form
         action={async () => {
           "use server";
           await signOut({ redirectTo: "/entrar" });
         }}
       >
-        <button type="submit">Sair</button>
+        <button type="submit" className={`${s.botao} ${s.secundario}`}>Sair</button>
       </form>
-    </main>
+    </TelaAcesso>
   );
 }
