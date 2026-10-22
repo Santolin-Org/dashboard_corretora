@@ -1,0 +1,108 @@
+{
+  "graficos": {
+    "ch-sin-evolucao": {
+      "datasets": [
+        {
+          "data": [
+            110655.76000000001,
+            100744.67000000001,
+            139249.00000000003,
+            160164.47,
+            167091.6,
+            147448.55000000002,
+            144656.15999999995,
+            91804.43999999999,
+            108030.67999999998,
+            125667.89,
+            109888.97999999997,
+            31141.89
+          ],
+          "label": "Prêmio"
+        },
+        {
+          "data": [
+            18692.43,
+            20274.77,
+            31684.02,
+            8124.75,
+            0,
+            67615.37,
+            40148.53999999999,
+            14608.76,
+            12592.7,
+            33582.58,
+            32590.739999999998,
+            38915.67
+          ],
+          "label": "Sinistros"
+        }
+      ],
+      "labels": [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez"
+      ]
+    },
+    "ch-sin-ramo": {
+      "datasets": [
+        {
+          "data": [
+            19,
+            17,
+            17
+          ]
+        }
+      ],
+      "labels": [
+        "Automóvel - Casco",
+        "Compreensivo Residencial",
+        "Compreensivo Empresarial"
+      ]
+    }
+  },
+  "textos": {
+    "cb-sin-charts": "−",
+    "cb-sin-kpis": "−",
+    "cb-sin-rentabilidade": "−",
+    "cb-sin-sinistralidade": "−",
+    "ch-sin-evolucao": "",
+    "ch-sin-ramo": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "fi-sin": "",
+    "fi-sin2": "",
+    "rec-badge": "0 registros",
+    "rentabil-btn-ramo": "Ramo",
+    "rentabil-btn-seg": "Seguradora",
+    "sb-sin-charts": "Evolução mensal — prêmio vs. sinistros Abertura de sinistros por ramo 53 sinistros",
+    "sb-sin-kpis": "Pendentes0R$ 0,00Liquidados10R$ 46.225,59Sem cobertura0R$ 0,00Recusados0R$ 0,00Total sinistros53R$ 318.830,33Valor em abertoR$ 0,000 pendentesSinistralidade22.19%sinistros / prêmio (produção)",
+    "sb-sin-rentabilidade": "Seguradora Prêmio Comissão Qtd sinistros Valor sinistros Rentabilidade Bradesco Seguros R$ 295.242,76 R$ 38.488,57 9 R$ 52.614,67 +69.1% HDI Seguros R$ 289.888,44 R$ 40.822,19 8 R$ 77.252,01 +59.3% Tokio Marine R$ 259.794,97 R$ 35.545,34 9 R$ 83.685,66 +54.1% Porto Seguro R$ 248.239,79 R$ 34.136,56 10 R$ 21.277,45 +77.7% Mapfre R$ 220.334,32 R$ 30.948,70 8 R$ 67.144,98 +55.5% Allianz R$ 184.847,71 R$ 25.736,64 9 R$ 16.855,56 +77.0%",
+    "sb-sin-sinistralidade": "Seguradora Prêmio (produção) Qtd sinistros Valor sinistros Sinistralidade Tokio Marine R$ 246.716,75 9 R$ 83.685,66 33.92% Mapfre R$ 218.379,35 8 R$ 67.144,98 30.75% HDI Seguros R$ 277.112,42 8 R$ 77.252,01 27.88% Bradesco Seguros R$ 281.223,49 9 R$ 52.614,67 18.71% Allianz R$ 181.524,62 9 R$ 16.855,56 9.29% Porto Seguro R$ 231.587,46 10 R$ 21.277,45 9.19% Total R$ 1.436.544,09 53 R$ 318.830,33 22.19%",
+    "sc-sin-charts": "Análise de sinistros Prêmio Sinistros − Evolução mensal — prêmio vs. sinistros Abertura de sinistros por ramo 53 sinistros",
+    "sc-sin-kpis": "Indicadores de sinistros − Pendentes0R$ 0,00Liquidados10R$ 46.225,59Sem cobertura0R$ 0,00Recusados0R$ 0,00Total sinistros53R$ 318.830,33Valor em abertoR$ 0,000 pendentesSinistralidade22.19%sinistros / prêmio (produção)",
+    "sc-sin-rentabilidade": "Rentabilidade por seguradora Seguradora Ramo − Seguradora Prêmio Comissão Qtd sinistros Valor sinistros Rentabilidade Bradesco Seguros R$ 295.242,76 R$ 38.488,57 9 R$ 52.614,67 +69.1% HDI Seguros R$ 289.888,44 R$ 40.822,19 8 R$ 77.252,01 +59.3% Tokio Marine R$ 259.794,97 R$ 35.545,34 9 R$ 83.685,66 +54.1% Porto Seguro R$ 248.239,79 R$ 34.136,56 10 R$ 21.277,45 +77.7% Mapfre R$ 220.334,32 R$ 30.948,70 8 R$ 67.144,98 +55.5% Allianz R$ 184.847,71 R$ 25.736,64 9 R$ 16.855,56 +77.0%",
+    "sc-sin-sinistralidade": "Sinistralidade por seguradora Seguradora Ramo − Seguradora Prêmio (produção) Qtd sinistros Valor sinistros Sinistralidade Tokio Marine R$ 246.716,75 9 R$ 83.685,66 33.92% Mapfre R$ 218.379,35 8 R$ 67.144,98 30.75% HDI Seguros R$ 277.112,42 8 R$ 77.252,01 27.88% Bradesco Seguros R$ 281.223,49 9 R$ 52.614,67 18.71% Allianz R$ 181.524,62 9 R$ 16.855,56 9.29% Porto Seguro R$ 231.587,46 10 R$ 21.277,45 9.19% Total R$ 1.436.544,09 53 R$ 318.830,33 22.19%",
+    "sin-dashboard": "53 / 53 sinistros · avisados 40 · pagos 25 ↑ Trocar arquivo Indicadores de sinistros − Pendentes0R$ 0,00Liquidados10R$ 46.225,59Sem cobertura0R$ 0,00Recusados0R$ 0,00Total sinistros53R$ 318.830,33Valor em abertoR$ 0,000 pendentesSinistralidade22.19%sinistros / prêmio (produção) Análise de sinistros Prêmio Sinistros − Evolução mensal — prêmio vs. sinistros Abertura de sinistros por ramo 53 sinistros Sinistralidade por seguradora Seguradora Ramo − Seguradora Prêmio (produção) Qtd sinistros Valor sinistros Sinistralidade Tokio Marine R$ 246.716,75 9 R$ 83.685,66 33.92% Mapfre R$ 218.379,35 8 R$ 67.144,98 30.75% HDI Seguros R$ 277.112,42 8 R$ 77.252,01 27.88% Bradesco Seguros R$ 281.223,49 9 R$ 52.614,67 18.71% Allianz R$ 181.524,62 9 R$ 16.855,56 9.29% Porto Seguro R$ 231.587,46 10 R$ 21.277,45 9.19% Total R$ 1.436.544,09 53 R$ 318.830,33 22.19% Rentabilidade por seguradora Seguradora Ramo − Seguradora Prêmio Comissão Qtd sinistros Valor sinistros Rentabilidade Bradesco Seguros R$ 295.242,76 R$ 38.488,57 9 R$ 52.614,67 +69.1% HDI Seguros R$ 289.888,44 R$ 40.822,19 8 R$ 77.252,01 +59.3% Tokio Marine R$ 259.794,97 R$ 35.545,34 9 R$ 83.685,66 +54.1% Porto Seguro R$ 248.239,79 R$ 34.136,56 10 R$ 21.277,45 +77.7% Mapfre R$ 220.334,32 R$ 30.948,70 8 R$ 67.144,98 +55.5% Allianz R$ 184.847,71 R$ 25.736,64 9 R$ 16.855,56 +77.0%",
+    "sin-drop-zone": "📋 Carregar dados de sinistros Arraste o arquivo .xlsx de sinistros aquiou clique para selecionar Selecionar arquivo",
+    "sin-file-badge": "53 / 53 sinistros · avisados 40 · pagos 25",
+    "sin-kpi-grid": "Pendentes0R$ 0,00Liquidados10R$ 46.225,59Sem cobertura0R$ 0,00Recusados0R$ 0,00Total sinistros53R$ 318.830,33Valor em abertoR$ 0,000 pendentesSinistralidade22.19%sinistros / prêmio (produção)",
+    "sin-ramo-badge": "53 sinistros",
+    "sin-ramo-wrap": "",
+    "sin-rentabil-title": "Rentabilidade por seguradora",
+    "sin-rentabilidade-wrap": "Seguradora Prêmio Comissão Qtd sinistros Valor sinistros Rentabilidade Bradesco Seguros R$ 295.242,76 R$ 38.488,57 9 R$ 52.614,67 +69.1% HDI Seguros R$ 289.888,44 R$ 40.822,19 8 R$ 77.252,01 +59.3% Tokio Marine R$ 259.794,97 R$ 35.545,34 9 R$ 83.685,66 +54.1% Porto Seguro R$ 248.239,79 R$ 34.136,56 10 R$ 21.277,45 +77.7% Mapfre R$ 220.334,32 R$ 30.948,70 8 R$ 67.144,98 +55.5% Allianz R$ 184.847,71 R$ 25.736,64 9 R$ 16.855,56 +77.0%",
+    "sin-sinistral-title": "Sinistralidade por seguradora",
+    "sin-sinistralidade-wrap": "Seguradora Prêmio (produção) Qtd sinistros Valor sinistros Sinistralidade Tokio Marine R$ 246.716,75 9 R$ 83.685,66 33.92% Mapfre R$ 218.379,35 8 R$ 67.144,98 30.75% HDI Seguros R$ 277.112,42 8 R$ 77.252,01 27.88% Bradesco Seguros R$ 281.223,49 9 R$ 52.614,67 18.71% Allianz R$ 181.524,62 9 R$ 16.855,56 9.29% Porto Seguro R$ 231.587,46 10 R$ 21.277,45 9.19% Total R$ 1.436.544,09 53 R$ 318.830,33 22.19%",
+    "sin-upload-card": "📋 Carregar dados de sinistros Arraste o arquivo .xlsx de sinistros aquiou clique para selecionar Selecionar arquivo",
+    "sinistral-btn-ramo": "Ramo",
+    "sinistral-btn-seg": "Seguradora",
+    "tab-sinistros": "📋 Carregar dados de sinistros Arraste o arquivo .xlsx de sinistros aquiou clique para selecionar Selecionar arquivo 53 / 53 sinistros · avisados 40 · pagos 25 ↑ Trocar arquivo Indicadores de sinistros − Pendentes0R$ 0,00Liquidados10R$ 46.225,59Sem cobertura0R$ 0,00Recusados0R$ 0,00Total sinistros53R$ 318.830,33Valor em abertoR$ 0,000 pendentesSinistralidade22.19%sinistros / prêmio (produção) Análise de sinistros Prêmio Sinistros − Evolução mensal — prêmio vs. sinistros Abertura de sinistros por ramo 53 sinistros Sinistralidade por seguradora Seguradora Ramo − Seguradora Prêmio (produção) Qtd sinistros Valor sinistros Sinistralidade Tokio Marine R$ 246.716,75 9 R$ 83.685,66 33.92% Mapfre R$ 218.379,35 8 R$ 67.144,98 30.75% HDI Seguros R$ 277.112,42 8 R$ 77.252,01 27.88% Bradesco Seguros R$ 281.223,49 9 R$ 52.614,67 18.71% Allianz R$ 181.524,62 9 R$ 16.855,56 9.29% Porto Seguro R$ 231.587,46 10 R$ 21.277,45 9.19% Total R$ 1.436.544,09 53 R$ 318.830,33 22.19% Rentabilidade por seguradora Seguradora Ramo − Seguradora Prêmio Comissão Qtd sinistros Valor sinistros Rentabilidade Bradesco Seguros R$ 295.242,76 R$ 38.488,57 9 R$ 52.614,67 +69.1% HDI Seguros R$ 289.888,44 R$ 40.822,19 8 R$ 77.252,01 +59.3% Tokio Marine R$ 259.794,97 R$ 35.545,34 9 R$ 83.685,66 +54.1% Porto Seguro R$ 248.239,79 R$ 34.136,56 10 R$ 21.277,45 +77.7% Mapfre R$ 220.334,32 R$ 30.948,70 8 R$ 67.144,98 +55.5% Allianz R$ 184.847,71 R$ 25.736,64 9 R$ 16.855,56 +77.0%"
+  }
+}

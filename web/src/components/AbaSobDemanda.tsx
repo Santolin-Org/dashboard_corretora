@@ -1,0 +1,32 @@
+"use client";
+import dynamic from "next/dynamic";
+import type { ComponentType } from "react";
+import { usePainel } from "@/client/painel";
+import { PainelAba } from "./PainelAba";
+import { ErroProducao } from "./TelaErro";
+
+// Conteúdo de cada rota carregado sob demanda (um chunk por aba). As tarefas de porte
+// trocam o EmMigracao pelo componente da aba aqui.
+const emMigracao = () => import("./EmMigracao");
+const CONTEUDO: Record<string, ComponentType> = {
+  "visao-geral": dynamic(() => import("@/app/(dash)/visao-geral/VisaoGeral")),
+  producao: dynamic(() => import("@/app/(dash)/producao/Producao")),
+  retencao: dynamic(() => import("@/app/(dash)/retencao/Retencao")),
+  crosssell: dynamic(() => import("@/app/(dash)/crosssell/Crosssell")),
+  comparativo: dynamic(() => import("@/app/(dash)/comparativo/Comparativo")),
+  metas: dynamic(() => import("@/app/(dash)/metas/Metas")),
+  sinistros: dynamic(emMigracao),
+  "exibicao-tv": dynamic(() => import("@/app/(dash)/exibicao-tv/ExibicaoTv")),
+  apresentacao: dynamic(() => import("@/app/(dash)/apresentacao/Apresentacao")),
+};
+
+// Telas cheias (sem .tab-pane): contêiner com o id que o app antigo usava.
+const TELA_CHEIA: Record<string, string> = { "exibicao-tv": "tv-exibicao", apresentacao: "kickoff-mode" };
+
+export function AbaSobDemanda({ id }: { id: keyof typeof CONTEUDO & string }) {
+  const { base } = usePainel();
+  const Conteudo = CONTEUDO[id];
+  // Exibição TV e apresentação são só produção: com erro de produção, o motivo no lugar.
+  if (TELA_CHEIA[id]) return <div id={TELA_CHEIA[id]}>{base.erroProducao ? <ErroProducao erro={base.erroProducao} /> : <Conteudo />}</div>;
+  return <PainelAba id={id}><Conteudo /></PainelAba>;
+}

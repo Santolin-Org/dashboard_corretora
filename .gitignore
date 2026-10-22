@@ -27,3 +27,16 @@ venv/
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# ── App Next.js (web/) ──
+web/parity/data/
+web/parity/.golden/
+web/.env*.local
+web/seed/usuarios.json
+
+# Planilhas nunca vão para o git (dados de clientes). As fixtures sintéticas da régua são
+# geradas em tempo de teste, não versionadas.
+*.xlsx
+*.xls
+*.XLSX
+*.XLS

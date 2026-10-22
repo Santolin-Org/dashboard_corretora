@@ -1,0 +1,59 @@
+{
+  "graficos": {
+    "ch-metas-semanal": {
+      "datasets": [
+        {
+          "data": [
+            1696.9299999999998,
+            0,
+            0,
+            378.49,
+            0
+          ],
+          "label": "Realizado"
+        },
+        {
+          "data": [
+            483.53616666666676,
+            676.9506333333335,
+            676.9506333333335,
+            676.9506333333335,
+            386.8289333333334
+          ],
+          "label": "Meta"
+        }
+      ],
+      "labels": [
+        "Semana 1",
+        "Semana 2",
+        "Semana 3",
+        "Semana 4",
+        "Semana 5"
+      ]
+    }
+  },
+  "textos": {
+    "cb-metas-colab": "−",
+    "cb-metas-semanal": "−",
+    "ch-metas-semanal": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "meta-novos-pct": "",
+    "meta-renov-pct": "",
+    "metas-base-label": "Base: 01/set/2025 – 30/set/2025",
+    "metas-colab-badge": "4 colaboradores",
+    "metas-colab-wrap": "ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 12.107,71R$ 1.466,7112.11%R$ 13.318,48R$ 1.613,3812.11%FERNANDO DE PAULA SERAFIMR$ 9.703,43R$ 1.772,2318.26%R$ 10.673,77R$ 1.949,4518.26%BRUNO TAVARESR$ 5.036,41R$ 659,4913.09%R$ 5.540,05R$ 725,4413.09%ANA CLARA MENDESR$ 1.043,33R$ 136,6513.10%R$ 1.147,66R$ 150,3213.10%Total geralR$ 27.890,88R$ 4.035,0814.47%R$ 30.679,97R$ 4.438,5914.47%",
+    "metas-equipe-cards": "Pessoais 2 ramos Meta PrêmioR$ 14.597,10 Meta ComissãoR$ 1.537,37 Base PrêmioR$ 13.270,09 Base ComissãoR$ 1.397,61 % Comissão10.53% Patrimoniais 3 ramos Meta PrêmioR$ 16.082,87 Meta ComissãoR$ 2.901,22 Base PrêmioR$ 14.620,79 Base ComissãoR$ 2.637,47 % Comissão18.04% Geral 5 ramos Meta PrêmioR$ 30.679,97 Meta ComissãoR$ 4.438,59 Base PrêmioR$ 27.890,88 Base ComissãoR$ 4.035,08 % Comissão14.47%",
+    "metas-excluidos-note": "Fora da contagem da meta (1): Transporte Nacional",
+    "metas-sem-mtd": "Prêmio Geral 88.67% R$ 27.202,91 / R$ 30.679,97 -R$ 3.477,06 Pessoais 97.85% R$ 14.282,59 / R$ 14.597,10 -R$ 314,51 Patrimoniais 80.34% R$ 12.920,32 / R$ 16.082,87 -R$ 3.162,55 Comissão Geral 99.03% R$ 4.395,32 / R$ 4.438,59 -R$ 43,27 Pessoais 150.90% R$ 2.319,90 / R$ 1.537,37 +R$ 782,53 Patrimoniais 71.54% R$ 2.075,42 / R$ 2.901,22 -R$ 825,80",
+    "metas-sem-table-wrap": "SemanaPeríodoDiasRealizadoMeta% metaAcum. real.Acum. meta% acum.Semana 101/09–05/095R$ 1.696,93R$ 483,54350.94%R$ 1.696,93R$ 483,54350.94%Semana 206/09–12/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.160,49146.23%Semana 313/09–19/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.837,4492.35%Semana 420/09–26/097R$ 378,49R$ 676,9555.91%R$ 2.075,42R$ 2.514,3982.54%Semana 527/09–30/094R$ 0,00R$ 386,830.00%R$ 2.075,42R$ 2.901,2271.54%Total Patrimoniais30R$ 2.075,42R$ 2.901,2271.54%R$ 2.075,42R$ 2.901,2271.54%",
+    "metas-semanal-badge": "5 semanas · Comissão",
+    "rec-badge": "12 registros",
+    "sb-metas-colab": "ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 12.107,71R$ 1.466,7112.11%R$ 13.318,48R$ 1.613,3812.11%FERNANDO DE PAULA SERAFIMR$ 9.703,43R$ 1.772,2318.26%R$ 10.673,77R$ 1.949,4518.26%BRUNO TAVARESR$ 5.036,41R$ 659,4913.09%R$ 5.540,05R$ 725,4413.09%ANA CLARA MENDESR$ 1.043,33R$ 136,6513.10%R$ 1.147,66R$ 150,3213.10%Total geralR$ 27.890,88R$ 4.035,0814.47%R$ 30.679,97R$ 4.438,5914.47%",
+    "sb-metas-semanal": "Prêmio Geral 88.67% R$ 27.202,91 / R$ 30.679,97 -R$ 3.477,06 Pessoais 97.85% R$ 14.282,59 / R$ 14.597,10 -R$ 314,51 Patrimoniais 80.34% R$ 12.920,32 / R$ 16.082,87 -R$ 3.162,55 Comissão Geral 99.03% R$ 4.395,32 / R$ 4.438,59 -R$ 43,27 Pessoais 150.90% R$ 2.319,90 / R$ 1.537,37 +R$ 782,53 Patrimoniais 71.54% R$ 2.075,42 / R$ 2.901,22 -R$ 825,80 SemanaPeríodoDiasRealizadoMeta% metaAcum. real.Acum. meta% acum.Semana 101/09–05/095R$ 1.696,93R$ 483,54350.94%R$ 1.696,93R$ 483,54350.94%Semana 206/09–12/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.160,49146.23%Semana 313/09–19/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.837,4492.35%Semana 420/09–26/097R$ 378,49R$ 676,9555.91%R$ 2.075,42R$ 2.514,3982.54%Semana 527/09–30/094R$ 0,00R$ 386,830.00%R$ 2.075,42R$ 2.901,2271.54%Total Patrimoniais30R$ 2.075,42R$ 2.901,2271.54%R$ 2.075,42R$ 2.901,2271.54%",
+    "sc-metas-colab": "Metas por colaborador 4 colaboradores Exportar Total Novos / Renovações − ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 12.107,71R$ 1.466,7112.11%R$ 13.318,48R$ 1.613,3812.11%FERNANDO DE PAULA SERAFIMR$ 9.703,43R$ 1.772,2318.26%R$ 10.673,77R$ 1.949,4518.26%BRUNO TAVARESR$ 5.036,41R$ 659,4913.09%R$ 5.540,05R$ 725,4413.09%ANA CLARA MENDESR$ 1.043,33R$ 136,6513.10%R$ 1.147,66R$ 150,3213.10%Total geralR$ 27.890,88R$ 4.035,0814.47%R$ 30.679,97R$ 4.438,5914.47%",
+    "sc-metas-semanal": "Acompanhamento semanal 5 semanas · Comissão ▶ Modo apresentação − Prêmio Geral 88.67% R$ 27.202,91 / R$ 30.679,97 -R$ 3.477,06 Pessoais 97.85% R$ 14.282,59 / R$ 14.597,10 -R$ 314,51 Patrimoniais 80.34% R$ 12.920,32 / R$ 16.082,87 -R$ 3.162,55 Comissão Geral 99.03% R$ 4.395,32 / R$ 4.438,59 -R$ 43,27 Pessoais 150.90% R$ 2.319,90 / R$ 1.537,37 +R$ 782,53 Patrimoniais 71.54% R$ 2.075,42 / R$ 2.901,22 -R$ 825,80 SemanaPeríodoDiasRealizadoMeta% metaAcum. real.Acum. meta% acum.Semana 101/09–05/095R$ 1.696,93R$ 483,54350.94%R$ 1.696,93R$ 483,54350.94%Semana 206/09–12/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.160,49146.23%Semana 313/09–19/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.837,4492.35%Semana 420/09–26/097R$ 378,49R$ 676,9555.91%R$ 2.075,42R$ 2.514,3982.54%Semana 527/09–30/094R$ 0,00R$ 386,830.00%R$ 2.075,42R$ 2.901,2271.54%Total Patrimoniais30R$ 2.075,42R$ 2.901,2271.54%R$ 2.075,42R$ 2.901,2271.54%",
+    "tab-metas": "% Meta — Novos % % Meta — Renovações % Base: 01/set/2025 – 30/set/2025 Metas por equipe Exportar Pessoais 2 ramos Meta PrêmioR$ 14.597,10 Meta ComissãoR$ 1.537,37 Base PrêmioR$ 13.270,09 Base ComissãoR$ 1.397,61 % Comissão10.53% Patrimoniais 3 ramos Meta PrêmioR$ 16.082,87 Meta ComissãoR$ 2.901,22 Base PrêmioR$ 14.620,79 Base ComissãoR$ 2.637,47 % Comissão18.04% Geral 5 ramos Meta PrêmioR$ 30.679,97 Meta ComissãoR$ 4.438,59 Base PrêmioR$ 27.890,88 Base ComissãoR$ 4.035,08 % Comissão14.47% Fora da contagem da meta (1): Transporte Nacional Acompanhamento semanal 5 semanas · Comissão ▶ Modo apresentação − Prêmio Geral 88.67% R$ 27.202,91 / R$ 30.679,97 -R$ 3.477,06 Pessoais 97.85% R$ 14.282,59 / R$ 14.597,10 -R$ 314,51 Patrimoniais 80.34% R$ 12.920,32 / R$ 16.082,87 -R$ 3.162,55 Comissão Geral 99.03% R$ 4.395,32 / R$ 4.438,59 -R$ 43,27 Pessoais 150.90% R$ 2.319,90 / R$ 1.537,37 +R$ 782,53 Patrimoniais 71.54% R$ 2.075,42 / R$ 2.901,22 -R$ 825,80 SemanaPeríodoDiasRealizadoMeta% metaAcum. real.Acum. meta% acum.Semana 101/09–05/095R$ 1.696,93R$ 483,54350.94%R$ 1.696,93R$ 483,54350.94%Semana 206/09–12/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.160,49146.23%Semana 313/09–19/097R$ 0,00R$ 676,950.00%R$ 1.696,93R$ 1.837,4492.35%Semana 420/09–26/097R$ 378,49R$ 676,9555.91%R$ 2.075,42R$ 2.514,3982.54%Semana 527/09–30/094R$ 0,00R$ 386,830.00%R$ 2.075,42R$ 2.901,2271.54%Total Patrimoniais30R$ 2.075,42R$ 2.901,2271.54%R$ 2.075,42R$ 2.901,2271.54% Metas por colaborador 4 colaboradores Exportar Total Novos / Renovações − ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 12.107,71R$ 1.466,7112.11%R$ 13.318,48R$ 1.613,3812.11%FERNANDO DE PAULA SERAFIMR$ 9.703,43R$ 1.772,2318.26%R$ 10.673,77R$ 1.949,4518.26%BRUNO TAVARESR$ 5.036,41R$ 659,4913.09%R$ 5.540,05R$ 725,4413.09%ANA CLARA MENDESR$ 1.043,33R$ 136,6513.10%R$ 1.147,66R$ 150,3213.10%Total geralR$ 27.890,88R$ 4.035,0814.47%R$ 30.679,97R$ 4.438,5914.47%",
+    "vt-metas-det": "",
+    "vt-metas-tot": ""
+  }
+}

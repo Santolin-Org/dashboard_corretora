@@ -1,0 +1,149 @@
+{
+  "graficos": {
+    "ch-cancel": {
+      "datasets": [
+        {
+          "data": [
+            3,
+            2,
+            1
+          ]
+        }
+      ],
+      "labels": [
+        "Troca de seguradora",
+        "Insatisfação com atendimento",
+        "Venda do bem"
+      ]
+    },
+    "ch-evolucao": {
+      "datasets": [
+        {
+          "data": [
+            34438.24,
+            17185.66,
+            32022.410000000003,
+            53489.02,
+            42490.840000000004,
+            47161.06999999999,
+            51434.86000000001,
+            24192.37,
+            35082.74,
+            0,
+            0,
+            0
+          ],
+          "label": "2026"
+        },
+        {
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "label": "2025"
+        }
+      ],
+      "labels": [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez"
+      ]
+    },
+    "ch-ramo": {
+      "datasets": [
+        {
+          "data": [
+            48252.05,
+            44292.49,
+            40613.66,
+            35521.87,
+            33874.9,
+            28985.2,
+            24773.26,
+            22362.11
+          ]
+        }
+      ],
+      "labels": [
+        "Vida",
+        "Comp. residencial",
+        "Viagem individual",
+        "Riscos diversos",
+        "Transporte nac.",
+        "Comp. empresarial",
+        "Auto — casco",
+        "RC geral"
+      ]
+    },
+    "ch-seg": {
+      "datasets": [
+        {
+          "data": [
+            74918.68,
+            72248.42,
+            52696.63999999999,
+            52279.94,
+            48588.01,
+            36765.52
+          ]
+        }
+      ],
+      "labels": [
+        "Bradesco Seguros",
+        "HDI Seguros",
+        "Mapfre",
+        "Tokio Marine",
+        "Allianz",
+        "Porto Seguro"
+      ]
+    }
+  },
+  "textos": {
+    "cancel-badge": "6 cancelamentos",
+    "cancel-cb-list": "Troca de seguradora3Insatisfação com atendimento2Venda do bem1",
+    "cancel-filter": "Filtrar motivos todos ▼ Troca de seguradora3Insatisfação com atendimento2Venda do bem1 Marcar todos Desmarcar todos",
+    "cancel-filter-arrow": "▼",
+    "cancel-filter-count": "todos",
+    "cancel-wrap": "",
+    "cb-Insatisfa__o_com_atendimento": "",
+    "cb-Troca_de_seguradora": "",
+    "cb-Venda_do_bem": "",
+    "ch-cancel": "",
+    "ch-evolucao": "",
+    "ch-ramo": "",
+    "ch-seg": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "kpi-grid": "Prêmio totalR$ 337.497,2197 apólicesComissão totalR$ 46.355,7213.74% do prêmioTicket médio: PrêmioR$ 3.971,7788 c/ prêmioTicket médio: ComissãoR$ 526,77por apóliceClientes únicos54na seleção atualVencendo em 30d0renovações pendentes",
+    "leg-cur": "2026",
+    "leg-prev": "2025",
+    "mt-evol-c": "",
+    "mt-evol-p": "",
+    "mt-ramo-c": "",
+    "mt-ramo-p": "",
+    "mt-seg-c": "",
+    "mt-seg-p": "",
+    "rec-badge": "97 registros",
+    "seg-legend": "Bradesco Seguros 22.20%HDI Seguros 21.41%Mapfre 15.61%Tokio Marine 15.49%Allianz 14.40%Porto Seguro 10.89%",
+    "tab-visao-geral": "Prêmio totalR$ 337.497,2197 apólicesComissão totalR$ 46.355,7213.74% do prêmioTicket médio: PrêmioR$ 3.971,7788 c/ prêmioTicket médio: ComissãoR$ 526,77por apóliceClientes únicos54na seleção atualVencendo em 30d0renovações pendentes Evolução mensal da produção 2026 2025 · barra inferior = variação % vs. ano anterior Prêmio Comissão novonovonovonovonovonovonovonovonovo——— Cancelamentos por motivo 6 cancelamentos Filtrar motivos todos ▼ Troca de seguradora3Insatisfação com atendimento2Venda do bem1 Marcar todos Desmarcar todos Concentração por seguradora Prêmio Comissão Bradesco Seguros 22.20%HDI Seguros 21.41%Mapfre 15.61%Tokio Marine 15.49%Allianz 14.40%Porto Seguro 10.89% Produção por ramo Prêmio Comissão",
+    "var-bar": "novonovonovonovonovonovonovonovonovo———"
+  }
+}

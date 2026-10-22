@@ -1,0 +1,33 @@
+{
+  "graficos": {
+    "ch-kickoff": {
+      "datasets": [
+        {
+          "data": [
+            19835.409,
+            2802.4480000000003
+          ],
+          "label": "Meta"
+        },
+        {
+          "data": [
+            739.91,
+            141.36
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "Prêmio",
+        "Comissão"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kickoff": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossosobjetivos Patrimoniais Acumulado do mês Outubro Outubro de 2026 Prêmio/25: R$ 18.032,19 Comissão/25: R$ 2.547,68 % Médio: 14.13%",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossosobjetivos Patrimoniais Acumulado do mês Outubro Outubro de 2026 Prêmio/25: R$ 18.032,19 Comissão/25: R$ 2.547,68 % Médio: 14.13% ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

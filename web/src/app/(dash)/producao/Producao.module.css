@@ -1,0 +1,79 @@
+/* styles.css: Period picker (.period-row, .period-tag, .pt-*, .period-legend) e .date-pair/.date-sep. */
+.datePair {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.dateSep {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.periodRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-base);
+}
+
+.periodTag {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  color: var(--text-primary);
+}
+
+.ptDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ptLabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ptRemove {
+  cursor: pointer;
+  color: var(--text-tertiary);
+  font-size: 14px;
+  line-height: 1;
+  margin-left: 2px;
+  transition: color .15s;
+}
+
+.ptRemove:hover {
+  color: var(--k-red);
+}
+
+.periodLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 16px 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.periodLegend span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════════════
+   TABLES
+   ══════════════════════════════════════════ */
+

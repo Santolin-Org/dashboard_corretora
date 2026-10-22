@@ -1,0 +1,407 @@
+/* Tokens e regras globais portados de styles.css (raiz do repositório).
+   Blocos de componente ficam no .module.css de cada componente; aqui ficam as variáveis,
+   o reset e as classes compartilhadas por várias abas (botões, toggles, cards de gráfico). */
+
+/* ═══════════════════════════════════════════════════
+   DESIGN SYSTEM — Deep Ledger
+   Dark-first, variable-driven, no media query overrides
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  /* Surfaces */
+  --bg-base: #0b0f18;
+  --bg-raised: #131928;
+  --bg-elevated: #1a2236;
+  --bg-input: #0f1520;
+  --header-bg: rgba(11, 15, 24, 0.88);
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.065);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-focus: #4E80FF;
+
+  /* Text */
+  --text-primary: #E4EAF8;
+  --text-secondary: #7888A8;
+  --text-tertiary: #3E4D68;
+  --text-inverse: #0b0f18;
+
+  /* Accent */
+  --accent: #4E80FF;
+  --accent-dim: rgba(78, 128, 255, 0.14);
+  --accent-glow: rgba(78, 128, 255, 0.22);
+
+  /* KPI accent colors */
+  --k-blue: #4E80FF;
+  --k-green: #2DD4A0;
+  --k-red: #FF5A5A;
+  --k-amber: #F5A623;
+  --k-purple: #A78BFA;
+  --k-teal: #22D3EE;
+
+  /* Semantic states */
+  --pos-bg: rgba(45, 212, 160, 0.11);
+  --pos-text: #2DD4A0;
+  --neg-bg: rgba(255, 90, 90, 0.11);
+  --neg-text: #FF8080;
+  --neu-bg: rgba(120, 136, 168, 0.09);
+  --neu-text: #7888A8;
+
+  /* Rank badges */
+  --rank-1-bg: rgba(245, 166, 35, 0.16);
+  --rank-1-text: #F5A623;
+  --rank-2-bg: rgba(78, 128, 255, 0.16);
+  --rank-2-text: #90AFFF;
+  --rank-3-bg: rgba(167, 139, 250, 0.16);
+  --rank-3-text: #A78BFA;
+
+  /* Shadows */
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+  --shadow-dropdown: 0 16px 40px rgba(0, 0, 0, 0.75), 0 0 0 1px var(--border-default);
+
+  /* Typography */
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-display: 'Syne', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Radius */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+
+  /* Layout */
+  --kpi-min-width: 158px;
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100vh;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+
+/* ── Botões e campos compartilhados ── */
+.btn-sm {
+  padding: 5px 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  transition: background .15s, border-color .15s;
+}
+
+.btn-sm:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+input[type=date] {
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  padding: 4px 8px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  outline: none;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+
+input[type=date]:focus {
+  border-color: var(--border-focus);
+}
+
+/* ── Toggles ── */
+.metric-toggle,
+.view-toggle {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.metric-toggle input[type=radio],
+.view-toggle input[type=radio] {
+  display: none;
+}
+
+.metric-toggle label,
+.view-toggle label {
+  padding: 3px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all .15s;
+  white-space: nowrap;
+}
+
+.metric-toggle label:hover,
+.view-toggle label:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+}
+
+.metric-toggle input:checked+label,
+.view-toggle input:checked+label {
+  background: var(--accent-dim);
+  border-color: rgba(78, 128, 255, 0.45);
+  color: #90AFFF;
+  font-weight: 600;
+}
+
+/* ── Tab panes ── */
+.tab-pane {
+  display: none;
+  padding: 16px 20px;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+
+/* ══════════════════════════════════════════
+   KPI CARDS
+   ══════════════════════════════════════════ */
+
+.kpi-grid {
+  display: grid;
+  /* auto-fit (não auto-fill) faz as colunas existentes esticarem pra preencher a
+     largura toda quando não há cards suficientes pra completar mais uma coluna. */
+  grid-template-columns: repeat(auto-fit, minmax(var(--kpi-min-width), 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* ══════════════════════════════════════════
+   CHARTS
+   ══════════════════════════════════════════ */
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.chart-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+}
+
+.chart-card.span2 {
+  grid-column: span 2;
+}
+
+.chart-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chart-top-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chart-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.1px;
+}
+
+.chart-badge {
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.leg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-right: 4px;
+  vertical-align: middle;
+  opacity: 0.9;
+}
+
+.cw {
+  position: relative;
+  width: 100%;
+}
+
+/* ══════════════════════════════════════════
+   MODO TV — esconde filtros para exibição passiva
+   ══════════════════════════════════════════ */
+
+body.tv-mode .filters,
+body.tv-mode .ret-filter-card,
+body.tv-mode .comp-filter-card,
+body.tv-mode .metas-inputs-bar {
+  display: none;
+}
+
+/* ══════════════════════════════════════════
+   TAB EMPTY STATE
+   ══════════════════════════════════════════ */
+
+.tab-no-data {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  padding: 48px 24px;
+  text-align: center;
+  gap: 8px;
+}
+
+.tab-no-data-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.tab-no-data-hint {
+  font-size: 13px;
+  color: var(--text-secondary);
+  max-width: 420px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════ */
+
+@media (max-width: 700px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-card.span2 {
+    grid-column: span 1;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ms-dropdown {
+    max-width: 260px;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-base: #f0f2f5;
+    --bg-raised: #ffffff;
+    --bg-elevated: #f8f9fa;
+    --bg-input: #e4e7eb;
+    --header-bg: rgba(255, 255, 255, 0.85);
+    --border-subtle: rgba(0, 0, 0, 0.08);
+    --border-default: rgba(0, 0, 0, 0.12);
+    --border-focus: #4E80FF;
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-tertiary: #6b7280;
+    --text-inverse: #ffffff;
+    --accent-dim: rgba(78, 128, 255, 0.1);
+    --pos-bg: rgba(45, 212, 160, 0.12);
+    --neg-bg: rgba(255, 90, 90, 0.12);
+    --neu-bg: rgba(120, 136, 168, 0.15);
+    --neu-text: #4b5563;
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 1px var(--border-subtle);
+    --shadow-dropdown: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 0 0 1px var(--border-default);
+  }
+}
+
+/* ── Painel de fontes de produção ───────────────────────────────────────────── */
+.src-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+
+.src-link:hover { text-decoration-style: solid; }
+
+.sp-error {
+  max-width: 520px;
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #E24B4A;
+  border-left-width: 3px;
+  border-radius: var(--r-md);
+  background: rgba(226, 75, 74, 0.08);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: left;
+}

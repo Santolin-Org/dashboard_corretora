@@ -1,0 +1,27 @@
+{
+  "graficos": {},
+  "textos": {
+    "cb-metas-colab": "−",
+    "cb-metas-semanal": "−",
+    "ch-metas-semanal": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "meta-novos-pct": "",
+    "meta-renov-pct": "",
+    "metas-base-label": "Base: 01/jan/2025 – 31/dez/2025",
+    "metas-colab-badge": "5 colaboradores",
+    "metas-colab-wrap": "ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 92.371,89R$ 11.239,4812.17%R$ 101.609,08R$ 12.363,4312.17%FERNANDO DE PAULA SERAFIMR$ 89.701,36R$ 13.256,1814.78%R$ 98.671,50R$ 14.581,8014.78%ANA CLARA MENDESR$ 49.300,47R$ 7.047,3314.29%R$ 54.230,52R$ 7.752,0614.29%BRUNO TAVARESR$ 43.957,69R$ 5.613,3012.77%R$ 48.353,46R$ 6.174,6312.77%DIOGO FARIASR$ 30.428,83R$ 3.681,5412.10%R$ 33.471,71R$ 4.049,6912.10%Total geralR$ 305.760,24R$ 40.837,8313.36%R$ 336.336,26R$ 44.921,6113.36%",
+    "metas-equipe-cards": "Pessoais 4 ramos Meta PrêmioR$ 135.964,05 Meta ComissãoR$ 16.498,52 Base PrêmioR$ 123.603,68 Base ComissãoR$ 14.998,65 % Comissão12.13% Patrimoniais 4 ramos Meta PrêmioR$ 200.372,22 Meta ComissãoR$ 28.423,10 Base PrêmioR$ 182.156,56 Base ComissãoR$ 25.839,18 % Comissão14.19% Geral 8 ramos Meta PrêmioR$ 336.336,26 Meta ComissãoR$ 44.921,61 Base PrêmioR$ 305.760,24 Base ComissãoR$ 40.837,83 % Comissão13.36%",
+    "metas-excluidos-note": "Fora da contagem da meta (3): Acidentes Pessoais · Seguro Viagem Individual · Transporte Nacional",
+    "metas-sem-mtd": "Selecione um período de vigência (ex.: o mês atual) para ver o acompanhamento semanal.",
+    "metas-sem-table-wrap": "",
+    "metas-semanal-badge": "",
+    "rec-badge": "0 registros",
+    "sb-metas-colab": "ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 92.371,89R$ 11.239,4812.17%R$ 101.609,08R$ 12.363,4312.17%FERNANDO DE PAULA SERAFIMR$ 89.701,36R$ 13.256,1814.78%R$ 98.671,50R$ 14.581,8014.78%ANA CLARA MENDESR$ 49.300,47R$ 7.047,3314.29%R$ 54.230,52R$ 7.752,0614.29%BRUNO TAVARESR$ 43.957,69R$ 5.613,3012.77%R$ 48.353,46R$ 6.174,6312.77%DIOGO FARIASR$ 30.428,83R$ 3.681,5412.10%R$ 33.471,71R$ 4.049,6912.10%Total geralR$ 305.760,24R$ 40.837,8313.36%R$ 336.336,26R$ 44.921,6113.36%",
+    "sb-metas-semanal": "Selecione um período de vigência (ex.: o mês atual) para ver o acompanhamento semanal.",
+    "sc-metas-colab": "Metas por colaborador 5 colaboradores Exportar Total Novos / Renovações − ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 92.371,89R$ 11.239,4812.17%R$ 101.609,08R$ 12.363,4312.17%FERNANDO DE PAULA SERAFIMR$ 89.701,36R$ 13.256,1814.78%R$ 98.671,50R$ 14.581,8014.78%ANA CLARA MENDESR$ 49.300,47R$ 7.047,3314.29%R$ 54.230,52R$ 7.752,0614.29%BRUNO TAVARESR$ 43.957,69R$ 5.613,3012.77%R$ 48.353,46R$ 6.174,6312.77%DIOGO FARIASR$ 30.428,83R$ 3.681,5412.10%R$ 33.471,71R$ 4.049,6912.10%Total geralR$ 305.760,24R$ 40.837,8313.36%R$ 336.336,26R$ 44.921,6113.36%",
+    "sc-metas-semanal": "Acompanhamento semanal ▶ Modo apresentação − Selecione um período de vigência (ex.: o mês atual) para ver o acompanhamento semanal.",
+    "tab-metas": "% Meta — Novos % % Meta — Renovações % Base: 01/jan/2025 – 31/dez/2025 Metas por equipe Exportar Pessoais 4 ramos Meta PrêmioR$ 135.964,05 Meta ComissãoR$ 16.498,52 Base PrêmioR$ 123.603,68 Base ComissãoR$ 14.998,65 % Comissão12.13% Patrimoniais 4 ramos Meta PrêmioR$ 200.372,22 Meta ComissãoR$ 28.423,10 Base PrêmioR$ 182.156,56 Base ComissãoR$ 25.839,18 % Comissão14.19% Geral 8 ramos Meta PrêmioR$ 336.336,26 Meta ComissãoR$ 44.921,61 Base PrêmioR$ 305.760,24 Base ComissãoR$ 40.837,83 % Comissão13.36% Fora da contagem da meta (3): Acidentes Pessoais · Seguro Viagem Individual · Transporte Nacional Acompanhamento semanal ▶ Modo apresentação − Selecione um período de vigência (ex.: o mês atual) para ver o acompanhamento semanal. Metas por colaborador 5 colaboradores Exportar Total Novos / Renovações − ColaboradorProd. AnteriorCom. Anterior% Com. Ant.Meta Prod.Meta Com.% Com. MetaCARLA NOGUEIRAR$ 92.371,89R$ 11.239,4812.17%R$ 101.609,08R$ 12.363,4312.17%FERNANDO DE PAULA SERAFIMR$ 89.701,36R$ 13.256,1814.78%R$ 98.671,50R$ 14.581,8014.78%ANA CLARA MENDESR$ 49.300,47R$ 7.047,3314.29%R$ 54.230,52R$ 7.752,0614.29%BRUNO TAVARESR$ 43.957,69R$ 5.613,3012.77%R$ 48.353,46R$ 6.174,6312.77%DIOGO FARIASR$ 30.428,83R$ 3.681,5412.10%R$ 33.471,71R$ 4.049,6912.10%Total geralR$ 305.760,24R$ 40.837,8313.36%R$ 336.336,26R$ 44.921,6113.36%",
+    "vt-metas-det": "",
+    "vt-metas-tot": ""
+  }
+}

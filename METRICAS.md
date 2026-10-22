@@ -46,6 +46,14 @@ Para isolar a apólice em si existe `isApolice(r)`: **sem número de endosso** *
 `TIPO DOCUMENTO = 'APÓLICE'`. Cruza as duas fontes porque elas divergem em
 registros legados.
 
+> **ENDOSSO "0" = sem endosso** (decisão de 22/10/2026). Nas exportações antigas do
+> ERP a apólice vem com `ENDOSSO = 0` em vez de vazio — 4.642 apólices em 2020,
+> 4.711 em 2021, 2.491 em 2022 e 203 em 2023. Tratar "0" como número de endosso
+> descartava essas apólices de toda métrica que usa `isApolice` (carteira por ano,
+> churn, taxa de renovação, cross-sell, troca de seguradora…). O dashboard novo
+> (`web/`) já aplica a regra; o `main.js` antigo **não** foi alterado e segue
+> subcontando 2020–2023.
+
 ---
 
 ## 2. Taxa de renovação (aba Comparativo)

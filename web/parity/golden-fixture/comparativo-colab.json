@@ -1,0 +1,112 @@
+{
+  "graficos": {
+    "ch-comp-main": {
+      "datasets": [
+        {
+          "data": [
+            3200,
+            825.75,
+            12711.400000000001,
+            0,
+            5414.06,
+            0,
+            6199.68,
+            0,
+            0,
+            0
+          ],
+          "label": "Atual — Prêmio Novo"
+        },
+        {
+          "data": [
+            8247.24,
+            4272.85,
+            0,
+            10184.529999999999,
+            0,
+            4641.92,
+            0,
+            6901.5,
+            0,
+            0
+          ],
+          "label": "Anterior — Prêmio Novo"
+        },
+        {
+          "data": [
+            -61.19914056096343,
+            -80.67449126461261,
+            100,
+            -100,
+            100,
+            -100,
+            100,
+            -100,
+            0,
+            0
+          ],
+          "label": "Variação %"
+        }
+      ],
+      "labels": [
+        "Jan/26",
+        "Fev/26",
+        "Mar/26",
+        "Abr/26",
+        "Mai/26",
+        "Jun/26",
+        "Jul/26",
+        "Ago/26",
+        "Set/26",
+        "Out/26"
+      ]
+    }
+  },
+  "textos": {
+    "cb-comp-chart": "−",
+    "cb-comp-kpis": "−",
+    "cb-comp-pivot": "−",
+    "cb-comp-rank": "−",
+    "ch-comp-main": "",
+    "cm-cn": "",
+    "cm-ct": "",
+    "cm-pn": "",
+    "cm-pt": "",
+    "cm-qn": "",
+    "cm-qt": "",
+    "comp-clear-period-btn": "↻ Seguir filtro global",
+    "comp-end": "",
+    "comp-kpis-grid": "Resultado do período Prêmio total ▲ 30.2% R$ 76.148,86 ant. R$ 58.507,00 · Δ +R$ 17.641,86 Comissão total ▲ 20.6% R$ 10.853,01 ant. R$ 8.998,17 · Δ +R$ 1.854,84 Apólices ▲ 5.3% 20 ant. 19 · Δ +1 Clientes únicos ▲ 8.3% 13 ant. 12 · Δ +1 Novo × Renovação Prêmio novo ▼ 20.1% R$ 28.350,89 ant. R$ 35.485,20 · Δ −R$ 7.134,31 Prêmio renovação ▲ 107.6% R$ 47.797,97 ant. R$ 23.021,80 · Δ +R$ 24.776,17 Taxa de renovação ▲ 24.4% 77.78% 7 renov. · 2 venc. · ant. 62.50% Mix novo ▼ 38.6% 37.23% ant. 60.65% · Δ −23.4 p.p. Eficiência & risco Ticket médio ▲ 23.6% R$ 3.807,44 ant. R$ 3.079,32 · Δ +R$ 728,13 Comissão média (%) ▼ 7.3% 14.25% ant. 15.38% · Δ −1.1 p.p. Taxa de churn ▼ 71.7% 23.08% 10 renov. ÷ 13 N+R ano ant. · ant. 81.48% Prêmio em risco ▼ 69.6% R$ 4.700,00 2 canc. · ant. R$ 15.464,31 · Δ −R$ 10.764,31 Cobertura Produtores ativos — 1 ant. 1 · Δ +0 Seguradoras ativas ▲ 50.0% 6 ant. 4 · Δ +2 Ramos ativos — 4 ant. 4 · Δ +0 Endossos (EN + ER) ▼ 50.0% 3 ant. 6 · Δ −3",
+    "comp-periodo-atual-tag": "Atual: 01/01/2026 → 15/10/2026",
+    "comp-periodo-prev-tag": "Anterior: 01/01/2025 → 15/10/2025",
+    "comp-pivot-bulk": "− Recolher + Expandir",
+    "comp-pivot-table": "Seguradora / Ramo 202420252026 Valor%Valor%Valor% ▾Porto SeguroR$ 27.249,6822.58%R$ 18.463,4727.03%R$ 19.850,0826.59%Seguro Viagem IndividualR$ 11.909,229.87%R$ 13.888,3220.33%R$ 18.150,0824.31%Compreensivo EmpresarialR$ 15.340,4612.71%R$ 4.575,156.70%R$ 0,000.00%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 1.700,002.28%▾HDI SegurosR$ 31.969,3326.49%R$ 19.944,4929.20%R$ 2.596,363.48%Compreensivo EmpresarialR$ 17.249,7314.29%R$ 11.266,6416.50%R$ 0,000.00%Seguro Viagem IndividualR$ 14.719,6012.20%R$ 8.677,8512.71%R$ 2.596,363.48%▾MapfreR$ 21.332,5817.68%R$ 15.236,7822.31%R$ 8.962,1512.01%Compreensivo EmpresarialR$ 4.906,614.07%R$ 14.298,2120.93%R$ 8.136,4010.90%Seguro Viagem IndividualR$ 16.425,9713.61%R$ 938,571.37%R$ 825,751.11%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾Bradesco SegurosR$ 13.351,3211.06%R$ 12.492,5818.29%R$ 13.468,1118.04%Compreensivo EmpresarialR$ 4.442,573.68%R$ 13.357,9219.56%R$ 9.994,2213.39%Seguro Viagem IndividualR$ 8.908,757.38%-R$ 2.465,34-3.61%R$ 3.473,894.65%Compreensivo ResidencialR$ 0,000.00%R$ 1.600,002.34%R$ 0,000.00%▾Tokio MarineR$ 9.744,928.07%R$ 0,000.00%R$ 28.102,5137.65%Compreensivo EmpresarialR$ 9.744,928.07%R$ 0,000.00%R$ 10.854,5814.54%Seguro Viagem IndividualR$ 0,000.00%R$ 0,000.00%R$ 13.897,9318.62%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 3.350,004.49%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾AllianzR$ 17.038,7614.12%R$ 2.163,633.17%R$ 1.669,652.24%Seguro Viagem IndividualR$ 15.049,3912.47%R$ 2.163,633.17%R$ 1.669,652.24%Compreensivo EmpresarialR$ 1.989,371.65%R$ 0,000.00%R$ 0,000.00%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%Total geralR$ 120.686,59100.00%R$ 68.300,95100.00%R$ 74.648,86100.00%",
+    "comp-pivot-wrap": "Seguradora / Ramo 202420252026 Valor%Valor%Valor% ▾Porto SeguroR$ 27.249,6822.58%R$ 18.463,4727.03%R$ 19.850,0826.59%Seguro Viagem IndividualR$ 11.909,229.87%R$ 13.888,3220.33%R$ 18.150,0824.31%Compreensivo EmpresarialR$ 15.340,4612.71%R$ 4.575,156.70%R$ 0,000.00%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 1.700,002.28%▾HDI SegurosR$ 31.969,3326.49%R$ 19.944,4929.20%R$ 2.596,363.48%Compreensivo EmpresarialR$ 17.249,7314.29%R$ 11.266,6416.50%R$ 0,000.00%Seguro Viagem IndividualR$ 14.719,6012.20%R$ 8.677,8512.71%R$ 2.596,363.48%▾MapfreR$ 21.332,5817.68%R$ 15.236,7822.31%R$ 8.962,1512.01%Compreensivo EmpresarialR$ 4.906,614.07%R$ 14.298,2120.93%R$ 8.136,4010.90%Seguro Viagem IndividualR$ 16.425,9713.61%R$ 938,571.37%R$ 825,751.11%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾Bradesco SegurosR$ 13.351,3211.06%R$ 12.492,5818.29%R$ 13.468,1118.04%Compreensivo EmpresarialR$ 4.442,573.68%R$ 13.357,9219.56%R$ 9.994,2213.39%Seguro Viagem IndividualR$ 8.908,757.38%-R$ 2.465,34-3.61%R$ 3.473,894.65%Compreensivo ResidencialR$ 0,000.00%R$ 1.600,002.34%R$ 0,000.00%▾Tokio MarineR$ 9.744,928.07%R$ 0,000.00%R$ 28.102,5137.65%Compreensivo EmpresarialR$ 9.744,928.07%R$ 0,000.00%R$ 10.854,5814.54%Seguro Viagem IndividualR$ 0,000.00%R$ 0,000.00%R$ 13.897,9318.62%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 3.350,004.49%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾AllianzR$ 17.038,7614.12%R$ 2.163,633.17%R$ 1.669,652.24%Seguro Viagem IndividualR$ 15.049,3912.47%R$ 2.163,633.17%R$ 1.669,652.24%Compreensivo EmpresarialR$ 1.989,371.65%R$ 0,000.00%R$ 0,000.00%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%Total geralR$ 120.686,59100.00%R$ 68.300,95100.00%R$ 74.648,86100.00%",
+    "comp-rank-counter": "",
+    "comp-rank-table": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2%",
+    "comp-rank-wrap": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2%",
+    "comp-scope-chips": "ANA CLARA MENDES",
+    "comp-start": "",
+    "crd-colab": "",
+    "crd-ramo": "",
+    "crd-seg": "",
+    "crm-com": "",
+    "crm-premio": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "mt-comp-pivot-c": "",
+    "mt-comp-pivot-p": "",
+    "rec-badge": "88 registros",
+    "sb-comp-chart": "",
+    "sb-comp-kpis": "Resultado do período Prêmio total ▲ 30.2% R$ 76.148,86 ant. R$ 58.507,00 · Δ +R$ 17.641,86 Comissão total ▲ 20.6% R$ 10.853,01 ant. R$ 8.998,17 · Δ +R$ 1.854,84 Apólices ▲ 5.3% 20 ant. 19 · Δ +1 Clientes únicos ▲ 8.3% 13 ant. 12 · Δ +1 Novo × Renovação Prêmio novo ▼ 20.1% R$ 28.350,89 ant. R$ 35.485,20 · Δ −R$ 7.134,31 Prêmio renovação ▲ 107.6% R$ 47.797,97 ant. R$ 23.021,80 · Δ +R$ 24.776,17 Taxa de renovação ▲ 24.4% 77.78% 7 renov. · 2 venc. · ant. 62.50% Mix novo ▼ 38.6% 37.23% ant. 60.65% · Δ −23.4 p.p. Eficiência & risco Ticket médio ▲ 23.6% R$ 3.807,44 ant. R$ 3.079,32 · Δ +R$ 728,13 Comissão média (%) ▼ 7.3% 14.25% ant. 15.38% · Δ −1.1 p.p. Taxa de churn ▼ 71.7% 23.08% 10 renov. ÷ 13 N+R ano ant. · ant. 81.48% Prêmio em risco ▼ 69.6% R$ 4.700,00 2 canc. · ant. R$ 15.464,31 · Δ −R$ 10.764,31 Cobertura Produtores ativos — 1 ant. 1 · Δ +0 Seguradoras ativas ▲ 50.0% 6 ant. 4 · Δ +2 Ramos ativos — 4 ant. 4 · Δ +0 Endossos (EN + ER) ▼ 50.0% 3 ant. 6 · Δ −3",
+    "sb-comp-pivot": "Seguradora / Ramo 202420252026 Valor%Valor%Valor% ▾Porto SeguroR$ 27.249,6822.58%R$ 18.463,4727.03%R$ 19.850,0826.59%Seguro Viagem IndividualR$ 11.909,229.87%R$ 13.888,3220.33%R$ 18.150,0824.31%Compreensivo EmpresarialR$ 15.340,4612.71%R$ 4.575,156.70%R$ 0,000.00%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 1.700,002.28%▾HDI SegurosR$ 31.969,3326.49%R$ 19.944,4929.20%R$ 2.596,363.48%Compreensivo EmpresarialR$ 17.249,7314.29%R$ 11.266,6416.50%R$ 0,000.00%Seguro Viagem IndividualR$ 14.719,6012.20%R$ 8.677,8512.71%R$ 2.596,363.48%▾MapfreR$ 21.332,5817.68%R$ 15.236,7822.31%R$ 8.962,1512.01%Compreensivo EmpresarialR$ 4.906,614.07%R$ 14.298,2120.93%R$ 8.136,4010.90%Seguro Viagem IndividualR$ 16.425,9713.61%R$ 938,571.37%R$ 825,751.11%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾Bradesco SegurosR$ 13.351,3211.06%R$ 12.492,5818.29%R$ 13.468,1118.04%Compreensivo EmpresarialR$ 4.442,573.68%R$ 13.357,9219.56%R$ 9.994,2213.39%Seguro Viagem IndividualR$ 8.908,757.38%-R$ 2.465,34-3.61%R$ 3.473,894.65%Compreensivo ResidencialR$ 0,000.00%R$ 1.600,002.34%R$ 0,000.00%▾Tokio MarineR$ 9.744,928.07%R$ 0,000.00%R$ 28.102,5137.65%Compreensivo EmpresarialR$ 9.744,928.07%R$ 0,000.00%R$ 10.854,5814.54%Seguro Viagem IndividualR$ 0,000.00%R$ 0,000.00%R$ 13.897,9318.62%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 3.350,004.49%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾AllianzR$ 17.038,7614.12%R$ 2.163,633.17%R$ 1.669,652.24%Seguro Viagem IndividualR$ 15.049,3912.47%R$ 2.163,633.17%R$ 1.669,652.24%Compreensivo EmpresarialR$ 1.989,371.65%R$ 0,000.00%R$ 0,000.00%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%Total geralR$ 120.686,59100.00%R$ 68.300,95100.00%R$ 74.648,86100.00%",
+    "sb-comp-rank": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2%",
+    "sc-comp-chart": "Evolução mensal comparativa Período atual Período anterior Variação % Prêmio Novo Prêmio Total Com. Nova Com. Total Qtd Nova Qtd Total −",
+    "sc-comp-kpis": "Indicadores complementares − Resultado do período Prêmio total ▲ 30.2% R$ 76.148,86 ant. R$ 58.507,00 · Δ +R$ 17.641,86 Comissão total ▲ 20.6% R$ 10.853,01 ant. R$ 8.998,17 · Δ +R$ 1.854,84 Apólices ▲ 5.3% 20 ant. 19 · Δ +1 Clientes únicos ▲ 8.3% 13 ant. 12 · Δ +1 Novo × Renovação Prêmio novo ▼ 20.1% R$ 28.350,89 ant. R$ 35.485,20 · Δ −R$ 7.134,31 Prêmio renovação ▲ 107.6% R$ 47.797,97 ant. R$ 23.021,80 · Δ +R$ 24.776,17 Taxa de renovação ▲ 24.4% 77.78% 7 renov. · 2 venc. · ant. 62.50% Mix novo ▼ 38.6% 37.23% ant. 60.65% · Δ −23.4 p.p. Eficiência & risco Ticket médio ▲ 23.6% R$ 3.807,44 ant. R$ 3.079,32 · Δ +R$ 728,13 Comissão média (%) ▼ 7.3% 14.25% ant. 15.38% · Δ −1.1 p.p. Taxa de churn ▼ 71.7% 23.08% 10 renov. ÷ 13 N+R ano ant. · ant. 81.48% Prêmio em risco ▼ 69.6% R$ 4.700,00 2 canc. · ant. R$ 15.464,31 · Δ −R$ 10.764,31 Cobertura Produtores ativos — 1 ant. 1 · Δ +0 Seguradoras ativas ▲ 50.0% 6 ant. 4 · Δ +2 Ramos ativos — 4 ant. 4 · Δ +0 Endossos (EN + ER) ▼ 50.0% 3 ant. 6 · Δ −3",
+    "sc-comp-pivot": "Comparativo por seguradora e ramo Seguradora Ramo Seguradora + ramo − Recolher + Expandir Prêmio líquido Comissão ↑ Exportar − Seguradora / Ramo 202420252026 Valor%Valor%Valor% ▾Porto SeguroR$ 27.249,6822.58%R$ 18.463,4727.03%R$ 19.850,0826.59%Seguro Viagem IndividualR$ 11.909,229.87%R$ 13.888,3220.33%R$ 18.150,0824.31%Compreensivo EmpresarialR$ 15.340,4612.71%R$ 4.575,156.70%R$ 0,000.00%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 1.700,002.28%▾HDI SegurosR$ 31.969,3326.49%R$ 19.944,4929.20%R$ 2.596,363.48%Compreensivo EmpresarialR$ 17.249,7314.29%R$ 11.266,6416.50%R$ 0,000.00%Seguro Viagem IndividualR$ 14.719,6012.20%R$ 8.677,8512.71%R$ 2.596,363.48%▾MapfreR$ 21.332,5817.68%R$ 15.236,7822.31%R$ 8.962,1512.01%Compreensivo EmpresarialR$ 4.906,614.07%R$ 14.298,2120.93%R$ 8.136,4010.90%Seguro Viagem IndividualR$ 16.425,9713.61%R$ 938,571.37%R$ 825,751.11%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾Bradesco SegurosR$ 13.351,3211.06%R$ 12.492,5818.29%R$ 13.468,1118.04%Compreensivo EmpresarialR$ 4.442,573.68%R$ 13.357,9219.56%R$ 9.994,2213.39%Seguro Viagem IndividualR$ 8.908,757.38%-R$ 2.465,34-3.61%R$ 3.473,894.65%Compreensivo ResidencialR$ 0,000.00%R$ 1.600,002.34%R$ 0,000.00%▾Tokio MarineR$ 9.744,928.07%R$ 0,000.00%R$ 28.102,5137.65%Compreensivo EmpresarialR$ 9.744,928.07%R$ 0,000.00%R$ 10.854,5814.54%Seguro Viagem IndividualR$ 0,000.00%R$ 0,000.00%R$ 13.897,9318.62%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 3.350,004.49%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾AllianzR$ 17.038,7614.12%R$ 2.163,633.17%R$ 1.669,652.24%Seguro Viagem IndividualR$ 15.049,3912.47%R$ 2.163,633.17%R$ 1.669,652.24%Compreensivo EmpresarialR$ 1.989,371.65%R$ 0,000.00%R$ 0,000.00%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%Total geralR$ 120.686,59100.00%R$ 68.300,95100.00%R$ 74.648,86100.00%",
+    "sc-comp-rank": "Maiores variações Produtor Seguradora Ramo Prêmio Comissão − Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2%",
+    "tab-comparativo": "Período atual — início de vigência → Comparar ↻ Seguir filtro global Atual: 01/01/2026 → 15/10/2026 vs. Anterior: 01/01/2025 → 15/10/2025 ANA CLARA MENDES Evolução mensal comparativa Período atual Período anterior Variação % Prêmio Novo Prêmio Total Com. Nova Com. Total Qtd Nova Qtd Total − Indicadores complementares − Resultado do período Prêmio total ▲ 30.2% R$ 76.148,86 ant. R$ 58.507,00 · Δ +R$ 17.641,86 Comissão total ▲ 20.6% R$ 10.853,01 ant. R$ 8.998,17 · Δ +R$ 1.854,84 Apólices ▲ 5.3% 20 ant. 19 · Δ +1 Clientes únicos ▲ 8.3% 13 ant. 12 · Δ +1 Novo × Renovação Prêmio novo ▼ 20.1% R$ 28.350,89 ant. R$ 35.485,20 · Δ −R$ 7.134,31 Prêmio renovação ▲ 107.6% R$ 47.797,97 ant. R$ 23.021,80 · Δ +R$ 24.776,17 Taxa de renovação ▲ 24.4% 77.78% 7 renov. · 2 venc. · ant. 62.50% Mix novo ▼ 38.6% 37.23% ant. 60.65% · Δ −23.4 p.p. Eficiência & risco Ticket médio ▲ 23.6% R$ 3.807,44 ant. R$ 3.079,32 · Δ +R$ 728,13 Comissão média (%) ▼ 7.3% 14.25% ant. 15.38% · Δ −1.1 p.p. Taxa de churn ▼ 71.7% 23.08% 10 renov. ÷ 13 N+R ano ant. · ant. 81.48% Prêmio em risco ▼ 69.6% R$ 4.700,00 2 canc. · ant. R$ 15.464,31 · Δ −R$ 10.764,31 Cobertura Produtores ativos — 1 ant. 1 · Δ +0 Seguradoras ativas ▲ 50.0% 6 ant. 4 · Δ +2 Ramos ativos — 4 ant. 4 · Δ +0 Endossos (EN + ER) ▼ 50.0% 3 ant. 6 · Δ −3 Comparativo por seguradora e ramo Seguradora Ramo Seguradora + ramo − Recolher + Expandir Prêmio líquido Comissão ↑ Exportar − Seguradora / Ramo 202420252026 Valor%Valor%Valor% ▾Porto SeguroR$ 27.249,6822.58%R$ 18.463,4727.03%R$ 19.850,0826.59%Seguro Viagem IndividualR$ 11.909,229.87%R$ 13.888,3220.33%R$ 18.150,0824.31%Compreensivo EmpresarialR$ 15.340,4612.71%R$ 4.575,156.70%R$ 0,000.00%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 1.700,002.28%▾HDI SegurosR$ 31.969,3326.49%R$ 19.944,4929.20%R$ 2.596,363.48%Compreensivo EmpresarialR$ 17.249,7314.29%R$ 11.266,6416.50%R$ 0,000.00%Seguro Viagem IndividualR$ 14.719,6012.20%R$ 8.677,8512.71%R$ 2.596,363.48%▾MapfreR$ 21.332,5817.68%R$ 15.236,7822.31%R$ 8.962,1512.01%Compreensivo EmpresarialR$ 4.906,614.07%R$ 14.298,2120.93%R$ 8.136,4010.90%Seguro Viagem IndividualR$ 16.425,9713.61%R$ 938,571.37%R$ 825,751.11%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾Bradesco SegurosR$ 13.351,3211.06%R$ 12.492,5818.29%R$ 13.468,1118.04%Compreensivo EmpresarialR$ 4.442,573.68%R$ 13.357,9219.56%R$ 9.994,2213.39%Seguro Viagem IndividualR$ 8.908,757.38%-R$ 2.465,34-3.61%R$ 3.473,894.65%Compreensivo ResidencialR$ 0,000.00%R$ 1.600,002.34%R$ 0,000.00%▾Tokio MarineR$ 9.744,928.07%R$ 0,000.00%R$ 28.102,5137.65%Compreensivo EmpresarialR$ 9.744,928.07%R$ 0,000.00%R$ 10.854,5814.54%Seguro Viagem IndividualR$ 0,000.00%R$ 0,000.00%R$ 13.897,9318.62%Automóvel - CascoR$ 0,000.00%R$ 0,000.00%R$ 3.350,004.49%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%▾AllianzR$ 17.038,7614.12%R$ 2.163,633.17%R$ 1.669,652.24%Seguro Viagem IndividualR$ 15.049,3912.47%R$ 2.163,633.17%R$ 1.669,652.24%Compreensivo EmpresarialR$ 1.989,371.65%R$ 0,000.00%R$ 0,000.00%SaúdeR$ 0,000.00%R$ 0,000.00%R$ 0,000.00%Total geralR$ 120.686,59100.00%R$ 68.300,95100.00%R$ 74.648,86100.00% Maiores variações Produtor Seguradora Ramo Prêmio Comissão − Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2%",
+    "vw-comp-pivot-a": "",
+    "vw-comp-pivot-r": "",
+    "vw-comp-pivot-s": ""
+  }
+}

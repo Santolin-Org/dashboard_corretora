@@ -1,0 +1,126 @@
+{
+  "graficos": {
+    "ch-ret-cancel": {
+      "datasets": [
+        {
+          "data": [
+            1
+          ]
+        }
+      ],
+      "labels": [
+        "Insatisfação com atendimento"
+      ]
+    },
+    "ch-ret-evolucao": {
+      "datasets": [
+        {
+          "data": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "label": "Canceladas"
+        },
+        {
+          "data": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ],
+          "label": "Vencidas"
+        }
+      ],
+      "labels": [
+        "Jan/26",
+        "Fev/26",
+        "Mar/26",
+        "Abr/26",
+        "Mai/26",
+        "Jun/26",
+        "Jul/26",
+        "Ago/26",
+        "Set/26",
+        "Out/26"
+      ]
+    }
+  },
+  "textos": {
+    "cb-ret-charts": "−",
+    "cb-ret-detail": "−",
+    "cb-ret-kpis": "−",
+    "cb-ret-prod": "−",
+    "ch-ret-cancel": "",
+    "ch-ret-evolucao": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "ms-col-ANA_CLARA_MENDES": "",
+    "ms-col-BRUNO_TAVARES": "",
+    "ms-col-CARLA_NOGUEIRA": "",
+    "ms-col-DIOGO_FARIAS": "",
+    "ms-col-FERNANDO_DE_PAULA_SERAFIM": "",
+    "ms-grp-Corretora": "",
+    "ms-grp-Parcerias": "",
+    "ms-grp-Santolin_360": "",
+    "ms-mot-Falta_de_pagamento": "",
+    "ms-mot-Insatisfa__o_com_atendimento": "",
+    "ms-mot-N_o_informado": "",
+    "ms-mot-Pre_o": "",
+    "ms-mot-Troca_de_seguradora": "",
+    "ms-mot-Venda_do_bem": "",
+    "ms-ram-Autom_vel___Casco": "",
+    "ms-ram-Compreensivo_Empresarial": "",
+    "ms-ram-Compreensivo_Residencial": "",
+    "ms-ram-Responsabilidade_Civil_Geral": "",
+    "ms-ram-Riscos_Diversos": "",
+    "ms-ram-Sa_de": "",
+    "ms-ram-Vida": "",
+    "ms-ram-Vida_em_Grupo": "",
+    "ms-ret-col": "CARLA NOGUEIRA▼ANA CLARA MENDESBRUNO TAVARESCARLA NOGUEIRADIOGO FARIASFERNANDO DE PAULA SERAFIMMarcar todosLimpar",
+    "ms-ret-grp": "Todos▼CorretoraParceriasSantolin 360Marcar todosLimpar",
+    "ms-ret-mot": "Todos▼Falta de pagamentoInsatisfação com atendimentoNão informadoPreçoTroca de seguradoraVenda do bemMarcar todosLimpar",
+    "ms-ret-ram": "Responsabilidade Civil Geral▼Automóvel - CascoCompreensivo EmpresarialCompreensivo ResidencialResponsabilidade Civil GeralRiscos DiversosSaúdeVidaVida em GrupoMarcar todosLimpar",
+    "rec-badge": "0 registros",
+    "ret-cancel-badge": "1 cancelamentos",
+    "ret-cancel-wrap": "",
+    "ret-detail-badge": "3 perdidas",
+    "ret-detail-pagination": "1–3 de 3 ← Anterior Página 1 de 1 Próxima →",
+    "ret-detail-wrap": "Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Gama Almeida 38 Responsabilidade civil geral Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 8.732,21 R$ 961,28 2025-02-24 2026-02-24 Renovação Lambda Almeida 8 Responsabilidade civil geral Porto Seguro CARLA NOGUEIRA Cancelada Insatisfação com atendimento R$ 8.233,68 R$ 738,12 2025-09-17 2026-01-19",
+    "ret-evitavel-btn": "Só evitável",
+    "ret-filter-all-btn": "Todas",
+    "ret-filter-canc-btn": "Canceladas",
+    "ret-filter-venc-btn": "Vencidas",
+    "ret-kpi-badge": "01/01/2026 a 15/10/2026 · só evitável",
+    "ret-kpi-grid": "Base do períodoApólices na base9em vigor no período · 6 retidasPrêmio na baseR$ 45.545,64apólices, sem endossosComissão na baseR$ 5.513,26apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens33.33%3 perdidas (1 canc. + 2 não renov.) · 33.33% com todos (fora: 0 pelo motivo, 0 trocas de seguradora)Churn — Prêmio58.75%R$ 26.756,03 perdidoChurn — Comissão49.96%R$ 2.754,56 perdidaNão renovadas no período2R$ 18.522,35 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens11.11%1 canceladas no períodoCancelamento — Prêmio18.08%R$ 8.233,68 canceladoCancelamento — Comissão13.39%R$ 738,12 cancelada",
+    "ret-per-e": "",
+    "ret-per-s": "",
+    "ret-prod-badge": "1 colaboradors",
+    "ret-prod-table-wrap": "Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas CARLA NOGUEIRA 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2 Total 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2",
+    "ret-tipo-N": "N — Novo",
+    "ret-tipo-R": "R — Renovação",
+    "sb-ret-charts": "Cancelamentos por motivo1 cancelamentos Evolução mensal — cancelamentos vs. vencimentos Canceladas Vencidas (não renovadas)",
+    "sb-ret-detail": "Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Gama Almeida 38 Responsabilidade civil geral Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 8.732,21 R$ 961,28 2025-02-24 2026-02-24 Renovação Lambda Almeida 8 Responsabilidade civil geral Porto Seguro CARLA NOGUEIRA Cancelada Insatisfação com atendimento R$ 8.233,68 R$ 738,12 2025-09-17 2026-01-19 1–3 de 3 ← Anterior Página 1 de 1 Próxima →",
+    "sb-ret-kpis": "Base do períodoApólices na base9em vigor no período · 6 retidasPrêmio na baseR$ 45.545,64apólices, sem endossosComissão na baseR$ 5.513,26apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens33.33%3 perdidas (1 canc. + 2 não renov.) · 33.33% com todos (fora: 0 pelo motivo, 0 trocas de seguradora)Churn — Prêmio58.75%R$ 26.756,03 perdidoChurn — Comissão49.96%R$ 2.754,56 perdidaNão renovadas no período2R$ 18.522,35 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens11.11%1 canceladas no períodoCancelamento — Prêmio18.08%R$ 8.233,68 canceladoCancelamento — Comissão13.39%R$ 738,12 cancelada",
+    "sb-ret-prod": "Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas CARLA NOGUEIRA 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2 Total 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2",
+    "sc-ret-charts": "Análise de cancelamentos − Cancelamentos por motivo1 cancelamentos Evolução mensal — cancelamentos vs. vencimentos Canceladas Vencidas (não renovadas)",
+    "sc-ret-detail": "Detalhe apólice a apólice 3 perdidas Exportar Todas Canceladas Vencidas − Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Gama Almeida 38 Responsabilidade civil geral Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 8.732,21 R$ 961,28 2025-02-24 2026-02-24 Renovação Lambda Almeida 8 Responsabilidade civil geral Porto Seguro CARLA NOGUEIRA Cancelada Insatisfação com atendimento R$ 8.233,68 R$ 738,12 2025-09-17 2026-01-19 1–3 de 3 ← Anterior Página 1 de 1 Próxima →",
+    "sc-ret-kpis": "Indicadores de churn 01/01/2026 a 15/10/2026 · só evitável − Base do períodoApólices na base9em vigor no período · 6 retidasPrêmio na baseR$ 45.545,64apólices, sem endossosComissão na baseR$ 5.513,26apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens33.33%3 perdidas (1 canc. + 2 não renov.) · 33.33% com todos (fora: 0 pelo motivo, 0 trocas de seguradora)Churn — Prêmio58.75%R$ 26.756,03 perdidoChurn — Comissão49.96%R$ 2.754,56 perdidaNão renovadas no período2R$ 18.522,35 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens11.11%1 canceladas no períodoCancelamento — Prêmio18.08%R$ 8.233,68 canceladoCancelamento — Comissão13.39%R$ 738,12 cancelada",
+    "sc-ret-prod": "Churn por produtor 1 colaboradors Exportar Colaborador Grupo − Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas CARLA NOGUEIRA 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2 Total 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2",
+    "tab-retencao": "Filtros desta aba Período de análise → Colaborador CARLA NOGUEIRA▼ANA CLARA MENDESBRUNO TAVARESCARLA NOGUEIRADIOGO FARIASFERNANDO DE PAULA SERAFIMMarcar todosLimpar Ramo Responsabilidade Civil Geral▼Automóvel - CascoCompreensivo EmpresarialCompreensivo ResidencialResponsabilidade Civil GeralRiscos DiversosSaúdeVidaVida em GrupoMarcar todosLimpar Grupo de produção Todos▼CorretoraParceriasSantolin 360Marcar todosLimpar Motivo cancelamento Todos▼Falta de pagamentoInsatisfação com atendimentoNão informadoPreçoTroca de seguradoraVenda do bemMarcar todosLimpar Tipo R — Renovação N — Novo Churn Só evitável ↻ Limpar Indicadores de churn 01/01/2026 a 15/10/2026 · só evitável − Base do períodoApólices na base9em vigor no período · 6 retidasPrêmio na baseR$ 45.545,64apólices, sem endossosComissão na baseR$ 5.513,26apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens33.33%3 perdidas (1 canc. + 2 não renov.) · 33.33% com todos (fora: 0 pelo motivo, 0 trocas de seguradora)Churn — Prêmio58.75%R$ 26.756,03 perdidoChurn — Comissão49.96%R$ 2.754,56 perdidaNão renovadas no período2R$ 18.522,35 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens11.11%1 canceladas no períodoCancelamento — Prêmio18.08%R$ 8.233,68 canceladoCancelamento — Comissão13.39%R$ 738,12 cancelada Análise de cancelamentos − Cancelamentos por motivo1 cancelamentos Evolução mensal — cancelamentos vs. vencimentos Canceladas Vencidas (não renovadas) Churn por produtor 1 colaboradors Exportar Colaborador Grupo − Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas CARLA NOGUEIRA 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2 Total 9 3 33.33% R$ 45.545,64 R$ 26.756,03 58.75% R$ 2.754,56 49.96% 1 11.11% 2 Detalhe apólice a apólice 3 perdidas Exportar Todas Canceladas Vencidas − Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Gama Almeida 38 Responsabilidade civil geral Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 8.732,21 R$ 961,28 2025-02-24 2026-02-24 Renovação Lambda Almeida 8 Responsabilidade civil geral Porto Seguro CARLA NOGUEIRA Cancelada Insatisfação com atendimento R$ 8.233,68 R$ 738,12 2025-09-17 2026-01-19 1–3 de 3 ← Anterior Página 1 de 1 Próxima →",
+    "vt-ret-colab": "",
+    "vt-ret-grp": ""
+  }
+}

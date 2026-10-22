@@ -16,3 +16,6 @@ conversor_ghl/
 .gitignore
 
 # (Permanecem publicados: index.html, auth.html, main.js, styles.css)
+
+# App Next.js novo — projeto Vercel próprio
+web/

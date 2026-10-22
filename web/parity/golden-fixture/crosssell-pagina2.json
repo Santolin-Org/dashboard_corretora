@@ -1,0 +1,65 @@
+{
+  "graficos": {
+    "ch-cross-nivel": {
+      "datasets": [
+        {
+          "data": [
+            29,
+            13,
+            3,
+            0
+          ]
+        }
+      ],
+      "labels": [
+        "Nível 1 — Essencial",
+        "Nível 2 — Ampliada",
+        "Nível 3 — Avançada",
+        "Nível 4 — Plena"
+      ]
+    }
+  },
+  "textos": {
+    "cb-cross-campanha": "−",
+    "cb-cross-table": "−",
+    "ch-cross-nivel": "",
+    "cp-pf": "",
+    "cp-pj": "",
+    "cpm-opp": "",
+    "cpm-pen": "",
+    "cross-campanha-wrap": "Apólices vendidas 25 / 180 Fase 1120Fase 2150Fase 3180 Nenhuma fase concluída ainda Comissão gerada R$ 16.413,63 / R$ 115.000,00 Fase 1R$ 77.000,00Fase 2R$ 97.000,00Fase 3R$ 115.000,00 Nenhuma fase concluída ainda Top 3 — Apólices vendidas DIOGO FARIAS 2 FERNANDO DE PAULA SERAFIM 1 CARLA NOGUEIRA 3 Top 3 — Comissão gerada DIOGO FARIAS 2 CARLA NOGUEIRA 1 FERNANDO DE PAULA SERAFIM 3",
+    "cross-kpi-grid": "Total de clientes5370 no total (PF+PJ)Comissão total (LTV)R$ 145.894,492 ramos mapeadosLTV médio por clienteR$ 1.100,5353 c/ histórico >1 anoRamo mais popularAutomóvel - Casco13.21% dos clientesMaior oportunidadeCompreensivo ResidencialR$ 51.347,82 em comissão potencialRamo com maior LTVR$ 1.224,01Compreensivo ResidencialTempo médio de permanência2,5 anos53 clientes na base",
+    "cross-nivel-badge": "45 clientes",
+    "cross-pen-title": "Penetração por ramo",
+    "cross-pen-wrap": "Automóvel - Casco ✅ 7 (13.21%) ❌ 46 (86.79%) Compreensivo Residencial ✅ 2 (3.77%) ❌ 51 (96.23%)",
+    "cross-search": "",
+    "cross-table-badge": "53 clientes",
+    "cross-table-pagination": "51–53 de 53 ← Anterior Página 2 de 2 Próxima →",
+    "cross-table-wrap": "Nome CPF/CNPJ Automóvel - CascoCompreensivo Residencial Apólices ativas LTV Épsilon Lima 69 100.300.674-55 —— 1 R$ 500,85 Gama Costa 62 100.300.606-11 —— 1 R$ 449,45 Alfa Oliveira 36 100.300.352-28 —— 0 R$ 425,79",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "ms-col-ANA_CLARA_MENDES": "",
+    "ms-col-BRUNO_TAVARES": "",
+    "ms-col-CARLA_NOGUEIRA": "",
+    "ms-col-DIOGO_FARIAS": "",
+    "ms-col-FERNANDO_DE_PAULA_SERAFIM": "",
+    "ms-cross-col": "Todos▼ANA CLARA MENDESBRUNO TAVARESCARLA NOGUEIRADIOGO FARIASFERNANDO DE PAULA SERAFIMMarcar todosLimpar",
+    "ms-cross-ram": "Automóvel - Casco+1▼Acidentes PessoaisAutomóvel - CascoCompreensivo EmpresarialCompreensivo ResidencialResponsabilidade Civil GeralRiscos DiversosSaúdeSeguro Viagem IndividualTransporte NacionalVidaVida em GrupoMarcar todosLimpar",
+    "ms-ram-Acidentes_Pessoais": "",
+    "ms-ram-Autom_vel___Casco": "",
+    "ms-ram-Compreensivo_Empresarial": "",
+    "ms-ram-Compreensivo_Residencial": "",
+    "ms-ram-Responsabilidade_Civil_Geral": "",
+    "ms-ram-Riscos_Diversos": "",
+    "ms-ram-Sa_de": "",
+    "ms-ram-Seguro_Viagem_Individual": "",
+    "ms-ram-Transporte_Nacional": "",
+    "ms-ram-Vida": "",
+    "ms-ram-Vida_em_Grupo": "",
+    "rec-badge": "0 registros",
+    "sb-cross-campanha": "Apólices vendidas 25 / 180 Fase 1120Fase 2150Fase 3180 Nenhuma fase concluída ainda Comissão gerada R$ 16.413,63 / R$ 115.000,00 Fase 1R$ 77.000,00Fase 2R$ 97.000,00Fase 3R$ 115.000,00 Nenhuma fase concluída ainda Top 3 — Apólices vendidas DIOGO FARIAS 2 FERNANDO DE PAULA SERAFIM 1 CARLA NOGUEIRA 3 Top 3 — Comissão gerada DIOGO FARIAS 2 CARLA NOGUEIRA 1 FERNANDO DE PAULA SERAFIM 3",
+    "sb-cross-table": "Nome CPF/CNPJ Automóvel - CascoCompreensivo Residencial Apólices ativas LTV Épsilon Lima 69 100.300.674-55 —— 1 R$ 500,85 Gama Costa 62 100.300.606-11 —— 1 R$ 449,45 Alfa Oliveira 36 100.300.352-28 —— 0 R$ 425,79 51–53 de 53 ← Anterior Página 2 de 2 Próxima →",
+    "sc-cross-campanha": "Campanha SANTOLIN 360 — 3º trimestre 2026 − Apólices vendidas 25 / 180 Fase 1120Fase 2150Fase 3180 Nenhuma fase concluída ainda Comissão gerada R$ 16.413,63 / R$ 115.000,00 Fase 1R$ 77.000,00Fase 2R$ 97.000,00Fase 3R$ 115.000,00 Nenhuma fase concluída ainda Top 3 — Apólices vendidas DIOGO FARIAS 2 FERNANDO DE PAULA SERAFIM 1 CARLA NOGUEIRA 3 Top 3 — Comissão gerada DIOGO FARIAS 2 CARLA NOGUEIRA 1 FERNANDO DE PAULA SERAFIM 3",
+    "sc-cross-table": "Clientes 53 clientes Exportar − Nome CPF/CNPJ Automóvel - CascoCompreensivo Residencial Apólices ativas LTV Épsilon Lima 69 100.300.674-55 —— 1 R$ 500,85 Gama Costa 62 100.300.606-11 —— 1 R$ 449,45 Alfa Oliveira 36 100.300.352-28 —— 0 R$ 425,79 51–53 de 53 ← Anterior Página 2 de 2 Próxima →",
+    "tab-crosssell": "Filtros desta aba Tipo de pessoa Pessoa física (CPF) Pessoa jurídica (CNPJ) Ramo Automóvel - Casco+1▼Acidentes PessoaisAutomóvel - CascoCompreensivo EmpresarialCompreensivo ResidencialResponsabilidade Civil GeralRiscos DiversosSaúdeSeguro Viagem IndividualTransporte NacionalVidaVida em GrupoMarcar todosLimpar Colaborador Todos▼ANA CLARA MENDESBRUNO TAVARESCARLA NOGUEIRADIOGO FARIASFERNANDO DE PAULA SERAFIMMarcar todosLimpar ↻ Limpar Total de clientes5370 no total (PF+PJ)Comissão total (LTV)R$ 145.894,492 ramos mapeadosLTV médio por clienteR$ 1.100,5353 c/ histórico >1 anoRamo mais popularAutomóvel - Casco13.21% dos clientesMaior oportunidadeCompreensivo ResidencialR$ 51.347,82 em comissão potencialRamo com maior LTVR$ 1.224,01Compreensivo ResidencialTempo médio de permanência2,5 anos53 clientes na base Penetração por ramo Penetração Oportunidade Automóvel - Casco ✅ 7 (13.21%) ❌ 46 (86.79%) Compreensivo Residencial ✅ 2 (3.77%) ❌ 51 (96.23%) Clientes por nível 45 clientes Campanha SANTOLIN 360 — 3º trimestre 2026 − Apólices vendidas 25 / 180 Fase 1120Fase 2150Fase 3180 Nenhuma fase concluída ainda Comissão gerada R$ 16.413,63 / R$ 115.000,00 Fase 1R$ 77.000,00Fase 2R$ 97.000,00Fase 3R$ 115.000,00 Nenhuma fase concluída ainda Top 3 — Apólices vendidas DIOGO FARIAS 2 FERNANDO DE PAULA SERAFIM 1 CARLA NOGUEIRA 3 Top 3 — Comissão gerada DIOGO FARIAS 2 CARLA NOGUEIRA 1 FERNANDO DE PAULA SERAFIM 3 Clientes 53 clientes Exportar − Nome CPF/CNPJ Automóvel - CascoCompreensivo Residencial Apólices ativas LTV Épsilon Lima 69 100.300.674-55 —— 1 R$ 500,85 Gama Costa 62 100.300.606-11 —— 1 R$ 449,45 Alfa Oliveira 36 100.300.352-28 —— 0 R$ 425,79 51–53 de 53 ← Anterior Página 2 de 2 Próxima →"
+  }
+}

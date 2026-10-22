@@ -1,0 +1,108 @@
+{
+  "graficos": {
+    "ch-comp-main": {
+      "datasets": [
+        {
+          "data": [
+            5404.030000000001,
+            16912.14,
+            25563.140000000003,
+            46024.9,
+            32879.96000000001,
+            34880.75,
+            26598.19,
+            2786.72,
+            2690.54
+          ],
+          "label": "Atual — Prêmio Novo"
+        },
+        {
+          "data": [
+            20125.72,
+            27390.230000000003,
+            17315.52,
+            31781.950000000004,
+            20189.66,
+            4641.92,
+            13839.4,
+            6901.5,
+            8910.44
+          ],
+          "label": "Anterior — Prêmio Novo"
+        },
+        {
+          "data": [
+            -73.14863766364633,
+            -38.25484488447159,
+            47.63137347304616,
+            44.81458815459717,
+            62.85544184498405,
+            651.4293654349925,
+            92.19178577105943,
+            -59.621531551112085,
+            -69.80463366567756
+          ],
+          "label": "Variação %"
+        }
+      ],
+      "labels": [
+        "Jan/26",
+        "Fev/26",
+        "Mar/26",
+        "Abr/26",
+        "Mai/26",
+        "Jun/26",
+        "Jul/26",
+        "Ago/26",
+        "Set/26"
+      ]
+    }
+  },
+  "textos": {
+    "cb-comp-chart": "−",
+    "cb-comp-kpis": "−",
+    "cb-comp-pivot": "−",
+    "cb-comp-rank": "−",
+    "ch-comp-main": "",
+    "cm-cn": "",
+    "cm-ct": "",
+    "cm-pn": "",
+    "cm-pt": "",
+    "cm-qn": "",
+    "cm-qt": "",
+    "comp-clear-period-btn": "↻ Seguir filtro global",
+    "comp-end": "",
+    "comp-kpis-grid": "Resultado do período Prêmio total ▲ 5.8% R$ 349.515,84 ant. R$ 330.453,25 · Δ +R$ 19.062,59 Comissão total ▲ 6.4% R$ 48.147,82 ant. R$ 45.257,07 · Δ +R$ 2.890,75 Apólices ▲ 3.4% 92 ant. 89 · Δ +3 Clientes únicos ▼ 1.8% 54 ant. 55 · Δ −1 Novo × Renovação Prêmio novo ▲ 28.1% R$ 200.614,50 ant. R$ 156.621,88 · Δ +R$ 43.992,62 Prêmio renovação ▼ 14.3% R$ 148.901,34 ant. R$ 173.831,37 · Δ −R$ 24.930,03 Taxa de renovação ▼ 3.2% 59.18% 29 renov. · 20 venc. · ant. 61.11% Mix novo ▲ 21.1% 57.40% ant. 47.40% · Δ +10.0 p.p. Eficiência & risco Ticket médio ▲ 2.3% R$ 3.799,09 ant. R$ 3.712,96 · Δ +R$ 86,13 Comissão média (%) ▲ 0.6% 13.78% ant. 13.70% · Δ +0.1 p.p. Taxa de churn ▼ 29.4% 50.00% 34 renov. ÷ 68 N+R ano ant. · ant. 70.80% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 9.5% 19 ant. 21 · Δ −2",
+    "comp-periodo-atual-tag": "Atual: 01/01/2026 → 30/09/2026",
+    "comp-periodo-prev-tag": "Anterior: 01/01/2025 → 30/09/2025",
+    "comp-pivot-bulk": "− Recolher + Expandir",
+    "comp-pivot-table": "Seguradora / Ramo 2026 Valor% ▾Bradesco SegurosR$ 74.918,6822.20%SaúdeR$ 12.000,003.56%Riscos DiversosR$ 11.385,273.37%Vida em GrupoR$ 10.728,783.18%Compreensivo EmpresarialR$ 9.994,222.96%VidaR$ 9.546,802.83%Responsabilidade Civil GeralR$ 9.122,062.70%Compreensivo ResidencialR$ 5.587,041.66%Seguro Viagem IndividualR$ 3.473,891.03%Acidentes PessoaisR$ 3.080,620.91%▾HDI SegurosR$ 72.248,4221.41%Compreensivo ResidencialR$ 22.319,166.61%Riscos DiversosR$ 13.303,693.94%Transporte NacionalR$ 11.982,193.55%Acidentes PessoaisR$ 10.132,893.00%Automóvel - CascoR$ 7.070,492.09%VidaR$ 4.843,641.44%Seguro Viagem IndividualR$ 2.596,360.77%SaúdeR$ 0,000.00%▾MapfreR$ 52.696,6415.61%Compreensivo ResidencialR$ 9.166,762.72%Automóvel - CascoR$ 8.685,172.57%Compreensivo EmpresarialR$ 8.136,402.41%Riscos DiversosR$ 7.988,792.37%VidaR$ 7.148,792.12%Responsabilidade Civil GeralR$ 7.038,102.09%Acidentes PessoaisR$ 1.451,310.43%Transporte NacionalR$ 1.253,560.37%Vida em GrupoR$ 1.002,010.30%Seguro Viagem IndividualR$ 825,750.24%▾Tokio MarineR$ 52.279,9415.49%Seguro Viagem IndividualR$ 13.897,934.12%Compreensivo EmpresarialR$ 10.854,583.22%Compreensivo ResidencialR$ 7.219,532.14%Transporte NacionalR$ 5.866,951.74%Vida em GrupoR$ 4.441,831.32%Acidentes PessoaisR$ 3.805,001.13%Automóvel - CascoR$ 3.350,000.99%Riscos DiversosR$ 2.844,120.84%SaúdeR$ 0,000.00%▾AllianzR$ 48.588,0114.40%Transporte NacionalR$ 14.772,204.38%VidaR$ 11.190,873.32%SaúdeR$ 9.600,002.84%Responsabilidade Civil GeralR$ 9.495,422.81%Automóvel - CascoR$ 1.859,870.55%Seguro Viagem IndividualR$ 1.669,650.49%▾Porto SeguroR$ 36.765,5210.89%Seguro Viagem IndividualR$ 18.150,085.38%VidaR$ 15.521,954.60%Automóvel - CascoR$ 3.807,731.13%Vida em GrupoR$ 2.579,230.76%Responsabilidade Civil Geral-R$ 3.293,47-0.98%Total geralR$ 337.497,21100.00%",
+    "comp-pivot-wrap": "Seguradora / Ramo 2026 Valor% ▾Bradesco SegurosR$ 74.918,6822.20%SaúdeR$ 12.000,003.56%Riscos DiversosR$ 11.385,273.37%Vida em GrupoR$ 10.728,783.18%Compreensivo EmpresarialR$ 9.994,222.96%VidaR$ 9.546,802.83%Responsabilidade Civil GeralR$ 9.122,062.70%Compreensivo ResidencialR$ 5.587,041.66%Seguro Viagem IndividualR$ 3.473,891.03%Acidentes PessoaisR$ 3.080,620.91%▾HDI SegurosR$ 72.248,4221.41%Compreensivo ResidencialR$ 22.319,166.61%Riscos DiversosR$ 13.303,693.94%Transporte NacionalR$ 11.982,193.55%Acidentes PessoaisR$ 10.132,893.00%Automóvel - CascoR$ 7.070,492.09%VidaR$ 4.843,641.44%Seguro Viagem IndividualR$ 2.596,360.77%SaúdeR$ 0,000.00%▾MapfreR$ 52.696,6415.61%Compreensivo ResidencialR$ 9.166,762.72%Automóvel - CascoR$ 8.685,172.57%Compreensivo EmpresarialR$ 8.136,402.41%Riscos DiversosR$ 7.988,792.37%VidaR$ 7.148,792.12%Responsabilidade Civil GeralR$ 7.038,102.09%Acidentes PessoaisR$ 1.451,310.43%Transporte NacionalR$ 1.253,560.37%Vida em GrupoR$ 1.002,010.30%Seguro Viagem IndividualR$ 825,750.24%▾Tokio MarineR$ 52.279,9415.49%Seguro Viagem IndividualR$ 13.897,934.12%Compreensivo EmpresarialR$ 10.854,583.22%Compreensivo ResidencialR$ 7.219,532.14%Transporte NacionalR$ 5.866,951.74%Vida em GrupoR$ 4.441,831.32%Acidentes PessoaisR$ 3.805,001.13%Automóvel - CascoR$ 3.350,000.99%Riscos DiversosR$ 2.844,120.84%SaúdeR$ 0,000.00%▾AllianzR$ 48.588,0114.40%Transporte NacionalR$ 14.772,204.38%VidaR$ 11.190,873.32%SaúdeR$ 9.600,002.84%Responsabilidade Civil GeralR$ 9.495,422.81%Automóvel - CascoR$ 1.859,870.55%Seguro Viagem IndividualR$ 1.669,650.49%▾Porto SeguroR$ 36.765,5210.89%Seguro Viagem IndividualR$ 18.150,085.38%VidaR$ 15.521,954.60%Automóvel - CascoR$ 3.807,731.13%Vida em GrupoR$ 2.579,230.76%Responsabilidade Civil Geral-R$ 3.293,47-0.98%Total geralR$ 337.497,21100.00%",
+    "comp-rank-counter": "",
+    "comp-rank-table": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 14.918,28+236.1% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 54.915,15+55.1% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.226,40R$ 37.515,37-48.8% R$ 78.043,59R$ 66.517,55+17.3% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 36.760,59R$ 57.225,62-35.8% R$ 72.943,16R$ 79.617,62-8.4% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 10.101,68R$ 16.071,71-37.1% R$ 37.221,67R$ 70.895,93-47.5%",
+    "comp-rank-wrap": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 14.918,28+236.1% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 54.915,15+55.1% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.226,40R$ 37.515,37-48.8% R$ 78.043,59R$ 66.517,55+17.3% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 36.760,59R$ 57.225,62-35.8% R$ 72.943,16R$ 79.617,62-8.4% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 10.101,68R$ 16.071,71-37.1% R$ 37.221,67R$ 70.895,93-47.5%",
+    "comp-scope-chips": "Período: seguindo filtro global",
+    "comp-start": "",
+    "crd-colab": "",
+    "crd-ramo": "",
+    "crd-seg": "",
+    "crm-com": "",
+    "crm-premio": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "mt-comp-pivot-c": "",
+    "mt-comp-pivot-p": "",
+    "rec-badge": "97 registros",
+    "sb-comp-chart": "",
+    "sb-comp-kpis": "Resultado do período Prêmio total ▲ 5.8% R$ 349.515,84 ant. R$ 330.453,25 · Δ +R$ 19.062,59 Comissão total ▲ 6.4% R$ 48.147,82 ant. R$ 45.257,07 · Δ +R$ 2.890,75 Apólices ▲ 3.4% 92 ant. 89 · Δ +3 Clientes únicos ▼ 1.8% 54 ant. 55 · Δ −1 Novo × Renovação Prêmio novo ▲ 28.1% R$ 200.614,50 ant. R$ 156.621,88 · Δ +R$ 43.992,62 Prêmio renovação ▼ 14.3% R$ 148.901,34 ant. R$ 173.831,37 · Δ −R$ 24.930,03 Taxa de renovação ▼ 3.2% 59.18% 29 renov. · 20 venc. · ant. 61.11% Mix novo ▲ 21.1% 57.40% ant. 47.40% · Δ +10.0 p.p. Eficiência & risco Ticket médio ▲ 2.3% R$ 3.799,09 ant. R$ 3.712,96 · Δ +R$ 86,13 Comissão média (%) ▲ 0.6% 13.78% ant. 13.70% · Δ +0.1 p.p. Taxa de churn ▼ 29.4% 50.00% 34 renov. ÷ 68 N+R ano ant. · ant. 70.80% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 9.5% 19 ant. 21 · Δ −2",
+    "sb-comp-pivot": "Seguradora / Ramo 2026 Valor% ▾Bradesco SegurosR$ 74.918,6822.20%SaúdeR$ 12.000,003.56%Riscos DiversosR$ 11.385,273.37%Vida em GrupoR$ 10.728,783.18%Compreensivo EmpresarialR$ 9.994,222.96%VidaR$ 9.546,802.83%Responsabilidade Civil GeralR$ 9.122,062.70%Compreensivo ResidencialR$ 5.587,041.66%Seguro Viagem IndividualR$ 3.473,891.03%Acidentes PessoaisR$ 3.080,620.91%▾HDI SegurosR$ 72.248,4221.41%Compreensivo ResidencialR$ 22.319,166.61%Riscos DiversosR$ 13.303,693.94%Transporte NacionalR$ 11.982,193.55%Acidentes PessoaisR$ 10.132,893.00%Automóvel - CascoR$ 7.070,492.09%VidaR$ 4.843,641.44%Seguro Viagem IndividualR$ 2.596,360.77%SaúdeR$ 0,000.00%▾MapfreR$ 52.696,6415.61%Compreensivo ResidencialR$ 9.166,762.72%Automóvel - CascoR$ 8.685,172.57%Compreensivo EmpresarialR$ 8.136,402.41%Riscos DiversosR$ 7.988,792.37%VidaR$ 7.148,792.12%Responsabilidade Civil GeralR$ 7.038,102.09%Acidentes PessoaisR$ 1.451,310.43%Transporte NacionalR$ 1.253,560.37%Vida em GrupoR$ 1.002,010.30%Seguro Viagem IndividualR$ 825,750.24%▾Tokio MarineR$ 52.279,9415.49%Seguro Viagem IndividualR$ 13.897,934.12%Compreensivo EmpresarialR$ 10.854,583.22%Compreensivo ResidencialR$ 7.219,532.14%Transporte NacionalR$ 5.866,951.74%Vida em GrupoR$ 4.441,831.32%Acidentes PessoaisR$ 3.805,001.13%Automóvel - CascoR$ 3.350,000.99%Riscos DiversosR$ 2.844,120.84%SaúdeR$ 0,000.00%▾AllianzR$ 48.588,0114.40%Transporte NacionalR$ 14.772,204.38%VidaR$ 11.190,873.32%SaúdeR$ 9.600,002.84%Responsabilidade Civil GeralR$ 9.495,422.81%Automóvel - CascoR$ 1.859,870.55%Seguro Viagem IndividualR$ 1.669,650.49%▾Porto SeguroR$ 36.765,5210.89%Seguro Viagem IndividualR$ 18.150,085.38%VidaR$ 15.521,954.60%Automóvel - CascoR$ 3.807,731.13%Vida em GrupoR$ 2.579,230.76%Responsabilidade Civil Geral-R$ 3.293,47-0.98%Total geralR$ 337.497,21100.00%",
+    "sb-comp-rank": "Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 14.918,28+236.1% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 54.915,15+55.1% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.226,40R$ 37.515,37-48.8% R$ 78.043,59R$ 66.517,55+17.3% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 36.760,59R$ 57.225,62-35.8% R$ 72.943,16R$ 79.617,62-8.4% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 10.101,68R$ 16.071,71-37.1% R$ 37.221,67R$ 70.895,93-47.5%",
+    "sc-comp-chart": "Evolução mensal comparativa Período atual Período anterior Variação % Prêmio Novo Prêmio Total Com. Nova Com. Total Qtd Nova Qtd Total −",
+    "sc-comp-kpis": "Indicadores complementares − Resultado do período Prêmio total ▲ 5.8% R$ 349.515,84 ant. R$ 330.453,25 · Δ +R$ 19.062,59 Comissão total ▲ 6.4% R$ 48.147,82 ant. R$ 45.257,07 · Δ +R$ 2.890,75 Apólices ▲ 3.4% 92 ant. 89 · Δ +3 Clientes únicos ▼ 1.8% 54 ant. 55 · Δ −1 Novo × Renovação Prêmio novo ▲ 28.1% R$ 200.614,50 ant. R$ 156.621,88 · Δ +R$ 43.992,62 Prêmio renovação ▼ 14.3% R$ 148.901,34 ant. R$ 173.831,37 · Δ −R$ 24.930,03 Taxa de renovação ▼ 3.2% 59.18% 29 renov. · 20 venc. · ant. 61.11% Mix novo ▲ 21.1% 57.40% ant. 47.40% · Δ +10.0 p.p. Eficiência & risco Ticket médio ▲ 2.3% R$ 3.799,09 ant. R$ 3.712,96 · Δ +R$ 86,13 Comissão média (%) ▲ 0.6% 13.78% ant. 13.70% · Δ +0.1 p.p. Taxa de churn ▼ 29.4% 50.00% 34 renov. ÷ 68 N+R ano ant. · ant. 70.80% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 9.5% 19 ant. 21 · Δ −2",
+    "sc-comp-pivot": "Comparativo por seguradora e ramo Seguradora Ramo Seguradora + ramo − Recolher + Expandir Prêmio líquido Comissão ↑ Exportar − Seguradora / Ramo 2026 Valor% ▾Bradesco SegurosR$ 74.918,6822.20%SaúdeR$ 12.000,003.56%Riscos DiversosR$ 11.385,273.37%Vida em GrupoR$ 10.728,783.18%Compreensivo EmpresarialR$ 9.994,222.96%VidaR$ 9.546,802.83%Responsabilidade Civil GeralR$ 9.122,062.70%Compreensivo ResidencialR$ 5.587,041.66%Seguro Viagem IndividualR$ 3.473,891.03%Acidentes PessoaisR$ 3.080,620.91%▾HDI SegurosR$ 72.248,4221.41%Compreensivo ResidencialR$ 22.319,166.61%Riscos DiversosR$ 13.303,693.94%Transporte NacionalR$ 11.982,193.55%Acidentes PessoaisR$ 10.132,893.00%Automóvel - CascoR$ 7.070,492.09%VidaR$ 4.843,641.44%Seguro Viagem IndividualR$ 2.596,360.77%SaúdeR$ 0,000.00%▾MapfreR$ 52.696,6415.61%Compreensivo ResidencialR$ 9.166,762.72%Automóvel - CascoR$ 8.685,172.57%Compreensivo EmpresarialR$ 8.136,402.41%Riscos DiversosR$ 7.988,792.37%VidaR$ 7.148,792.12%Responsabilidade Civil GeralR$ 7.038,102.09%Acidentes PessoaisR$ 1.451,310.43%Transporte NacionalR$ 1.253,560.37%Vida em GrupoR$ 1.002,010.30%Seguro Viagem IndividualR$ 825,750.24%▾Tokio MarineR$ 52.279,9415.49%Seguro Viagem IndividualR$ 13.897,934.12%Compreensivo EmpresarialR$ 10.854,583.22%Compreensivo ResidencialR$ 7.219,532.14%Transporte NacionalR$ 5.866,951.74%Vida em GrupoR$ 4.441,831.32%Acidentes PessoaisR$ 3.805,001.13%Automóvel - CascoR$ 3.350,000.99%Riscos DiversosR$ 2.844,120.84%SaúdeR$ 0,000.00%▾AllianzR$ 48.588,0114.40%Transporte NacionalR$ 14.772,204.38%VidaR$ 11.190,873.32%SaúdeR$ 9.600,002.84%Responsabilidade Civil GeralR$ 9.495,422.81%Automóvel - CascoR$ 1.859,870.55%Seguro Viagem IndividualR$ 1.669,650.49%▾Porto SeguroR$ 36.765,5210.89%Seguro Viagem IndividualR$ 18.150,085.38%VidaR$ 15.521,954.60%Automóvel - CascoR$ 3.807,731.13%Vida em GrupoR$ 2.579,230.76%Responsabilidade Civil Geral-R$ 3.293,47-0.98%Total geralR$ 337.497,21100.00%",
+    "sc-comp-rank": "Maiores variações Produtor Seguradora Ramo Prêmio Comissão − Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 14.918,28+236.1% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 54.915,15+55.1% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.226,40R$ 37.515,37-48.8% R$ 78.043,59R$ 66.517,55+17.3% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 36.760,59R$ 57.225,62-35.8% R$ 72.943,16R$ 79.617,62-8.4% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 10.101,68R$ 16.071,71-37.1% R$ 37.221,67R$ 70.895,93-47.5%",
+    "tab-comparativo": "Período atual — início de vigência → Comparar ↻ Seguir filtro global Atual: 01/01/2026 → 30/09/2026 vs. Anterior: 01/01/2025 → 30/09/2025 Período: seguindo filtro global Evolução mensal comparativa Período atual Período anterior Variação % Prêmio Novo Prêmio Total Com. Nova Com. Total Qtd Nova Qtd Total − Indicadores complementares − Resultado do período Prêmio total ▲ 5.8% R$ 349.515,84 ant. R$ 330.453,25 · Δ +R$ 19.062,59 Comissão total ▲ 6.4% R$ 48.147,82 ant. R$ 45.257,07 · Δ +R$ 2.890,75 Apólices ▲ 3.4% 92 ant. 89 · Δ +3 Clientes únicos ▼ 1.8% 54 ant. 55 · Δ −1 Novo × Renovação Prêmio novo ▲ 28.1% R$ 200.614,50 ant. R$ 156.621,88 · Δ +R$ 43.992,62 Prêmio renovação ▼ 14.3% R$ 148.901,34 ant. R$ 173.831,37 · Δ −R$ 24.930,03 Taxa de renovação ▼ 3.2% 59.18% 29 renov. · 20 venc. · ant. 61.11% Mix novo ▲ 21.1% 57.40% ant. 47.40% · Δ +10.0 p.p. Eficiência & risco Ticket médio ▲ 2.3% R$ 3.799,09 ant. R$ 3.712,96 · Δ +R$ 86,13 Comissão média (%) ▲ 0.6% 13.78% ant. 13.70% · Δ +0.1 p.p. Taxa de churn ▼ 29.4% 50.00% 34 renov. ÷ 68 N+R ano ant. · ant. 70.80% Prêmio em risco ▼ 84.3% R$ 15.218,63 6 canc. · ant. R$ 96.805,28 · Δ −R$ 81.586,65 Cobertura Produtores ativos — 5 ant. 5 · Δ +0 Seguradoras ativas — 6 ant. 6 · Δ +0 Ramos ativos — 11 ant. 11 · Δ +0 Endossos (EN + ER) ▼ 9.5% 19 ant. 21 · Δ −2 Comparativo por seguradora e ramo Seguradora Ramo Seguradora + ramo − Recolher + Expandir Prêmio líquido Comissão ↑ Exportar − Seguradora / Ramo 2026 Valor% ▾Bradesco SegurosR$ 74.918,6822.20%SaúdeR$ 12.000,003.56%Riscos DiversosR$ 11.385,273.37%Vida em GrupoR$ 10.728,783.18%Compreensivo EmpresarialR$ 9.994,222.96%VidaR$ 9.546,802.83%Responsabilidade Civil GeralR$ 9.122,062.70%Compreensivo ResidencialR$ 5.587,041.66%Seguro Viagem IndividualR$ 3.473,891.03%Acidentes PessoaisR$ 3.080,620.91%▾HDI SegurosR$ 72.248,4221.41%Compreensivo ResidencialR$ 22.319,166.61%Riscos DiversosR$ 13.303,693.94%Transporte NacionalR$ 11.982,193.55%Acidentes PessoaisR$ 10.132,893.00%Automóvel - CascoR$ 7.070,492.09%VidaR$ 4.843,641.44%Seguro Viagem IndividualR$ 2.596,360.77%SaúdeR$ 0,000.00%▾MapfreR$ 52.696,6415.61%Compreensivo ResidencialR$ 9.166,762.72%Automóvel - CascoR$ 8.685,172.57%Compreensivo EmpresarialR$ 8.136,402.41%Riscos DiversosR$ 7.988,792.37%VidaR$ 7.148,792.12%Responsabilidade Civil GeralR$ 7.038,102.09%Acidentes PessoaisR$ 1.451,310.43%Transporte NacionalR$ 1.253,560.37%Vida em GrupoR$ 1.002,010.30%Seguro Viagem IndividualR$ 825,750.24%▾Tokio MarineR$ 52.279,9415.49%Seguro Viagem IndividualR$ 13.897,934.12%Compreensivo EmpresarialR$ 10.854,583.22%Compreensivo ResidencialR$ 7.219,532.14%Transporte NacionalR$ 5.866,951.74%Vida em GrupoR$ 4.441,831.32%Acidentes PessoaisR$ 3.805,001.13%Automóvel - CascoR$ 3.350,000.99%Riscos DiversosR$ 2.844,120.84%SaúdeR$ 0,000.00%▾AllianzR$ 48.588,0114.40%Transporte NacionalR$ 14.772,204.38%VidaR$ 11.190,873.32%SaúdeR$ 9.600,002.84%Responsabilidade Civil GeralR$ 9.495,422.81%Automóvel - CascoR$ 1.859,870.55%Seguro Viagem IndividualR$ 1.669,650.49%▾Porto SeguroR$ 36.765,5210.89%Seguro Viagem IndividualR$ 18.150,085.38%VidaR$ 15.521,954.60%Automóvel - CascoR$ 3.807,731.13%Vida em GrupoR$ 2.579,230.76%Responsabilidade Civil Geral-R$ 3.293,47-0.98%Total geralR$ 337.497,21100.00% Maiores variações Produtor Seguradora Ramo Prêmio Comissão − Produtor Novo atualNovo anteriorΔ% novo Renov. atualRenov. anteriorΔ% renov. Total atualTotal anteriorΔ% total DIOGO FARIAS R$ 50.143,86R$ 14.918,28+236.1% R$ 35.014,70R$ 39.996,87-12.5% R$ 85.158,56R$ 54.915,15+55.1% ANA CLARA MENDES R$ 28.350,89R$ 35.485,20-20.1% R$ 47.797,97R$ 23.021,80+107.6% R$ 76.148,86R$ 58.507,00+30.2% FERNANDO DE PAULA SERAFIM R$ 58.817,19R$ 29.002,18+102.8% R$ 19.226,40R$ 37.515,37-48.8% R$ 78.043,59R$ 66.517,55+17.3% CARLA NOGUEIRA R$ 36.182,57R$ 22.392,00+61.6% R$ 36.760,59R$ 57.225,62-35.8% R$ 72.943,16R$ 79.617,62-8.4% BRUNO TAVARES R$ 27.119,99R$ 54.824,22-50.5% R$ 10.101,68R$ 16.071,71-37.1% R$ 37.221,67R$ 70.895,93-47.5%",
+    "vw-comp-pivot-a": "",
+    "vw-comp-pivot-r": "",
+    "vw-comp-pivot-s": ""
+  }
+}

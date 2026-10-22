@@ -1,0 +1,33 @@
+{
+  "graficos": {
+    "ch-kickoff": {
+      "datasets": [
+        {
+          "data": [
+            30679.968000000004,
+            4438.588000000001
+          ],
+          "label": "Meta"
+        },
+        {
+          "data": [
+            27202.91,
+            4395.3200000000015
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "Prêmio",
+        "Comissão"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kickoff": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossosobjetivos Geral Fechamento do mês Setembro Setembro de 2026 Prêmio/25: R$ 27.890,88 Comissão/25: R$ 4.035,08 % Médio: 14.47%",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossosobjetivos Geral Fechamento do mês Setembro Setembro de 2026 Prêmio/25: R$ 27.890,88 Comissão/25: R$ 4.035,08 % Médio: 14.47% ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

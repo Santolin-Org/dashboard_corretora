@@ -1,0 +1,22 @@
+.foto {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 8px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-default);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, #232b3d, #161c29);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: .5px;
+}

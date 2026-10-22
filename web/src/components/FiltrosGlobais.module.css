@@ -1,0 +1,38 @@
+/* styles.css: .filters, .f-group, .f-label, .date-pair, .date-sep (input[type=date] fica em tokens.css) */
+.filtros {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 20px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border-subtle);
+  align-items: flex-end;
+  position: sticky;
+  top: 99px;
+  z-index: 200;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rotulo {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.parDatas {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.sepDatas {
+  font-size: 11px;
+  color: var(--text-tertiary);
+}

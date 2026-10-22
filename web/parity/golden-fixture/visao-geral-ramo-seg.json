@@ -1,0 +1,128 @@
+{
+  "graficos": {
+    "ch-cancel": {
+      "datasets": [
+        {
+          "data": [
+            2,
+            2,
+            2,
+            1
+          ]
+        }
+      ],
+      "labels": [
+        "Insatisfação com atendimento",
+        "Preço",
+        "Troca de seguradora",
+        "Não informado"
+      ]
+    },
+    "ch-evolucao": {
+      "datasets": [
+        {
+          "data": [
+            3200,
+            2107.73,
+            0,
+            0,
+            0,
+            -1500,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "label": "2026"
+        },
+        {
+          "data": [
+            0,
+            0,
+            1500,
+            0,
+            -2292.98,
+            -2432.58,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "label": "2025"
+        }
+      ],
+      "labels": [
+        "Jan",
+        "Fev",
+        "Mar",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez"
+      ]
+    },
+    "ch-ramo": {
+      "datasets": [
+        {
+          "data": [
+            22192.32
+          ]
+        }
+      ],
+      "labels": [
+        "Auto — casco"
+      ]
+    },
+    "ch-seg": {
+      "datasets": [
+        {
+          "data": [
+            22192.32
+          ]
+        }
+      ],
+      "labels": [
+        "Porto Seguro"
+      ]
+    }
+  },
+  "textos": {
+    "cancel-badge": "7 cancelamentos",
+    "cancel-cb-list": "Insatisfação com atendimento2Preço2Troca de seguradora2Não informado1",
+    "cancel-filter": "Filtrar motivos todos ▼ Insatisfação com atendimento2Preço2Troca de seguradora2Não informado1 Marcar todos Desmarcar todos",
+    "cancel-filter-arrow": "▼",
+    "cancel-filter-count": "todos",
+    "cancel-wrap": "",
+    "cb-Insatisfa__o_com_atendimento": "",
+    "cb-N_o_informado": "",
+    "cb-Pre_o": "",
+    "cb-Troca_de_seguradora": "",
+    "ch-cancel": "",
+    "ch-evolucao": "",
+    "ch-ramo": "",
+    "ch-seg": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "kpi-grid": "Prêmio totalR$ 3.807,733 apólices este anoComissão totalR$ 642,9416.89% do prêmioTicket médio: PrêmioR$ 2.653,872 c/ prêmioTicket médio: ComissãoR$ 321,47por apóliceClientes únicos2neste anoVencendo em 30d0renovações pendentes",
+    "leg-cur": "2026",
+    "leg-prev": "2025",
+    "mt-evol-c": "",
+    "mt-evol-p": "",
+    "mt-ramo-c": "",
+    "mt-ramo-p": "",
+    "mt-seg-c": "",
+    "mt-seg-p": "",
+    "rec-badge": "11 registros",
+    "seg-legend": "Porto Seguro 100.00%",
+    "tab-visao-geral": "Prêmio totalR$ 3.807,733 apólices este anoComissão totalR$ 642,9416.89% do prêmioTicket médio: PrêmioR$ 2.653,872 c/ prêmioTicket médio: ComissãoR$ 321,47por apóliceClientes únicos2neste anoVencendo em 30d0renovações pendentes Evolução mensal da produção 2026 2025 · barra inferior = variação % vs. ano anterior Prêmio Comissão novonovo-100.0%————————— Cancelamentos por motivo 7 cancelamentos Filtrar motivos todos ▼ Insatisfação com atendimento2Preço2Troca de seguradora2Não informado1 Marcar todos Desmarcar todos Concentração por seguradora Prêmio Comissão Porto Seguro 100.00% Produção por ramo Prêmio Comissão",
+    "var-bar": "novonovo-100.0%—————————"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "graficos": {
+    "ch-kickoff": {
+      "datasets": [
+        {
+          "data": [
+            9053.838838709677,
+            1122.746935483871
+          ],
+          "label": "Meta"
+        },
+        {
+          "data": [
+            484.36,
+            77.67
+          ],
+          "label": "Realizado"
+        }
+      ],
+      "labels": [
+        "Prêmio",
+        "Comissão"
+      ]
+    }
+  },
+  "textos": {
+    "ch-kickoff": "",
+    "kf-dots": "",
+    "kf-pdf-btn": "↓ Exportar PDF",
+    "kf-stage": "Nossosobjetivos Geral Produção da semana Semana 3 18/10–24/10",
+    "kickoff-mode": "Sair ✕ ↩ Opções Nossosobjetivos Geral Produção da semana Semana 3 18/10–24/10 ‹ Anterior Próximo › ↓ Exportar PDF"
+  }
+}

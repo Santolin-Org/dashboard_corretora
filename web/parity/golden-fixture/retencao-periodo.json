@@ -1,0 +1,102 @@
+{
+  "graficos": {
+    "ch-ret-evolucao": {
+      "datasets": [
+        {
+          "data": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "label": "Canceladas"
+        },
+        {
+          "data": [
+            2,
+            2,
+            1,
+            4,
+            1,
+            1
+          ],
+          "label": "Vencidas"
+        }
+      ],
+      "labels": [
+        "Abr/26",
+        "Mai/26",
+        "Jun/26",
+        "Jul/26",
+        "Ago/26",
+        "Set/26"
+      ]
+    }
+  },
+  "textos": {
+    "cb-ret-charts": "−",
+    "cb-ret-detail": "−",
+    "cb-ret-kpis": "−",
+    "cb-ret-prod": "−",
+    "ch-ret-cancel": "",
+    "ch-ret-evolucao": "",
+    "dash-subtitle": "Produção: 437 (3 arquivos) · Sinistros: 53 (avisados 40 · pagos 25)",
+    "ms-col-ANA_CLARA_MENDES": "",
+    "ms-col-BRUNO_TAVARES": "",
+    "ms-col-CARLA_NOGUEIRA": "",
+    "ms-col-DIOGO_FARIAS": "",
+    "ms-col-FERNANDO_DE_PAULA_SERAFIM": "",
+    "ms-grp-Corretora": "",
+    "ms-grp-Parcerias": "",
+    "ms-grp-Santolin_360": "",
+    "ms-mot-Falta_de_pagamento": "",
+    "ms-mot-Insatisfa__o_com_atendimento": "",
+    "ms-mot-N_o_informado": "",
+    "ms-mot-Pre_o": "",
+    "ms-mot-Troca_de_seguradora": "",
+    "ms-mot-Venda_do_bem": "",
+    "ms-ram-Autom_vel___Casco": "",
+    "ms-ram-Compreensivo_Empresarial": "",
+    "ms-ram-Compreensivo_Residencial": "",
+    "ms-ram-Responsabilidade_Civil_Geral": "",
+    "ms-ram-Riscos_Diversos": "",
+    "ms-ram-Sa_de": "",
+    "ms-ram-Vida": "",
+    "ms-ram-Vida_em_Grupo": "",
+    "ms-ret-col": "Todos▼ANA CLARA MENDESBRUNO TAVARESCARLA NOGUEIRADIOGO FARIASFERNANDO DE PAULA SERAFIMMarcar todosLimpar",
+    "ms-ret-grp": "Todos▼CorretoraParceriasSantolin 360Marcar todosLimpar",
+    "ms-ret-mot": "Todos▼Falta de pagamentoInsatisfação com atendimentoNão informadoPreçoTroca de seguradoraVenda do bemMarcar todosLimpar",
+    "ms-ret-ram": "Todos▼Automóvel - CascoCompreensivo EmpresarialCompreensivo ResidencialResponsabilidade Civil GeralRiscos DiversosSaúdeVidaVida em GrupoMarcar todosLimpar",
+    "rec-badge": "0 registros",
+    "ret-cancel-badge": "0 cancelamentos",
+    "ret-cancel-wrap": "",
+    "ret-detail-badge": "11 perdidas",
+    "ret-detail-pagination": "1–11 de 11 ← Anterior Página 1 de 1 Próxima →",
+    "ret-detail-wrap": "Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Alfa Silva 0 Automóvel - casco Mapfre FERNANDO DE PAULA SERAFIM Vencida — R$ 9.110,60 R$ 1.240,06 2025-05-08 2026-05-08 Renovação Beta Souza 13 Compreensivo residencial Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 6.988,17 R$ 798,43 2025-07-16 2026-07-16 Renovação Sigma Lima 29 Vida HDI Seguros DIOGO FARIAS Vencida — R$ 5.874,49 R$ 536,05 2025-04-13 2026-04-13 Novo Teta Costa 22 Vida em grupo Mapfre BRUNO TAVARES Vencida — R$ 5.036,41 R$ 659,49 2025-09-10 2026-09-10 Novo Alfa Oliveira 36 Compreensivo empresarial Bradesco Seguros ANA CLARA MENDES Vencida — R$ 4.641,92 R$ 753,58 2025-06-07 2026-06-07 Novo Iota Ribeiro Comércio Ltda 35 Riscos diversos Tokio Marine FERNANDO DE PAULA SERAFIM Vencida — R$ 2.670,56 R$ 292,27 2025-07-08 2026-07-08 Renovação Zeta Costa 42 Compreensivo empresarial Tokio Marine BRUNO TAVARES Vencida — R$ 1.700,00 R$ 170,00 2025-04-03 2026-04-03 Renovação Ômega Costa 52 Vida em grupo Bradesco Seguros BRUNO TAVARES Vencida — R$ 1.224,01 R$ 107,28 2025-07-28 2026-07-28 Novo Gama Costa 62 Saúde HDI Seguros BRUNO TAVARES Vencida — R$ 0,00 R$ 0,00 2025-08-30 2026-08-30 Novo Delta Dias Comércio Ltda 3 Saúde HDI Seguros CARLA NOGUEIRA Vencida — R$ 0,00 R$ 0,00 2025-05-02 2026-05-02",
+    "ret-evitavel-btn": "Só evitável",
+    "ret-filter-all-btn": "Todas",
+    "ret-filter-canc-btn": "Canceladas",
+    "ret-filter-venc-btn": "Vencidas",
+    "ret-kpi-badge": "01/04/2026 a 30/09/2026 · só evitável",
+    "ret-kpi-grid": "Base do períodoApólices na base71em vigor no período · 60 retidasPrêmio na baseR$ 345.663,29apólices, sem endossosComissão na baseR$ 45.975,48apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens15.49%11 perdidas (0 canc. + 11 não renov.) · 16.67% com todos (fora: 0 pelo motivo, 1 trocas de seguradora)Churn — Prêmio13.61%R$ 47.036,30 perdidoChurn — Comissão12.21%R$ 5.612,32 perdidaNão renovadas no período11R$ 47.036,30 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens0.00%0 canceladas no períodoCancelamento — Prêmio0.00%R$ 0,00 canceladoCancelamento — Comissão0.00%R$ 0,00 cancelada",
+    "ret-per-e": "",
+    "ret-per-s": "",
+    "ret-prod-badge": "5 colaboradors",
+    "ret-prod-table-wrap": "Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas BRUNO TAVARES 10 4 40.00% R$ 32.331,95 R$ 7.960,42 24.62% R$ 936,77 25.12% 0 0.00% 4 CARLA NOGUEIRA 18 3 16.67% R$ 87.466,11 R$ 16.778,31 19.18% R$ 1.853,59 14.47% 0 0.00% 3 ANA CLARA MENDES 9 1 11.11% R$ 51.275,33 R$ 4.641,92 9.05% R$ 753,58 10.68% 0 0.00% 1 FERNANDO DE PAULA SERAFIM 22 2 9.09% R$ 113.085,70 R$ 11.781,16 10.42% R$ 1.532,33 10.84% 0 0.00% 2 DIOGO FARIAS 12 1 8.33% R$ 61.504,20 R$ 5.874,49 9.55% R$ 536,05 6.50% 0 0.00% 1 Total 71 11 15.49% R$ 345.663,29 R$ 47.036,30 13.61% R$ 5.612,32 12.21% 0 0.00% 11",
+    "ret-tipo-N": "N — Novo",
+    "ret-tipo-R": "R — Renovação",
+    "sb-ret-charts": "Cancelamentos por motivo0 cancelamentos Evolução mensal — cancelamentos vs. vencimentos Canceladas Vencidas (não renovadas)",
+    "sb-ret-detail": "Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Alfa Silva 0 Automóvel - casco Mapfre FERNANDO DE PAULA SERAFIM Vencida — R$ 9.110,60 R$ 1.240,06 2025-05-08 2026-05-08 Renovação Beta Souza 13 Compreensivo residencial Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 6.988,17 R$ 798,43 2025-07-16 2026-07-16 Renovação Sigma Lima 29 Vida HDI Seguros DIOGO FARIAS Vencida — R$ 5.874,49 R$ 536,05 2025-04-13 2026-04-13 Novo Teta Costa 22 Vida em grupo Mapfre BRUNO TAVARES Vencida — R$ 5.036,41 R$ 659,49 2025-09-10 2026-09-10 Novo Alfa Oliveira 36 Compreensivo empresarial Bradesco Seguros ANA CLARA MENDES Vencida — R$ 4.641,92 R$ 753,58 2025-06-07 2026-06-07 Novo Iota Ribeiro Comércio Ltda 35 Riscos diversos Tokio Marine FERNANDO DE PAULA SERAFIM Vencida — R$ 2.670,56 R$ 292,27 2025-07-08 2026-07-08 Renovação Zeta Costa 42 Compreensivo empresarial Tokio Marine BRUNO TAVARES Vencida — R$ 1.700,00 R$ 170,00 2025-04-03 2026-04-03 Renovação Ômega Costa 52 Vida em grupo Bradesco Seguros BRUNO TAVARES Vencida — R$ 1.224,01 R$ 107,28 2025-07-28 2026-07-28 Novo Gama Costa 62 Saúde HDI Seguros BRUNO TAVARES Vencida — R$ 0,00 R$ 0,00 2025-08-30 2026-08-30 Novo Delta Dias Comércio Ltda 3 Saúde HDI Seguros CARLA NOGUEIRA Vencida — R$ 0,00 R$ 0,00 2025-05-02 2026-05-02 1–11 de 11 ← Anterior Página 1 de 1 Próxima →",
+    "sb-ret-kpis": "Base do períodoApólices na base71em vigor no período · 60 retidasPrêmio na baseR$ 345.663,29apólices, sem endossosComissão na baseR$ 45.975,48apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens15.49%11 perdidas (0 canc. + 11 não renov.) · 16.67% com todos (fora: 0 pelo motivo, 1 trocas de seguradora)Churn — Prêmio13.61%R$ 47.036,30 perdidoChurn — Comissão12.21%R$ 5.612,32 perdidaNão renovadas no período11R$ 47.036,30 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens0.00%0 canceladas no períodoCancelamento — Prêmio0.00%R$ 0,00 canceladoCancelamento — Comissão0.00%R$ 0,00 cancelada",
+    "sb-ret-prod": "Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas BRUNO TAVARES 10 4 40.00% R$ 32.331,95 R$ 7.960,42 24.62% R$ 936,77 25.12% 0 0.00% 4 CARLA NOGUEIRA 18 3 16.67% R$ 87.466,11 R$ 16.778,31 19.18% R$ 1.853,59 14.47% 0 0.00% 3 ANA CLARA MENDES 9 1 11.11% R$ 51.275,33 R$ 4.641,92 9.05% R$ 753,58 10.68% 0 0.00% 1 FERNANDO DE PAULA SERAFIM 22 2 9.09% R$ 113.085,70 R$ 11.781,16 10.42% R$ 1.532,33 10.84% 0 0.00% 2 DIOGO FARIAS 12 1 8.33% R$ 61.504,20 R$ 5.874,49 9.55% R$ 536,05 6.50% 0 0.00% 1 Total 71 11 15.49% R$ 345.663,29 R$ 47.036,30 13.61% R$ 5.612,32 12.21% 0 0.00% 11",
+    "sc-ret-charts": "Análise de cancelamentos − Cancelamentos por motivo0 cancelamentos Evolução mensal — cancelamentos vs. vencimentos Canceladas Vencidas (não renovadas)",
+    "sc-ret-detail": "Detalhe apólice a apólice 11 perdidas Exportar Todas Canceladas Vencidas − Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Alfa Silva 0 Automóvel - casco Mapfre FERNANDO DE PAULA SERAFIM Vencida — R$ 9.110,60 R$ 1.240,06 2025-05-08 2026-05-08 Renovação Beta Souza 13 Compreensivo residencial Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 6.988,17 R$ 798,43 2025-07-16 2026-07-16 Renovação Sigma Lima 29 Vida HDI Seguros DIOGO FARIAS Vencida — R$ 5.874,49 R$ 536,05 2025-04-13 2026-04-13 Novo Teta Costa 22 Vida em grupo Mapfre BRUNO TAVARES Vencida — R$ 5.036,41 R$ 659,49 2025-09-10 2026-09-10 Novo Alfa Oliveira 36 Compreensivo empresarial Bradesco Seguros ANA CLARA MENDES Vencida — R$ 4.641,92 R$ 753,58 2025-06-07 2026-06-07 Novo Iota Ribeiro Comércio Ltda 35 Riscos diversos Tokio Marine FERNANDO DE PAULA SERAFIM Vencida — R$ 2.670,56 R$ 292,27 2025-07-08 2026-07-08 Renovação Zeta Costa 42 Compreensivo empresarial Tokio Marine BRUNO TAVARES Vencida — R$ 1.700,00 R$ 170,00 2025-04-03 2026-04-03 Renovação Ômega Costa 52 Vida em grupo Bradesco Seguros BRUNO TAVARES Vencida — R$ 1.224,01 R$ 107,28 2025-07-28 2026-07-28 Novo Gama Costa 62 Saúde HDI Seguros BRUNO TAVARES Vencida — R$ 0,00 R$ 0,00 2025-08-30 2026-08-30 Novo Delta Dias Comércio Ltda 3 Saúde HDI Seguros CARLA NOGUEIRA Vencida — R$ 0,00 R$ 0,00 2025-05-02 2026-05-02 1–11 de 11 ← Anterior Página 1 de 1 Próxima →",
+    "sc-ret-kpis": "Indicadores de churn 01/04/2026 a 30/09/2026 · só evitável − Base do períodoApólices na base71em vigor no período · 60 retidasPrêmio na baseR$ 345.663,29apólices, sem endossosComissão na baseR$ 45.975,48apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens15.49%11 perdidas (0 canc. + 11 não renov.) · 16.67% com todos (fora: 0 pelo motivo, 1 trocas de seguradora)Churn — Prêmio13.61%R$ 47.036,30 perdidoChurn — Comissão12.21%R$ 5.612,32 perdidaNão renovadas no período11R$ 47.036,30 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens0.00%0 canceladas no períodoCancelamento — Prêmio0.00%R$ 0,00 canceladoCancelamento — Comissão0.00%R$ 0,00 cancelada",
+    "sc-ret-prod": "Churn por produtor 5 colaboradors Exportar Colaborador Grupo − Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas BRUNO TAVARES 10 4 40.00% R$ 32.331,95 R$ 7.960,42 24.62% R$ 936,77 25.12% 0 0.00% 4 CARLA NOGUEIRA 18 3 16.67% R$ 87.466,11 R$ 16.778,31 19.18% R$ 1.853,59 14.47% 0 0.00% 3 ANA CLARA MENDES 9 1 11.11% R$ 51.275,33 R$ 4.641,92 9.05% R$ 753,58 10.68% 0 0.00% 1 FERNANDO DE PAULA SERAFIM 22 2 9.09% R$ 113.085,70 R$ 11.781,16 10.42% R$ 1.532,33 10.84% 0 0.00% 2 DIOGO FARIAS 12 1 8.33% R$ 61.504,20 R$ 5.874,49 9.55% R$ 536,05 6.50% 0 0.00% 1 Total 71 11 15.49% R$ 345.663,29 R$ 47.036,30 13.61% R$ 5.612,32 12.21% 0 0.00% 11",
+    "tab-retencao": "Filtros desta aba Período de análise → Colaborador Todos▼ANA CLARA MENDESBRUNO TAVARESCARLA NOGUEIRADIOGO FARIASFERNANDO DE PAULA SERAFIMMarcar todosLimpar Ramo Todos▼Automóvel - CascoCompreensivo EmpresarialCompreensivo ResidencialResponsabilidade Civil GeralRiscos DiversosSaúdeVidaVida em GrupoMarcar todosLimpar Grupo de produção Todos▼CorretoraParceriasSantolin 360Marcar todosLimpar Motivo cancelamento Todos▼Falta de pagamentoInsatisfação com atendimentoNão informadoPreçoTroca de seguradoraVenda do bemMarcar todosLimpar Tipo R — Renovação N — Novo Churn Só evitável ↻ Limpar Indicadores de churn 01/04/2026 a 30/09/2026 · só evitável − Base do períodoApólices na base71em vigor no período · 60 retidasPrêmio na baseR$ 345.663,29apólices, sem endossosComissão na baseR$ 45.975,48apólices, sem endossosChurn total — canceladas + não renovadasChurn — Itens15.49%11 perdidas (0 canc. + 11 não renov.) · 16.67% com todos (fora: 0 pelo motivo, 1 trocas de seguradora)Churn — Prêmio13.61%R$ 47.036,30 perdidoChurn — Comissão12.21%R$ 5.612,32 perdidaNão renovadas no período11R$ 47.036,30 em prêmioChurn só cancelamento — canceladas durante a vigênciaCancelamento — Itens0.00%0 canceladas no períodoCancelamento — Prêmio0.00%R$ 0,00 canceladoCancelamento — Comissão0.00%R$ 0,00 cancelada Análise de cancelamentos − Cancelamentos por motivo0 cancelamentos Evolução mensal — cancelamentos vs. vencimentos Canceladas Vencidas (não renovadas) Churn por produtor 5 colaboradors Exportar Colaborador Grupo − Colaborador Base (apólices) Perdidas % Churn itens Prêmio base Prêmio perdido % Churn prêmio Comissão perdida % Churn comissão Canceladas % Só cancel. Vencidas BRUNO TAVARES 10 4 40.00% R$ 32.331,95 R$ 7.960,42 24.62% R$ 936,77 25.12% 0 0.00% 4 CARLA NOGUEIRA 18 3 16.67% R$ 87.466,11 R$ 16.778,31 19.18% R$ 1.853,59 14.47% 0 0.00% 3 ANA CLARA MENDES 9 1 11.11% R$ 51.275,33 R$ 4.641,92 9.05% R$ 753,58 10.68% 0 0.00% 1 FERNANDO DE PAULA SERAFIM 22 2 9.09% R$ 113.085,70 R$ 11.781,16 10.42% R$ 1.532,33 10.84% 0 0.00% 2 DIOGO FARIAS 12 1 8.33% R$ 61.504,20 R$ 5.874,49 9.55% R$ 536,05 6.50% 0 0.00% 1 Total 71 11 15.49% R$ 345.663,29 R$ 47.036,30 13.61% R$ 5.612,32 12.21% 0 0.00% 11 Detalhe apólice a apólice 11 perdidas Exportar Todas Canceladas Vencidas − Tipo Cliente Ramo Seguradora Colaborador Situação Motivo Prêmio Comissão Vigência Saída Renovação Alfa Almeida 48 Responsabilidade civil geral HDI Seguros CARLA NOGUEIRA Vencida — R$ 9.790,14 R$ 1.055,16 2025-07-09 2026-07-09 Renovação Alfa Silva 0 Automóvel - casco Mapfre FERNANDO DE PAULA SERAFIM Vencida — R$ 9.110,60 R$ 1.240,06 2025-05-08 2026-05-08 Renovação Beta Souza 13 Compreensivo residencial Bradesco Seguros CARLA NOGUEIRA Vencida — R$ 6.988,17 R$ 798,43 2025-07-16 2026-07-16 Renovação Sigma Lima 29 Vida HDI Seguros DIOGO FARIAS Vencida — R$ 5.874,49 R$ 536,05 2025-04-13 2026-04-13 Novo Teta Costa 22 Vida em grupo Mapfre BRUNO TAVARES Vencida — R$ 5.036,41 R$ 659,49 2025-09-10 2026-09-10 Novo Alfa Oliveira 36 Compreensivo empresarial Bradesco Seguros ANA CLARA MENDES Vencida — R$ 4.641,92 R$ 753,58 2025-06-07 2026-06-07 Novo Iota Ribeiro Comércio Ltda 35 Riscos diversos Tokio Marine FERNANDO DE PAULA SERAFIM Vencida — R$ 2.670,56 R$ 292,27 2025-07-08 2026-07-08 Renovação Zeta Costa 42 Compreensivo empresarial Tokio Marine BRUNO TAVARES Vencida — R$ 1.700,00 R$ 170,00 2025-04-03 2026-04-03 Renovação Ômega Costa 52 Vida em grupo Bradesco Seguros BRUNO TAVARES Vencida — R$ 1.224,01 R$ 107,28 2025-07-28 2026-07-28 Novo Gama Costa 62 Saúde HDI Seguros BRUNO TAVARES Vencida — R$ 0,00 R$ 0,00 2025-08-30 2026-08-30 Novo Delta Dias Comércio Ltda 3 Saúde HDI Seguros CARLA NOGUEIRA Vencida — R$ 0,00 R$ 0,00 2025-05-02 2026-05-02 1–11 de 11 ← Anterior Página 1 de 1 Próxima →",
+    "vt-ret-colab": "",
+    "vt-ret-grp": ""
+  }
+}

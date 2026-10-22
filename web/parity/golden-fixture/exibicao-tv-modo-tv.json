@@ -1,0 +1,70 @@
+{
+  "graficos": {
+    "tv-ex-ano-chart": {
+      "datasets": [
+        {
+          "data": [
+            1,
+            0,
+            0,
+            127,
+            75,
+            74
+          ],
+          "label": "Apólices"
+        },
+        {
+          "data": [
+            1,
+            0,
+            0,
+            127,
+            75,
+            74
+          ],
+          "label": "Tendência"
+        }
+      ],
+      "labels": [
+        "2021",
+        "2022",
+        "2023",
+        "2024",
+        "2025",
+        "2026"
+      ]
+    },
+    "tv-ex-nivel-chart": {
+      "datasets": [
+        {
+          "data": [
+            32,
+            15,
+            4,
+            0
+          ]
+        }
+      ],
+      "labels": [
+        "Nível 1 — Essencial",
+        "Nível 2 — Ampliada",
+        "Nível 3 — Avançada",
+        "Nível 4 — Plena"
+      ]
+    }
+  },
+  "textos": {
+    "body-tv-mode": "true",
+    "tv-ex-ano-badge": "74 apólices ativas",
+    "tv-ex-ano-chart": "",
+    "tv-ex-nivel-badge": "51 clientes",
+    "tv-ex-nivel-chart": "",
+    "tv-ex-novos-badge": "Out/2026",
+    "tv-ex-novos-body": "Prêmio Geral 0.00% R$ 0,00 / R$ 14.053,28 -R$ 14.053,28 Pessoais 0.00% R$ 0,00 / R$ 14.053,28 -R$ 14.053,28 Patrimoniais 0.00% R$ 0,00 / R$ 0,00 +R$ 0,00 Comissão Geral 0.00% R$ 0,00 / R$ 1.582,20 -R$ 1.582,20 Pessoais 0.00% R$ 0,00 / R$ 1.582,20 -R$ 1.582,20 Patrimoniais 0.00% R$ 0,00 / R$ 0,00 +R$ 0,00",
+    "tv-ex-santolin-badge": "SANTOLIN 360",
+    "tv-ex-santolin-com": "Resultado Gerado R$ 16.413,63 / R$ 115.000,00 Fase 1R$ 77.000,00Fase 2R$ 97.000,00Fase 3R$ 115.000,00 Nenhuma fase concluída ainda",
+    "tv-ex-santolin-podium": "Top 3 — Negócios Realizados DIOGO F. 2 FERNANDO D. 1 CARLA N. 3 Top 3 — Resultado Gerado DIOGO F. 2 CARLA N. 1 FERNANDO D. 3",
+    "tv-ex-santolin-qtd": "Negócios Realizados 25 / 180 Fase 1120Fase 2150Fase 3180 Nenhuma fase concluída ainda",
+    "tv-exibicao": "✕ Meta mensal — Seguros novos Out/2026 Prêmio Geral 0.00% R$ 0,00 / R$ 14.053,28 -R$ 14.053,28 Pessoais 0.00% R$ 0,00 / R$ 14.053,28 -R$ 14.053,28 Patrimoniais 0.00% R$ 0,00 / R$ 0,00 +R$ 0,00 Comissão Geral 0.00% R$ 0,00 / R$ 1.582,20 -R$ 1.582,20 Pessoais 0.00% R$ 0,00 / R$ 1.582,20 -R$ 1.582,20 Patrimoniais 0.00% R$ 0,00 / R$ 0,00 +R$ 0,00 Resultado Gerado R$ 16.413,63 / R$ 115.000,00 Fase 1R$ 77.000,00Fase 2R$ 97.000,00Fase 3R$ 115.000,00 Nenhuma fase concluída ainda Top 3 vendedores — Santolin 360 SANTOLIN 360 Top 3 — Negócios Realizados DIOGO F. 2 FERNANDO D. 1 CARLA N. 3 Top 3 — Resultado Gerado DIOGO F. 2 CARLA N. 1 FERNANDO D. 3 Carteira acumulada — apólices ativas por ano 74 apólices ativas Negócios Realizados 25 / 180 Fase 1120Fase 2150Fase 3180 Nenhuma fase concluída ainda Clientes por nível 51 clientes"
+  }
+}
