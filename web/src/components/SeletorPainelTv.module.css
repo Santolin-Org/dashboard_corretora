@@ -1,0 +1,49 @@
+/* Canto superior direito, à esquerda do ✕ da exibição; acima do overlay (#tv-exibicao, z 9999).
+   Invisível até alguém mexer o mouse/teclado (classe .visivel), com fundo próprio para não se
+   misturar ao selo do cartão de baixo enquanto aparece. */
+.seletor {
+  position: fixed;
+  top: 8px;
+  right: 44px;
+  z-index: 10001;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+
+.visivel {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rotulo {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  color: var(--text-tertiary);
+}
+
+.campo {
+  height: 26px;
+  padding: 0 8px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-sm);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.campo:focus-visible {
+  outline: 2px solid rgba(78, 128, 255, 0.6);
+  outline-offset: 1px;
+}

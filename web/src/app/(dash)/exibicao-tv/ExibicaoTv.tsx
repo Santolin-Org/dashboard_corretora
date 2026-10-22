@@ -3,6 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { usePainel } from "@/client/painel";
 import { rotaDeVolta } from "@/client/exibicaoTv";
+import { usePainelTv } from "@/client/painelTv";
 import { exibicaoTv, fVarPct, type CartaoNovos } from "@/domain/exibicao-tv";
 import { fBRL, fN, fP } from "@/domain/formatos";
 import { Grafico } from "@/components/Grafico";
@@ -40,7 +41,9 @@ export default function ExibicaoTv() {
   const { base } = usePainel();
   const router = useRouter();
   const linhas = base.linhas, hoje = base.hoje;
-  const d = useMemo(() => exibicaoTv(linhas, hoje), [linhas, hoje]);
+  const painel = usePainelTv();
+  const d = useMemo(() => exibicaoTv(linhas, hoje, painel), [linhas, hoje, painel]);
+  const barraUnica = Object.values(d.metasSantolin).filter(Boolean).length === 1;
 
   const fechar = useCallback(() => { router.replace(rotaDeVolta()); }, [router]);
   useEffect(() => {
@@ -62,8 +65,15 @@ export default function ExibicaoTv() {
     <>
       <button type="button" className="tv-ex-exit" title="Sair (Esc)" onClick={fechar}>✕</button>
       {sp}
-      <div className="tv-ex-grid">
+      <div className={barraUnica ? "tv-ex-grid tv-ex-grid-faixa" : "tv-ex-grid"}>
         {sp}
+        {barraUnica && (
+          // Painel com uma meta só (ex.: 360_tri4): a barra ocupa a largura toda — com metade da tela as
+          // fases próximas (R$ 120k e R$ 130k) se sobrepunham.
+          <div className="tv-ex-santolin-bar tv-ex-santolin-bar-larga" id={d.metasSantolin.com ? "tv-ex-santolin-com" : "tv-ex-santolin-qtd"}>
+            <MetaDeFases m={(d.metasSantolin.com ?? d.metasSantolin.qtd)!} />
+          </div>
+        )}
         <div className="tv-ex-left">
           {sp}
           <div className="tv-ex-card">
@@ -87,7 +97,7 @@ export default function ExibicaoTv() {
             {sp}
           </div>
           {sp}
-          <div className="tv-ex-santolin-bar" id="tv-ex-santolin-com"><MetaDeFases m={d.metasSantolin.com} /></div>
+          {!barraUnica && d.metasSantolin.com && <div className="tv-ex-santolin-bar" id="tv-ex-santolin-com"><MetaDeFases m={d.metasSantolin.com} /></div>}
           {sp}
           <div className="tv-ex-card">
             {sp}
@@ -180,7 +190,7 @@ export default function ExibicaoTv() {
             {sp}
           </div>
           {sp}
-          <div className="tv-ex-santolin-bar" id="tv-ex-santolin-qtd"><MetaDeFases m={d.metasSantolin.qtd} /></div>
+          {!barraUnica && d.metasSantolin.qtd && <div className="tv-ex-santolin-bar" id="tv-ex-santolin-qtd"><MetaDeFases m={d.metasSantolin.qtd} /></div>}
           {sp}
           <div className="tv-ex-card">
             {sp}

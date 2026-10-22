@@ -18,12 +18,13 @@ export const CAMPANHA_360_FIM = '2026-09-30';
 export const CAMPANHA_360_FASES_QTD = [120, 150, 180];
 export const CAMPANHA_360_FASES_COM = [77000, 97000, 115000];
 
-export function getCampanha360Rows(todas: Linha[]): Linha[] {
+// O período é parâmetro para os painéis da Exibição TV (paineis-tv.ts); a aba Cross-sell usa o padrão (3º tri).
+export function getCampanha360Rows(todas: Linha[], inicio: string = CAMPANHA_360_INICIO, fim: string = CAMPANHA_360_FIM): Linha[] {
   const alvo = normRamo(CAMPANHA_360_NOME);
   return todas.filter(r =>
     r.tipoDoc === 'APÓLICE' &&
     normRamo(r.campanha) === alvo &&
-    r.vig && r.vig >= CAMPANHA_360_INICIO && r.vig <= CAMPANHA_360_FIM
+    r.vig && r.vig >= inicio && r.vig <= fim
   );
 }
 

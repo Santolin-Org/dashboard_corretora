@@ -126,6 +126,8 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
 
   await page.addInitScript("window.__name = (f) => f;");
   await page.addInitScript(`try { localStorage.setItem('tvMode', '${c.modoTv ? 1 : 0}'); } catch (e) {}`);
+  // A Exibição TV do app antigo é o painel 360_tri3 (o padrão do app novo é o trimestre atual).
+  await page.addInitScript(`try { localStorage.setItem('tvPainel', '360_tri3'); } catch (e) {}`);
   await page.clock.install({ time: new Date(HOJE_FIXO) });
   await page.clock.setFixedTime(new Date(HOJE_FIXO)); // Date.now() parado: o LTV do Cross-sell divide por (agora − 1ª vigência)
   // A apresentação abre pelo botão "▶ Modo apresentação" da aba Metas (como o usuário); o antigo chama openKickoff().

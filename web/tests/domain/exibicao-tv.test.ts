@@ -25,7 +25,7 @@ type Golden = { textos: Record<string, string>; graficos: Record<string, { label
 const dourado = (c: string): Golden => JSON.parse(readFileSync(join(__dirname, '../../parity/golden-fixture', `${c}.json`), 'utf8'));
 const colapsar = (s: string) => s.replace(/\s+/g, ' ').trim();
 
-const textoMeta = (m: DadosTv['metasSantolin']['qtd']) =>
+const textoMeta = (m: NonNullable<DadosTv['metasSantolin']['qtd']>) =>
   colapsar(`${m.label} ${m.valor} / ${m.metaFinal} ${m.marcadores.map(k => `Fase ${k.fase}${k.valor}`).join('')} ${m.badge}`);
 const textoNovos = (d: DadosTv['novos']) =>
   colapsar(d.linhas.map(l => `${l.rotulo} ` + l.cartoes.map(c => `${c.label} ${c.pctTxt} ${fBRL(c.real)} / ${fBRL(c.meta)} ${c.gap >= 0 ? '+' : ''}${fBRL(c.gap)}`).join(' ')).join(' '));
@@ -39,8 +39,8 @@ describe.each(['exibicao-tv-padrao', 'exibicao-tv-modo-tv'])('%s (esperado do do
     const d = exibicaoTv(ALL, HOJE);
     expect(d.novos.badge).toBe(g.textos['tv-ex-novos-badge']);
     expect(textoNovos(d.novos)).toBe(g.textos['tv-ex-novos-body']);
-    expect(textoMeta(d.metasSantolin.com)).toBe(g.textos['tv-ex-santolin-com']);
-    expect(textoMeta(d.metasSantolin.qtd)).toBe(g.textos['tv-ex-santolin-qtd']);
+    expect(textoMeta(d.metasSantolin.com!)).toBe(g.textos['tv-ex-santolin-com']);
+    expect(textoMeta(d.metasSantolin.qtd!)).toBe(g.textos['tv-ex-santolin-qtd']);
     expect(d.podio.badge).toBe(g.textos['tv-ex-santolin-badge']);
     expect(textoPodio(d.podio)).toBe(g.textos['tv-ex-santolin-podium']);
     expect(d.ano.badge).toBe(g.textos['tv-ex-ano-badge']);
@@ -131,8 +131,8 @@ describe('regras (linhas sintéticas)', () => {
     expect(d.podio.vazio).toBe(false);
     expect(d.podio.colunas[0].nomes[0]).toBe('Fernando D.');
     expect(d.podio.colunas[0].nomes[1]).toBe('Maria');
-    expect(d.metasSantolin.qtd.valor).toBe(fN(3));
-    expect(d.metasSantolin.com.valor).toBe(fBRL(15));
+    expect(d.metasSantolin.qtd!.valor).toBe(fN(3));
+    expect(d.metasSantolin.com!.valor).toBe(fBRL(15));
     expect(exibicaoTv([], HOJE).podio.vazio).toBe(true);
     void fP;
   });

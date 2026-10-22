@@ -8,9 +8,10 @@ import { SIT, isApolice } from './situacoes';
 import { ATIVA_VENCIDA_FOLGA_DIAS } from './producao/base';
 import { fBRL, fN, fP } from './formatos';
 import {
-  CAMPANHA_360_FASES_COM, CAMPANHA_360_FASES_QTD, CAMPANHA_360_NOME, CROSS_NIVEIS, contarNiveis, getCampanha360Ranking, getCampanha360Rows,
+  CAMPANHA_360_NOME, CROSS_NIVEIS, contarNiveis, getCampanha360Ranking, getCampanha360Rows,
   metaFases, type MetaFases,
 } from './crosssell';
+import { painelTv, type PainelTv } from './paineis-tv';
 import { META_TEAMS, METAS_SEM_TEAM_COLOR, METAS_SEM_TEAM_LBL, pctClsMeta, type EquipeMeta } from './metas-semanal';
 
 // Colaboradores fora de todos os gráficos da Exibição TV (pedido específico desta
@@ -185,13 +186,14 @@ const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'O
 
 export type DadosTv = {
   novos: { badge: string; linhas: LinhaNovos[] };
-  metasSantolin: { qtd: MetaFases; com: MetaFases };
+  /** Barras de meta do painel escolhido; cada painel define quais existem (o 360_tri4 só tem `com`). */
+  metasSantolin: { qtd?: MetaFases; com?: MetaFases };
   podio: { badge: string; vazio: boolean; colunas: { titulo: string; nomes: [string, string, string] }[] };
   ano: { labels: string[]; data: number[]; badge: string };
   nivel: { labels: string[]; counts: number[]; total: number; badge: string };
 };
 
-export function exibicaoTv(todas: Linha[], hoje: DataISO): DadosTv {
+export function exibicaoTv(todas: Linha[], hoje: DataISO, painel: PainelTv = painelTv('360_tri3')): DadosTv {
   // Meta mensal de novos
   const { curStart, data } = buildTvMetaNovos(todas, hoje);
   const [y, m] = curStart.split('-');
@@ -208,13 +210,14 @@ export function exibicaoTv(todas: Linha[], hoje: DataISO): DadosTv {
   }));
 
   // Santolin 360 (sem Celso/Denise/… como o resto do lado esquerdo)
-  const rows = getCampanha360Rows(todas).filter(r => !tvColabExcluido(r.colab));
+  const rows = getCampanha360Rows(todas, painel.inicio, painel.fim).filter(r => !tvColabExcluido(r.colab));
   const qtd = rows.length;
   const comissao = rows.reduce((s, r) => s + r.com, 0);
-  const metasSantolin = {
-    qtd: metaFases('Negócios Realizados', qtd, CAMPANHA_360_FASES_QTD, fN),
-    com: metaFases('Resultado Gerado', comissao, CAMPANHA_360_FASES_COM, fBRL),
-  };
+  const metasSantolin: DadosTv['metasSantolin'] = {};
+  for (const m of painel.metas) {
+    if (m.tipo === 'qtd') metasSantolin.qtd = metaFases('Negócios Realizados', qtd, m.fases, fN);
+    else metasSantolin.com = metaFases('Resultado Gerado', comissao, m.fases, fBRL);
+  }
   const nomes = (metric: 'qtd' | 'comissao'): [string, string, string] => {
     const t = getCampanha360Ranking(rows, metric).map(r => tvNomeCurto(r.colab));
     return [0, 1, 2].map(i => t[i] ?? '—') as [string, string, string];

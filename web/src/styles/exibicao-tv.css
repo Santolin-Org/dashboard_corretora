@@ -32,6 +32,8 @@
   grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
+.tv-ex-grid-faixa { grid-template-rows: auto minmax(0, 1fr); row-gap: 18px; }
+.tv-ex-santolin-bar.tv-ex-santolin-bar-larga { grid-column: 1 / -1; padding: 0 56px 0 24px; } /* direita maior: o rótulo da última fase é centrado em 100% */
 .tv-ex-left { min-width: 0; display: flex; flex-direction: column; gap: 20px; }
 .tv-ex-novos-body {
   flex: 1;
