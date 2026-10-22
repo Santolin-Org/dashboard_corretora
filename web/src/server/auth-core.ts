@@ -19,14 +19,39 @@ export function assertIssuerSeguro(env: Env = process.env): string {
   return ISSUER_PADRAO;
 }
 
+/** E-mail do perfil Entra: a claim `email` pode faltar (ou não bater com o login) em contas M365;
+ *  cai para o nome de login (preferred_username/UPN), que o tenant controla. Sempre minúsculo. */
+export function emailDoPerfil(profile: Record<string, unknown> | null | undefined): string | null {
+  for (const c of [profile?.email, profile?.preferred_username, profile?.upn]) {
+    if (typeof c === "string" && c.includes("@")) return c.trim().toLowerCase();
+  }
+  return null;
+}
+
+export type ResultadoLogin = { ok: true } | { ok: false; motivo: "tenant" | "sem-email" | "fora-da-lista" | "erro-banco" };
+
+/** signIn com o motivo da recusa (vai para o log do servidor; nunca para a tela). */
+export async function avaliarLogin(email: string | null | undefined, tid: unknown, db?: Db): Promise<ResultadoLogin> {
+  if (tid !== TENANT_ID) return { ok: false, motivo: "tenant" };
+  if (!email) return { ok: false, motivo: "sem-email" };
+  try {
+    return (await buscarUsuarioAtivo(email, db)) ? { ok: true } : { ok: false, motivo: "fora-da-lista" };
+  } catch {
+    return { ok: false, motivo: "erro-banco" };
+  }
+}
+
+/** E-mail mascarado para log: "mitzrael@x.com" → "mi***@x.com". */
+export const mascararEmail = (e: string | null | undefined): string =>
+  e ? e.replace(/^(.{0,2})[^@]*(@.*)?$/, (_, ini: string, dom?: string) => `${ini}***${dom ?? ""}`) : "(vazio)";
+
 /** signIn: tenant do token deve ser o da Santolin E o e-mail estar ativo na lista. */
 export async function permitirLogin(
   email: string | null | undefined,
   tid: unknown,
   db?: Db,
 ): Promise<boolean> {
-  if (tid !== TENANT_ID) return false;
-  return permitirEntrada(email, db);
+  return (await avaliarLogin(email, tid, db)).ok;
 }
 export const ESCOPOS = "openid profile email offline_access User.Read";
 
