@@ -1,5 +1,18 @@
 # Divergências e peculiaridades (decisão do Mitz)
 
+## Correções intencionais (o app novo diverge do antigo de propósito)
+
+A régua de paridade aplica estas mesmas correções ao lado antigo (só dentro do harness:
+`parity/antigo.ts` e `tests/parity/base.test.ts`), para continuar validando todo o resto.
+O `main.js` da raiz não é alterado.
+
+1. **ENDOSSO "0" conta como sem endosso** (22/10/2026). Nas exportações antigas do ERP a
+   apólice vem com `ENDOSSO = 0`; o antigo a tratava como endosso e a descartava de toda
+   métrica com `isApolice` (2020: 4.642 apólices; 2021: 4.711; 2022: 2.491; 2023: 203).
+   Sintoma visível: a carteira por ano da Exibição TV mostrava 343 (2020) e 505 (2021).
+   Regra nova em `src/domain/situacoes.ts` e METRICAS.md §1.2. A trava `TIPO DOCUMENTO =
+   'APÓLICE'` continua, então endossos de verdade com "0" seguem de fora.
+
 ## Task 3 — domínio base
 
 - **`#rec-badge` mostra "0 registros" na carga inicial no app antigo.** `updateDashHeader`

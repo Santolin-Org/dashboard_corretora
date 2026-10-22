@@ -54,6 +54,8 @@ test("montarBase/montarSinistros (Node) == applySharePointData antigo (ALL, prod
     if (d.pg) payloads.sinistrosPagamentos = dec(d.pg);
     if (d.saude) payloads.saude = { buf: dec(d.saude), lastModified: "Wed, 14 Oct 2026 12:00:00 GMT" };
     document.getElementById("landing-screen")!.style.display = "none";
+    // Mesma correção intencional aplicada em parity/antigo.ts (ENDOSSO "0" = sem endosso).
+    w.isApolice = (r: any) => (!r.endosso || /^0+$/.test(r.endosso)) && r.tipoDoc === "APÓLICE";
     w.applySharePointData(payloads, []);
     return {
       all: ALL.map((r: any) => ({ ...r, vig: fmtD(r.vig), em: fmtD(r.em), fim: fmtD(r.fim), cancel: fmtD(r.cancel), ...locais(r) })),

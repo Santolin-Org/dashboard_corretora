@@ -76,6 +76,11 @@ export async function injetarDadosAntigo(page: Page, dataDir: string): Promise<v
     if (d.sinistrosPagamentos) payloads.sinistrosPagamentos = dec(d.sinistrosPagamentos);
     if (d.saude) payloads.saude = { buf: dec(d.saude), lastModified: d.lastModified };
     document.getElementById("landing-screen")!.style.display = "none";
+    // Correções intencionais do app novo em relação ao antigo (web/docs/divergencias.md,
+    // "Correções intencionais"): aplicadas também ao lado antigo, só dentro da régua, para
+    // que a paridade continue validando todo o resto. O main.js da raiz não é alterado.
+    // 1) ENDOSSO "0" (exportações antigas do ERP) conta como sem endosso — decisão de 22/10/2026.
+    w.isApolice = (r: any) => (!r.endosso || /^0+$/.test(r.endosso)) && r.tipoDoc === "APÓLICE";
     w.applySharePointData(payloads, []);
   }, lerDados(dataDir));
   await page.waitForFunction("document.getElementById('dash') && document.getElementById('dash').style.display !== 'none'");

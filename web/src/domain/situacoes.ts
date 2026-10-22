@@ -17,7 +17,12 @@ export const normSit = (s: unknown): string => SIT_CANON.get(String(s || '').tri
 
 // Uma linha é a apólice em si (não endosso/fatura) quando não traz número de endosso.
 // Cruzamos com TIPO DOCUMENTO porque as duas fontes divergem em registros legados.
-export function isApolice(r: { endosso: string; tipoDoc: string }): boolean { return !r.endosso && r.tipoDoc === 'APÓLICE'; }
+// Nas exportações antigas do ERP (2020–2023) a apólice vem com ENDOSSO "0" em vez de
+// vazio: "0" (ou só zeros) também é "sem endosso". Correção intencional em relação ao
+// app antigo, que descartava essas apólices — decisão do Mitz em 22/10/2026
+// (ver web/docs/divergencias.md e METRICAS.md §1.2).
+const semEndosso = (e: string): boolean => !e || /^0+$/.test(e);
+export function isApolice(r: { endosso: string; tipoDoc: string }): boolean { return semEndosso(r.endosso) && r.tipoDoc === 'APÓLICE'; }
 
 // O vínculo endosso→apólice é seguradora + número da apólice — o endosso repete o número da mãe.
 export const chaveApolice = (r: { seg: string; apolice: string }): string => r.seg + '|' + r.apolice;
