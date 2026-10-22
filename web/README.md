@@ -37,7 +37,7 @@ FONTE=local FONTE_DIR=$PWD/parity/fixtures/out PARITY_AUTH_BYPASS=1 PARITY_HOJE=
 AUTH_SECRET=qualquer-coisa-local TZ=America/Sao_Paulo npm run dev
 ```
 
-Para usar planilhas reais, aponte `FONTE_DIR` para `parity/data/` (ignorada pelo git).
+Para usar planilhas reais sem login, aponte `FONTE_DIR` para uma pasta **fora do repositório** com as cópias (recomendado: `~/Documents/dashboard-planilhas-paridade/`). Com o `.env.local` do Azure preenchido e sem `FONTE=local`, o servidor lê direto do SharePoint.
 
 ## Variáveis de ambiente
 
@@ -75,7 +75,7 @@ Lista conferida contra `grep process.env` em `src/`, `parity/` e nos arquivos de
 | `npm run test:parity` | Testes Playwright em `tests/parity` |
 | `npm run parity -- <flags>` | Harness de paridade (abaixo) |
 | `npm run regressao` | `lint`, `typecheck`, `build` (`next build`), `test`, `test:tz`, `test:parity` e `parity -- --lado ambos --fixture` |
-| `npm run regressao:real` | `parity -- --lado ambos --dados parity/data` (planilhas reais) |
+| `npm run regressao:real` | `parity -- --lado ambos --dados $PARITY_DADOS` (planilhas reais; padrão `parity/data`) |
 | `npm run db:generate` | Gera migration do Drizzle a partir de `src/server/db/schema.ts` |
 | `npm run db:migrate` | Aplica as migrations em `DATABASE_URL` |
 | `npm run db:seed` | Sincroniza `seed/usuarios.json` na tabela `users` (upsert por e-mail minúsculo; quem não está na lista fica inativo) |
@@ -99,8 +99,8 @@ compara o app novo com essa cópia (o CI não sobe o app antigo do zero). Se o `
 os dourados ficam velhos: regere com `npm run parity -- --lado antigo --fixture --regerar-antigo`, confira o diff e
 versione.
 
-**Dados reais:** copie para `parity/data/` as planilhas `producao*.xlsx`, `sinistrosAvisados.xlsx`,
-`sinistrosPagamentos.xlsx` e, se houver, `saude_fernando.xlsx` (nunca vão para o git). Rode `npm run regressao:real` e
+**Dados reais:** mantenha as cópias **fora do repositório** (ex.: `~/Documents/dashboard-planilhas-paridade/`) e rode `PARITY_DADOS=~/Documents/dashboard-planilhas-paridade npm run regressao:real` (pasta com `producao*.xlsx`, `sinistrosAvisados.xlsx`,
+`sinistrosPagamentos.xlsx` e, se houver, `saude_fernando.xlsx` — nunca vão para o git). Depois
 leia `parity/.golden/relatorio.md`. Esperado: saída 0 e nenhuma diferença; qualquer diferença sai com código 1 e é
 listada no relatório.
 

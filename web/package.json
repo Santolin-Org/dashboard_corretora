@@ -15,7 +15,7 @@
     "db:seed": "tsx src/server/db/seed.ts",
     "typecheck": "next typegen && tsc --noEmit",
     "regressao": "npm run lint && npm run typecheck && npm run build && npm test && npm run test:tz && npm run test:parity && npm run parity -- --lado ambos --fixture",
-    "regressao:real": "npm run parity -- --lado ambos --dados parity/data",
+    "regressao:real": "npm run parity -- --lado ambos --dados ${PARITY_DADOS:-parity/data}",
     "test:tz": "TZ=UTC vitest run tests/domain && TZ=America/Sao_Paulo vitest run tests/domain"
   },
   "dependencies": {

@@ -37,7 +37,7 @@ Variáveis e scripts: ver `README.md`.
 > `nextjs-migracao` nem a virada. Primeira execução (2026-10-21, 6 planilhas de produção + saúde, sem sinistros):
 > 0 diferença em 111 cenários.
 
-- [ ] Copiar as planilhas reais para `web/parity/data/` (`producao*.xlsx`, `sinistrosAvisados.xlsx`, `sinistrosPagamentos.xlsx`, `saude_fernando.xlsx` se houver). Não vão para o git.
+- [ ] Ter as cópias das planilhas reais numa pasta **fora do repositório** (ex.: `~/Documents/dashboard-planilhas-paridade/`) e rodar `PARITY_DADOS=~/Documents/dashboard-planilhas-paridade npm run regressao:real`. Planilhas nunca vão para o git (`*.xlsx` no `.gitignore`).
 - [ ] `npm run regressao:real` (cobre as abas já portadas; Sinistros fica de fora, por decisão do Mitz).
   - Verificar: saída 0 e `parity/.golden/relatorio.md` sem diferenças. Anexar o relatório ao PR.
 
