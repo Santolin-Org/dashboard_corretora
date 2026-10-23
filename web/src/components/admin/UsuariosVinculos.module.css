@@ -1,0 +1,48 @@
+/* Usuários e vínculos (esboço vinculos-v6). */
+.pagina { display: flex; flex-direction: column; gap: 14px; }
+.topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.topo b { font-size: 16px; }
+.topo small { display: block; color: var(--text-secondary); font-size: 12px; font-weight: 400; }
+.btn { background: #4e80ff; color: #fff; border: 0; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.pagina button:disabled { opacity: 0.5; cursor: default; }
+.grade { display: grid; grid-template-columns: 1fr 280px; gap: 14px; align-items: start; }
+@media (max-width: 900px) { .grade { grid-template-columns: 1fr; } }
+.card { background: var(--bg-raised); border-radius: var(--r-md); box-shadow: var(--shadow-card); }
+.card table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.card th { text-align: left; color: var(--text-secondary); font-weight: 500; font-size: 11px; padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+.card td { padding: 10px 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); vertical-align: top; }
+.card td small { color: var(--text-secondary); display: block; font-size: 11px; }
+.card td button { cursor: pointer; }
+.inativo { opacity: 0.55; }
+.papel { font-size: 10px; padding: 2px 7px; border-radius: 999px; font-weight: 600; background: rgba(255, 255, 255, 0.08); margin-right: 4px; }
+.pv { background: rgba(45, 212, 160, 0.12); color: #2dd4a0; }
+.pg { background: rgba(167, 139, 250, 0.14); color: #a78bfa; }
+.pa { background: rgba(78, 128, 255, 0.14); color: #9cb8ff; }
+.chip { display: inline-block; background: rgba(78, 128, 255, 0.14); color: #cfe0ff; border-radius: 6px; padding: 3px 7px; font-size: 10.5px; margin: 0 4px 4px 0; }
+.chip button { background: none; border: 0; color: var(--text-secondary); margin-left: 4px; padding: 0 2px; cursor: pointer; }
+.add { background: none; color: #4e80ff; font-size: 10.5px; padding: 2px 7px; border: 1px dashed rgba(78, 128, 255, 0.5); border-radius: 6px; }
+.vazio { color: #f5a623; font-size: 11px; margin-right: 6px; }
+.ancora { position: relative; display: inline-block; }
+.menu { position: absolute; z-index: 5; left: 0; min-width: 260px; max-height: 260px; overflow: auto; background: var(--bg-raised); border-radius: var(--r-md); box-shadow: var(--shadow-card), 0 0 0 1px rgba(255, 255, 255, 0.1); padding: 6px; list-style: none; margin: 4px 0 0; }
+.menu input { width: 100%; box-sizing: border-box; margin-bottom: 4px; }
+.menu ul { list-style: none; margin: 0; padding: 0; }
+.menu li button { background: none; border: 0; color: inherit; text-align: left; width: 100%; padding: 5px 6px; border-radius: 6px; cursor: pointer; font-size: 11px; }
+.menu li button:hover { background: #1a2236; }
+.nada { color: var(--text-secondary); font-size: 11px; padding: 5px 6px; }
+.lado h4 { margin: 0; padding: 12px 12px 4px; font-size: 12.5px; }
+.lado p { margin: 0; padding: 0 12px 8px; color: var(--text-secondary); font-size: 11px; }
+.lado ul { list-style: none; margin: 0; padding: 0 8px 10px; }
+.lado li { position: relative; font-size: 11px; padding: 6px; border-radius: 6px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px; }
+.lado li:hover { background: #1a2236; }
+.lado li > span { color: var(--text-secondary); white-space: nowrap; }
+.nome { background: none; border: 0; color: inherit; text-align: left; flex: 1; padding: 0; cursor: pointer; font-size: 11px; }
+.sec { background: none; border: 0; color: var(--text-secondary); font-size: 10px; cursor: pointer; text-decoration: underline; padding: 0; }
+.lado details { padding: 0 12px 10px; font-size: 11px; color: var(--text-secondary); }
+.lado details ul { padding: 6px 0 0; }
+.ign { color: #3e4d68; }
+.form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; background: var(--bg-raised); border-radius: var(--r-md); box-shadow: var(--shadow-card); padding: 12px; font-size: 12px; }
+.form label { display: flex; flex-direction: column; gap: 3px; color: var(--text-secondary); }
+.form .ativo { flex-direction: row; align-items: center; gap: 6px; }
+.acoes { display: flex; gap: 8px; }
+.erro { color: #ff6b6b; font-size: 12px; margin: 0; flex-basis: 100%; }
+.msg { color: var(--text-secondary); padding: 16px; font-size: 13px; }
