@@ -19,7 +19,7 @@ const LINHAS = [
   linha({ colab: SD, tipo: "N", vig: "2026-10-08", fim: "2027-10-08", premio: 50, com: 5, cli: "Sem dono" }),
   linha({ colab: IG, tipo: "N", vig: "2026-10-09", fim: "2027-10-09", cli: "Ign" }),
 ];
-const LISTA = { produtores: [{ nome: "Ana Lima", nomes: [A] }, { nome: "Bruno Reis", nomes: [B] }], ignorados: [IG] };
+const LISTA = { produtores: [{ id: 1, nome: "Ana Lima", nomes: [A] }, { id: 2, nome: "Bruno Reis", nomes: [B] }], ignorados: [IG] };
 const fakeBase = (linhas = LINHAS) => ({ linhas, sinistros: [], hoje: "2026-10-22", manifesto: [], avisosSaude: [] }) as unknown as BaseCliente;
 const Raiz = ({ children }: { children: React.ReactNode }) =>
   <ContextoPainel.Provider value={{ base: fakeBase(), recarregar: () => {}, abrirFontes: () => {} }}>{children}</ContextoPainel.Provider>;
@@ -37,8 +37,12 @@ const kpi = (nome: string) => screen.getByText(nome).parentElement!.querySelecto
 describe("opcoesSeletor", () => {
   it("separa pessoas e sem dono; exclui ignorados e vinculados", () => {
     const o = opcoesSeletor(LISTA.produtores, [A, B, SD, IG].map((nome) => ({ nome, qtd: 1 })), LISTA.ignorados);
-    expect(o.pessoas).toEqual([{ id: "p:Ana Lima", rotulo: "Ana Lima", nomes: [A] }, { id: "p:Bruno Reis", rotulo: "Bruno Reis", nomes: [B] }]);
+    expect(o.pessoas).toEqual([{ id: "p:1", rotulo: "Ana Lima", nomes: [A] }, { id: "p:2", rotulo: "Bruno Reis", nomes: [B] }]);
     expect(o.semDono).toEqual([{ id: `n:${SD}`, rotulo: "ALESSANDRA (OFICIAL)", nomes: [SD] }]);
+  });
+  it("duas pessoas com o mesmo nome de exibição têm ids distintos (id do usuário)", () => {
+    const o = opcoesSeletor([{ id: 7, nome: "Ana", nomes: [A] }, { id: 9, nome: "Ana", nomes: [B] }], [], []);
+    expect(o.pessoas.map((p) => p.id)).toEqual(["p:7", "p:9"]);
   });
 });
 
@@ -78,10 +82,10 @@ describe("Página Produtores", () => {
   });
 
   it("restaura a seleção do localStorage e descarta id inexistente", async () => {
-    localStorage.setItem("produtores:selecao", JSON.stringify(["p:Bruno Reis", "p:Fulano"]));
+    localStorage.setItem("produtores:selecao", JSON.stringify(["p:2", "p:99", "p:Bruno Reis"]));
     render(<Raiz><Produtores /></Raiz>);
     await waitFor(() => expect(kpi("Apólices")).toBe("2"));
-    expect(JSON.parse(localStorage.getItem("produtores:selecao")!)).toEqual(["p:Bruno Reis"]);
+    expect(JSON.parse(localStorage.getItem("produtores:selecao")!)).toEqual(["p:2"]); // id antigo (p:{nome}) e inexistente são descartados
   });
 
   it("erro na lista mostra aviso e tenta de novo", async () => {

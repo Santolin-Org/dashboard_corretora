@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { render, screen, fireEvent, act, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, act, cleanup, waitFor } from "@testing-library/react";
 import type { ChartConfiguration } from "chart.js";
 import { linha } from "../domain/helpers";
 import type { BaseCliente } from "@/client/useBase";
@@ -288,6 +288,37 @@ describe("Cabeçalho (updateDashHeader)", () => {
     const s = base({ sinistros: [{}, {}] as BaseCliente["sinistros"] });
     expect(textoRecBadge(s, 0, true)).toBe("2 sinistros");
     expect(textoRecBadge(base({}), 0, true)).toBe("—");
+  });
+});
+
+describe("Casca: /api/eu acompanha a base", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  it("base nova (200 na revalidação) → busca /api/eu de novo; 304 não", async () => {
+    esquecerUsuario();
+    const corpo = {
+      versao: "v", geradoEm: "t", hoje: "2026-10-15", linhas: codificarLinhas(LINHAS), sinistros: codificarSinistros([]),
+      manifesto: [], contagensSinistros: { sinistrosAvisados: 0, sinistrosPagamentos: 0 }, avisos: [], avisosSaude: [],
+    };
+    let nomeEu = "Ana Admin", etag = "e1", dados = 0;
+    const f = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === "/api/eu") return new Response(JSON.stringify({ email: "a@x.com", nome: nomeEu, role: "admin", nomes: [] }), { status: 200 });
+      dados++;
+      const h = (init?.headers ?? {}) as Record<string, string>;
+      if (h["If-None-Match"] === etag) return new Response(null, { status: 304 });
+      return new Response(JSON.stringify(corpo), { status: 200, headers: { etag } });
+    });
+    vi.stubGlobal("fetch", f);
+    render(<Casca><p>x</p></Casca>);
+    await screen.findByText("Ana Admin");
+    const eus = () => f.mock.calls.filter(([u]) => u === "/api/eu").length;
+    expect(eus()).toBe(1);
+    act(() => { document.dispatchEvent(new Event("visibilitychange")); }); // 304: mesma base
+    await waitFor(() => expect(dados).toBe(2));
+    expect(eus()).toBe(1);
+    nomeEu = "Ana Nova"; etag = "e2"; // escopo mudou (vínculo novo): ETag novo, corpo novo
+    act(() => { document.dispatchEvent(new Event("visibilitychange")); });
+    expect(await screen.findByText("Ana Nova")).toBeTruthy();
+    expect(eus()).toBe(2);
   });
 });
 

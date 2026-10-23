@@ -147,6 +147,6 @@ describe("GET /api/produtores", () => {
     const r = await getProdutores();
     expect(r.status).toBe(200);
     expect(r.headers.get("cache-control")).toBe("no-store");
-    expect(await r.json()).toEqual({ produtores: [{ nome: "Ana", nomes: ["A"] }], ignorados: ["LIXO"] });
+    expect(await r.json()).toEqual({ produtores: [{ id: ana, nome: "Ana", nomes: ["A"] }], ignorados: ["LIXO"] });
   });
 });

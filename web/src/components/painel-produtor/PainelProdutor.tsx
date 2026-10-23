@@ -13,6 +13,18 @@ export function AvisoSemVinculo() {
   return <p className={s.aviso} role="status">{AVISO_SEM_VINCULO}</p>;
 }
 
+/** Aviso do Meu painel quando /api/eu falhou (503, rede): não dá para saber os nomes do login. */
+export const AVISO_FALHA_USUARIO = "Não foi possível carregar seus dados de acesso. Tente novamente em instantes.";
+
+export function AvisoFalhaUsuario({ aoTentar }: { aoTentar(): void }) {
+  return (
+    <div className={s.aviso} role="alert">
+      <p>{AVISO_FALHA_USUARIO}</p>
+      <button type="button" className="btn-sm" onClick={aoTentar}>Tentar novamente</button>
+    </div>
+  );
+}
+
 /**
  * Painel do produtor (spec 4.1–4.3) para os nomes dados. `mostrarDono` acrescenta o nome curto do
  * colaborador em cada item de "A renovar" (vários produtores). Todas as regras vêm de domain/painel-produtor.

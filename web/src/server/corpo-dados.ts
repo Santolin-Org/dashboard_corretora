@@ -7,7 +7,8 @@ import { codificarLinhas, codificarSinistros } from "@/domain/serializacao";
  * Corpo de /api/dados já em gzip, calculado uma vez por (versão, dia, escopo).
  * Com dados reais o JSON colunar passa de 19 MB (150 mil linhas), acima do limite de 4,5 MB
  * de corpo de resposta das Vercel Functions; em gzip fica perto de 1,8 MB. Ver README, "Desempenho".
- * Cache limitado: só a versão (e o dia) atual fica em memória; ao trocar, as entradas antigas saem.
+ * Cache por escopo: uma entrada por chave de escopo distinta (`chaveEscopo`) dentro do `versão|hoje`
+ * atual; quando `versão|hoje` muda, o cache inteiro é limpo. Escopos diferentes não se apagam.
  */
 type Entrada = { gzip: Buffer };
 

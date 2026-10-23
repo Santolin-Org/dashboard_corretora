@@ -55,10 +55,13 @@ function barraNR(linhas: Linha[], nomes: ReadonlySet<string>, mes: string): Barr
   return b;
 }
 
-/** Compara o mês com o mesmo mês do ano anterior (conforme o teste do brief: 2026-01 × 2025-01). */
+/**
+ * Compara o mês com o mesmo mês do ano anterior (conforme o teste do brief: 2026-01 × 2025-01).
+ * Ano anterior com total ≤ 0 (zero ou só cancelamentos): variação null — o sinal da razão enganaria.
+ */
 export function comparativoNR(linhas: Linha[], nomes: ReadonlySet<string>, mes: string): { atual: BarraNR; anterior: BarraNR; variacao: number | null } {
   const atual = barraNR(linhas, nomes, mes), anterior = barraNR(linhas, nomes, fmtMes(mesNum(mes)[0] - 1, mesNum(mes)[1]));
-  return { atual, anterior, variacao: anterior.total.premio === 0 ? null : atual.total.premio / anterior.total.premio - 1 };
+  return { atual, anterior, variacao: anterior.total.premio <= 0 ? null : atual.total.premio / anterior.total.premio - 1 };
 }
 
 export function mesAMes(linhas: Linha[], nomes: ReadonlySet<string>, ano: number): { premio: number[]; com: number[] } {

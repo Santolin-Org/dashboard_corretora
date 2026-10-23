@@ -10,17 +10,18 @@ export const nomeCurto = (nome: string): string => nome.split(" - ")[0].trim() |
 
 /**
  * Opções do seletor: pessoas (vínculos) e nomes sem dono (distintos da base que não estão
- * vinculados a ninguém nem ignorados). `id` = `p:{nome}` / `n:{nome}`.
+ * vinculados a ninguém nem ignorados). `id` = `p:{id do usuário}` (dois logins podem ter o mesmo
+ * nome de exibição) / `n:{nome}`.
  */
 export function opcoesSeletor(
-  produtores: { nome: string; nomes: string[] }[],
+  produtores: { id: number; nome: string; nomes: string[] }[],
   distintos: { nome: string; qtd: number }[],
   ignorados: string[],
 ): Opcoes {
   const vinculados = new Set(produtores.flatMap((p) => p.nomes));
   const ign = new Set(ignorados);
   return {
-    pessoas: produtores.map((p) => ({ id: `p:${p.nome}`, rotulo: p.nome, nomes: p.nomes })),
+    pessoas: produtores.map((p) => ({ id: `p:${p.id}`, rotulo: p.nome, nomes: p.nomes })),
     semDono: distintos
       .filter((d) => !vinculados.has(d.nome) && !ign.has(d.nome))
       .map((d) => ({ id: `n:${d.nome}`, rotulo: nomeCurto(d.nome), nomes: [d.nome] })),

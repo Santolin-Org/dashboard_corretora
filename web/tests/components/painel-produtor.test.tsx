@@ -14,7 +14,7 @@ vi.mock("chart.js/auto", () => ({
     destroy() {}
   },
 }));
-let usuarioFake: { usuario: Usuario | null; carregando: boolean } = { usuario: null, carregando: true };
+let usuarioFake: { usuario: Usuario | null; carregando: boolean; falhou?: boolean; recarregar?: () => void } = { usuario: null, carregando: true };
 vi.mock("@/client/usuario", () => ({ useUsuario: () => usuarioFake }));
 
 import { ContextoPainel } from "@/client/painel";
@@ -180,6 +180,25 @@ describe("página Meu painel", () => {
     const { container } = render(<Raiz base={fakeBase([], { semAcesso: true })}><MeuPainel /></Raiz>);
     expect(container.textContent).toContain("Seu login ainda não está ligado a um nome da planilha. Fale com o administrador.");
     expect(container.textContent).not.toContain("A renovar");
+  });
+  it("/api/eu falhou: mensagem própria (não o aviso de sem vínculo) e 'Tentar novamente' busca de novo", () => {
+    const recarregar = vi.fn();
+    usuarioFake = { usuario: null, carregando: false, falhou: true, recarregar };
+    const { container } = render(<Raiz><MeuPainel /></Raiz>);
+    expect(container.textContent).toContain("Não foi possível carregar seus dados de acesso. Tente novamente em instantes.");
+    expect(container.textContent).not.toContain("Seu login ainda não está ligado");
+    expect(container.textContent).not.toContain("A renovar");
+    fireEvent.click(screen.getByRole("button", { name: "Tentar novamente" }));
+    expect(recarregar).toHaveBeenCalledTimes(1);
+  });
+  it("nomes novos do /api/eu (vínculo feito com o vendedor logado) trocam o painel sem recarregar", () => {
+    usuarioFake = { usuario: u([]), carregando: false, falhou: false };
+    const { container, rerender } = render(<Raiz><MeuPainel /></Raiz>);
+    expect(container.textContent).toContain("Seu login ainda não está ligado");
+    usuarioFake = { usuario: u([GV]), carregando: false, falhou: false };
+    rerender(<Raiz><MeuPainel /></Raiz>);
+    expect(container.textContent).not.toContain("Seu login ainda não está ligado");
+    expect(container.textContent).toContain("Transportes Rocha");
   });
   it("com nomes: saudação pelo primeiro nome e cabeçalho do mês", () => {
     usuarioFake = { usuario: u([GV]), carregando: false };

@@ -53,6 +53,12 @@ describe('produção', () => {
     expect(c.variacao).toBeCloseTo(1); // 120/60 − 1
     expect(comparativoNR([], new Set(['A']), '2026-01').variacao).toBeNull();
   });
+  it('comparativoNR: ano anterior com total ≤ 0 → variação null (sinal enganoso)', () => {
+    const neg = [linha({ colab: 'A', tipo: 'N', vig: '2026-03-02', premio: 50 }), linha({ colab: 'A', tipo: 'CN', vig: '2025-03-02', premio: -40 })];
+    expect(comparativoNR(neg, new Set(['A']), '2026-03').variacao).toBeNull();
+    const zerado = [linha({ colab: 'A', tipo: 'N', vig: '2026-03-02', premio: 50 }), linha({ colab: 'A', tipo: 'N', vig: '2025-03-02', premio: 10 }), linha({ colab: 'A', tipo: 'CN', vig: '2025-03-03', premio: -10 })];
+    expect(comparativoNR(zerado, new Set(['A']), '2026-03').variacao).toBeNull();
+  });
   it('comparativoNR: outros tipos vão para "outros" e entram no total', () => {
     const l = [linha({ colab: 'A', tipo: 'X', vig: '2026-02-02', premio: 7, com: 1 }), linha({ colab: 'A', tipo: 'CN', vig: '2026-02-03', premio: -2, com: 0 })];
     const c = comparativoNR(l, new Set(['A']), '2026-02');

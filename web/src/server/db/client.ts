@@ -74,6 +74,9 @@ export async function salvarUsuario(
   if (dados.id !== undefined && dados.id === autor.id) {
     if (dados.role !== "admin") return { ok: false, erro: "Você não pode tirar o seu próprio papel de admin." };
     if (!dados.ativo) return { ok: false, erro: "Você não pode desativar o seu próprio usuário." };
+    // O login é pelo e-mail: trocar o próprio deixaria o admin trancado fora.
+    const [eu] = await db.select({ email: users.email }).from(users).where(eq(users.id, dados.id)).limit(1);
+    if (eu && eu.email !== email) return { ok: false, erro: "Você não pode alterar o seu próprio e-mail." };
   }
   const [igual] = await db.select({ id: users.id }).from(users).where(eq(users.email, email)).limit(1);
   if (igual && igual.id !== dados.id) return { ok: false, erro: "Já existe um usuário com este e-mail." };
@@ -87,7 +90,10 @@ export async function salvarUsuario(
   return { ok: true, id: alt.id };
 }
 
-/** `userId` null desvincula. Um nome pertence a um login só. */
+/**
+ * `userId` null desvincula. Um nome pertence a um login só — quem garante é o banco: o upsert só
+ * atualiza a linha existente se ela já é deste usuário (sem leitura antes, sem corrida entre admins).
+ */
 export async function vincularNome(
   nome: string,
   userId: number | null,
@@ -98,18 +104,24 @@ export async function vincularNome(
     await db.delete(vinculos).where(eq(vinculos.nome, nome));
     return { ok: true };
   }
+  const gravado = await db
+    .insert(vinculos)
+    .values({ nome, userId, alteradoPor: autor })
+    .onConflictDoUpdate({
+      target: vinculos.nome,
+      set: { alteradoPor: autor, alteradoEm: sql`now()` },
+      setWhere: eq(vinculos.userId, userId),
+    })
+    .returning({ nome: vinculos.nome });
+  if (gravado.length) return { ok: true };
+  // Nada gravado: o nome é de outro login. Lê o dono só para a mensagem.
   const [dono] = await db
-    .select({ userId: vinculos.userId, nome: users.nome })
+    .select({ nome: users.nome })
     .from(vinculos)
     .innerJoin(users, eq(users.id, vinculos.userId))
     .where(eq(vinculos.nome, nome))
     .limit(1);
-  if (dono && dono.userId !== userId) return { ok: false, erro: `Este nome já está vinculado a ${dono.nome}.` };
-  await db
-    .insert(vinculos)
-    .values({ nome, userId, alteradoPor: autor })
-    .onConflictDoUpdate({ target: vinculos.nome, set: { userId, alteradoPor: autor, alteradoEm: sql`now()` } });
-  return { ok: true };
+  return { ok: false, erro: dono ? `Este nome já está vinculado a ${dono.nome}.` : "O vínculo mudou enquanto salvava. Tente novamente." };
 }
 
 export async function ignorarNome(nome: string, ignorar: boolean, autor: string, db: Db = getDb()): Promise<void> {
@@ -120,7 +132,7 @@ export async function ignorarNome(nome: string, ignorar: boolean, autor: string,
   await db.insert(nomesIgnorados).values({ nome, alteradoPor: autor }).onConflictDoNothing({ target: nomesIgnorados.nome });
 }
 
-/** Usuários ativos com pelo menos um nome vinculado. */
-export async function listarProdutores(db: Db = getDb()): Promise<{ nome: string; nomes: string[] }[]> {
-  return (await listarUsuarios(db)).filter((u) => u.ativo && u.nomes.length > 0).map((u) => ({ nome: u.nome, nomes: u.nomes }));
+/** Usuários ativos com pelo menos um nome vinculado. `id` distingue logins com o mesmo nome de exibição. */
+export async function listarProdutores(db: Db = getDb()): Promise<{ id: number; nome: string; nomes: string[] }[]> {
+  return (await listarUsuarios(db)).filter((u) => u.ativo && u.nomes.length > 0).map((u) => ({ id: u.id, nome: u.nome, nomes: u.nomes }));
 }

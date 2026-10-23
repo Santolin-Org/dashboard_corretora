@@ -27,7 +27,8 @@ const ROTAS_COM_CASCA = new Set<string>([...ROTAS_ABAS, "meu-painel", "produtore
 export function Casca({ children }: { children: ReactNode }) {
   const { estado, base, erro, recarregar, ultimaBoaEm, semConexaoDesde } = useBase();
   // Depois do useBase: a busca de /api/dados sai primeiro. Não bloqueia o painel enquanto carrega.
-  const { usuario, carregando: carregandoUsuario } = useUsuario();
+  // A base como sinal: base nova (ETag mudou, p.ex. vínculo novo) → /api/eu de novo (nomes atualizados).
+  const { usuario, carregando: carregandoUsuario } = useUsuario(base);
   const [fontesAberto, setFontesAberto] = useState(false);
   const abrirFontes = useCallback(() => setFontesAberto(true), []);
   const fecharFontes = useCallback(() => setFontesAberto(false), []);

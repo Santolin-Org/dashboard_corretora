@@ -7,7 +7,7 @@ import { SeletorProdutores, opcoesSeletor } from "@/components/painel-produtor/S
 import s from "@/components/painel-produtor/SeletorProdutores.module.css";
 
 const CHAVE = "produtores:selecao";
-type Lista = { produtores: { nome: string; nomes: string[] }[]; ignorados: string[] };
+type Lista = { produtores: { id: number; nome: string; nomes: string[] }[]; ignorados: string[] };
 
 function lerSelecao(): string[] {
   try {

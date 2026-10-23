@@ -45,6 +45,30 @@ describe("vínculos", () => {
     expect(await vincularNome("A - SANTOLIN", null, "mitz")).toEqual({ ok: true });
     expect(await nomesDoUsuario("ana@x.com")).toEqual([]);
   });
+  it("vincular nome de outro dono não toca na linha existente (o banco decide, sem corrida)", async () => {
+    await vincularNome("A", ana, "mitz");
+    expect(await vincularNome("A", bia, "outro")).toEqual({ ok: false, erro: "Este nome já está vinculado a Ana." });
+    const r = await pg.query<{ user_id: number; alterado_por: string }>(`select user_id, alterado_por from vinculos where nome='A'`);
+    expect(r.rows).toEqual([{ user_id: ana, alterado_por: "mitz" }]);
+  });
+  it("corrida: outro admin vincula o nome entre a leitura e a gravação → recusa, dono mantido", async () => {
+    // Simula a corrida: o vínculo de Bia aparece logo antes do insert deste pedido.
+    const corrida = new Proxy(db, {
+      get(alvo, k, r) {
+        if (k !== "insert") return Reflect.get(alvo, k, r);
+        return (t: typeof vinculos) => { const b = alvo.insert(t); const valores = b.values.bind(b);
+          return { values: (v: typeof vinculos.$inferInsert) => { const q = valores(v); const conflito = q.onConflictDoUpdate.bind(q);
+            return { onConflictDoUpdate: (c: Parameters<typeof conflito>[0]) => { const qq = conflito(c);
+              return { returning: async (...a: Parameters<typeof qq.returning>) => {
+                await pg.query(`insert into vinculos (nome, user_id, alterado_por) values ('R', ${bia}, 'outro')`);
+                return qq.returning(...a);
+              } }; } }; } }; };
+      },
+    }) as unknown as typeof db;
+    expect(await vincularNome("R", ana, "mitz", corrida)).toEqual({ ok: false, erro: "Este nome já está vinculado a Bia." });
+    const r = await pg.query<{ user_id: number }>(`select user_id from vinculos where nome='R'`);
+    expect(r.rows).toEqual([{ user_id: bia }]);
+  });
   it("revincular ao mesmo dono é ok; nomes saem ordenados", async () => {
     await vincularNome("Z", ana, "mitz");
     expect(await vincularNome("Z", ana, "mitz")).toEqual({ ok: true });
@@ -60,7 +84,7 @@ describe("vínculos", () => {
     await vincularNome("A", ana, "mitz");
     await vincularNome("B", bia, "mitz");
     await pg.query(`update users set ativo=false where email='bia@x.com'`);
-    expect(await listarProdutores()).toEqual([{ nome: "Ana", nomes: ["A"] }]);
+    expect(await listarProdutores()).toEqual([{ id: ana, nome: "Ana", nomes: ["A"] }]);
     const us = await listarUsuarios();
     expect(us.map((u) => u.nome)).toEqual(["Ana", "Bia", "Mitz"]);
     expect(us[0]).toMatchObject({ email: "ana@x.com", role: "vendedor", ativo: true, nomes: ["A"] });
@@ -82,6 +106,12 @@ describe("salvarUsuario", () => {
   });
   it("editar o e-mail para o de outro usuário é recusado", async () => {
     expect(await salvarUsuario({ id: ana, email: "BIA@x.com", nome: "Ana", role: "vendedor", ativo: true }, adminAutor())).toEqual({ ok: false, erro: "Já existe um usuário com este e-mail." });
+  });
+  it("admin não pode alterar o próprio e-mail (se trancaria fora)", async () => {
+    expect(await salvarUsuario({ id: adm, email: "outro@x.com", nome: "Mitz", role: "admin", ativo: true }, adminAutor())).toEqual({ ok: false, erro: "Você não pode alterar o seu próprio e-mail." });
+    expect((await listarUsuarios()).find((u) => u.id === adm)?.email).toBe("mitz@x.com");
+    // mesma caixa/espaços normalizados não conta como troca
+    expect(await salvarUsuario({ id: adm, email: " MITZ@x.com ", nome: "Mitz", role: "admin", ativo: true }, adminAutor())).toEqual({ ok: true, id: adm });
   });
   it("admin pode editar o próprio nome mantendo papel e ativo", async () => {
     expect(await salvarUsuario({ id: adm, email: "mitz@x.com", nome: "Mitz V", role: "admin", ativo: true }, adminAutor())).toEqual({ ok: true, id: adm });

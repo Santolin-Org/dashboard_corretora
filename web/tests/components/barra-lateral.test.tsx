@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent, renderHook, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, renderHook, waitFor, act } from "@testing-library/react";
 import type { BaseCliente } from "@/client/useBase";
 
 let rota = "/producao";
@@ -121,7 +121,7 @@ describe("useUsuario", () => {
     await waitFor(() => expect(a.result.current.carregando).toBe(false));
     expect(a.result.current.usuario).toEqual(ADMIN);
     const b = renderHook(() => useUsuario());
-    expect(b.result.current).toEqual({ usuario: ADMIN, carregando: false });
+    expect(b.result.current).toEqual({ usuario: ADMIN, carregando: false, falhou: false, recarregar: expect.any(Function) });
     expect(f).toHaveBeenCalledTimes(1);
     expect(f).toHaveBeenCalledWith("/api/eu", expect.anything());
   });
@@ -135,5 +135,44 @@ describe("useUsuario", () => {
     const b = renderHook(() => useUsuario());
     await waitFor(() => expect(b.result.current.carregando).toBe(false));
     expect(b.result.current.usuario).toBeNull();
+  });
+  it("falha marca falhou; recarregar busca de novo e limpa a falha", async () => {
+    const f = vi.fn().mockResolvedValueOnce(new Response("{}", { status: 503 }))
+      .mockResolvedValue(new Response(JSON.stringify(VEND), { status: 200 }));
+    vi.stubGlobal("fetch", f);
+    const a = renderHook(() => useUsuario());
+    await waitFor(() => expect(a.result.current.carregando).toBe(false));
+    expect(a.result.current).toMatchObject({ usuario: null, falhou: true });
+    act(() => a.result.current.recarregar());
+    await waitFor(() => expect(a.result.current.usuario).toEqual(VEND));
+    expect(a.result.current.falhou).toBe(false);
+    expect(f).toHaveBeenCalledTimes(2);
+  });
+  it("sinal (base) muda → busca /api/eu de novo e todos os hooks veem os nomes novos", async () => {
+    const SEM = { ...VEND, nomes: [] };
+    const f = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify(SEM), { status: 200 }))
+      .mockResolvedValue(new Response(JSON.stringify(VEND), { status: 200 }));
+    vi.stubGlobal("fetch", f);
+    const casca = renderHook(({ sinal }) => useUsuario(sinal), { initialProps: { sinal: undefined as object | undefined } });
+    const outro = renderHook(() => useUsuario());
+    await waitFor(() => expect(casca.result.current.usuario).toEqual(SEM));
+    casca.rerender({ sinal: { v: 1 } }); // primeira base: não busca de novo
+    expect(f).toHaveBeenCalledTimes(1);
+    casca.rerender({ sinal: { v: 2 } }); // base nova (ETag mudou: vínculo novo)
+    await waitFor(() => expect(outro.result.current.usuario).toEqual(VEND));
+    expect(casca.result.current.usuario).toEqual(VEND);
+    expect(casca.result.current.carregando).toBe(false);
+    expect(f).toHaveBeenCalledTimes(2);
+  });
+  it("revalidação que falha mantém o último usuário bom", async () => {
+    const f = vi.fn().mockResolvedValueOnce(new Response(JSON.stringify(VEND), { status: 200 }))
+      .mockResolvedValue(new Response("{}", { status: 503 }));
+    vi.stubGlobal("fetch", f);
+    const a = renderHook(({ sinal }) => useUsuario(sinal), { initialProps: { sinal: {} as object } });
+    await waitFor(() => expect(a.result.current.usuario).toEqual(VEND));
+    a.rerender({ sinal: {} });
+    await waitFor(() => expect(f).toHaveBeenCalledTimes(2));
+    await act(async () => { await Promise.resolve(); });
+    expect(a.result.current).toMatchObject({ usuario: VEND, falhou: false });
   });
 });
