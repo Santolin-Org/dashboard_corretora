@@ -195,6 +195,8 @@ Regras que valem nesta etapa:
   (lista de e-mails e papéis), sem tela de administração. A tela de administração
   chega na Etapa 2/3, junto com o vínculo login → colaborador. A lista inicial de
   `gestao` vem do Mitz na hora do deploy.
+- **Nota (Etapa 3):** vínculos, tela de administração e painel do produtor estão em
+  `docs/superpowers/specs/2026-10-22-painel-produtor-design.md`.
 
 ### 5.7 Registros no Azure **[decisão do Claude]**
 

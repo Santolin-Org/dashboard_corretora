@@ -19,11 +19,30 @@ alguns precisam estar resolvidos antes da troca de domínio.
 ## Melhorias sem urgência
 - Cache do corpo gzip de `/api/dados` é zerado quando um vendedor (escopo "nada") acessa
   entre acessos da gestão; a gestão re-codifica o corpo (~0,2 s). Nenhum corpo errado é servido.
-- Na Etapa 3, o ETag de `/api/dados` precisa usar o escopo inteiro (lista de
-  colaboradores), não só o tipo.
+- ~~ETag de `/api/dados` com o escopo inteiro~~ **Resolvido na Etapa 3 (Task 3):** o ETag
+  é o hash de `chaveEscopo` com a lista de nomes ordenada completa.
+- Painel do produtor: comparar mês parcial até o mesmo dia (hoje o mês corrente é comparado
+  com o mês inteiro do ano anterior).
 - Incluir o arquivo de licença OFL junto das fontes em `src/styles/`.
 - No processamento em paralelo, arquivos depois de um arquivo ilegível ainda são baixados
   e processados antes da parada.
 - Memória do servidor chegou a 1,3 GB com a base real; acompanhar na Vercel.
 - Testes que faltam para caminhos que a fixture não exercita (ranking do Comparativo com
   mais de 25 linhas, filtro de emissão, semanas de Metas com emissão fora do intervalo).
+
+## Melhorias menores do painel do produtor
+- `painel-produtor.ts`: comentário sobre `vigFim` `${mes}-31` depender de comparação de string; `mesNum` chamado 2x.
+- `vincularNome`: janela TOCTOU entre select e upsert; e-mail duplicado concorrente vira erro de constraint.
+- APIs admin/produtores: `catch {}` devolve 503 sem log; `ativo !== false` aceita ausente como true; faltam testes
+  de `ignorar` não booleano e de `userId`/`id` não inteiros; `listarUsuarios` roda a cada requisição.
+- Testes: linha duplicada e alias `sessao` em `auth.test.ts`; falta teste de componente na virada dez/jan e do selo
+  ▼/% não zero; teste da dupla não confere prêmio somado; falta teste do cinza de inativo e do botão desabilitado.
+- Comentário "Cache limitado" em `corpo-dados.ts` desatualizado; filtro/sort repetidos em `escopo.ts` sem comentário.
+- Barra lateral: sticky de 59px fixo não acompanha cabeçalho quebrado abaixo de 900px; gaveta fechada ainda focável
+  pelo teclado; `useUsuario` guarda falha até recarregar; vendedor com `/api/eu` falhando vê lista de gestão (cosmético).
+- Painel: `lerMin` no render (risco de hydration se renderizado no servidor); mês não ressincroniza se o dia virar;
+  lista "A renovar" sem altura máxima.
+- Menus (seletor de produtores e telas de usuários) sem fechar com Esc/clique fora e sem `role`; cor `#4e80ff` fixa em
+  `SeletorProdutores.module.css`.
+- Tela de usuários: `.lado ul` sobrescreve `.menu`; menu de dono sem estado vazio; aviso não limpa ao abrir formulário
+  ou salvar; tabela sem overflow abaixo de 900px.
