@@ -58,7 +58,8 @@ describe("usuários no banco (pglite)", () => {
     ).rejects.toThrow();
   });
 
-  it("seed faz upsert por e-mail minúsculo e desativa ausentes", async () => {
+  // Mudou de propósito: o seed agora só inclui (a tela de usuários é a fonte da verdade).
+  it("seed só inclui por e-mail minúsculo: não altera nem desativa quem já existe", async () => {
     await sincronizarUsuarios(db, [
       { email: "A@exemplo.com.br", nome: "A", role: "admin" },
       { email: "b@exemplo.com.br", nome: "B", role: "vendedor" },
@@ -68,16 +69,10 @@ describe("usuários no banco (pglite)", () => {
       { email: "c@exemplo.com.br", nome: "C", role: "gestao" },
     ]);
     expect(await buscarUsuarioAtivo("a@exemplo.com.br")).toEqual({
-      email: "a@exemplo.com.br", nome: "A2", role: "admin",
+      email: "a@exemplo.com.br", nome: "A", role: "admin",
     });
-    expect(await buscarUsuarioAtivo("b@exemplo.com.br")).toBeNull();
-    // reativa quem volta ao arquivo
-    await sincronizarUsuarios(db, [
-      { email: "b@exemplo.com.br", nome: "B", role: "vendedor" },
-      { email: "d@exemplo.com.br", nome: "D", role: "admin" },
-    ]);
     expect(await buscarUsuarioAtivo("b@exemplo.com.br")).not.toBeNull();
-    expect(await buscarUsuarioAtivo("a@exemplo.com.br")).toBeNull();
+    expect(await buscarUsuarioAtivo("c@exemplo.com.br")).not.toBeNull();
   });
 
   it("recusa lista vazia, sem admin e e-mails duplicados, sem tocar no banco", async () => {
