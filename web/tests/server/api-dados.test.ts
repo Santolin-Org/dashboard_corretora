@@ -6,8 +6,10 @@ import { join } from "node:path";
 import { gerarFixture } from "../../parity/fixtures/make-fixture";
 
 vi.mock("@/server/auth", () => ({ usuarioDaRequisicao: vi.fn() }));
+vi.mock("@/server/db/client", () => ({ nomesDoUsuario: vi.fn() }));
 
 import { usuarioDaRequisicao } from "@/server/auth";
+import { nomesDoUsuario } from "@/server/db/client";
 import { obterBase, definirDependencias, reiniciarIngestao } from "@/server/ingestao";
 import { criarArmazemMemoria } from "@/server/snapshots";
 import { PastaLocalFonte } from "@/server/fontes/pasta-local";
@@ -17,6 +19,8 @@ import { estatisticasCorpo, reiniciarCorpo } from "@/server/corpo-dados";
 import type { ArquivoMeta, FonteArquivos } from "@/server/fontes/tipos";
 
 const usuario = vi.mocked(usuarioDaRequisicao);
+const nomes = vi.mocked(nomesDoUsuario);
+const ANA = "ANA CLARA MENDES", BRUNO = "BRUNO TAVARES";
 const sessao = (role: "admin" | "gestao" | "vendedor", email = "a@b") => ({ email, nome: "A", role, expiraEm: 9e9 });
 const req = (h: Record<string, string> = {}) => new Request("http://x/api/dados", { headers: h });
 
@@ -30,6 +34,8 @@ beforeEach(() => {
   reiniciarCorpo();
   definirDependencias({ fonte: () => new PastaLocalFonte(dir), armazem: criarArmazemMemoria(), hoje: () => hojeAtual, ttlNegativoMs: 0 });
   usuario.mockReset();
+  nomes.mockReset();
+  nomes.mockResolvedValue([]);
 });
 afterEach(() => {
   definirDependencias(null);
@@ -43,7 +49,8 @@ describe("GET /api/dados", () => {
     expect(r.status).toBe(401);
   });
 
-  it("vendedor: 200 com linhas e sinistros vazios e sem manifesto/avisos", async () => {
+  // Mudou de propósito: "vendedor" aqui é o vendedor SEM vínculo (escopo nada). O com vínculo está abaixo.
+  it("vendedor sem vínculo: 200 com linhas e sinistros vazios e sem manifesto/avisos", async () => {
     usuario.mockResolvedValue(sessao("vendedor"));
     const r = await GET(req());
     expect(r.status).toBe(200);
@@ -54,6 +61,64 @@ describe("GET /api/dados", () => {
     expect(j.avisos).toEqual([]);
     expect(j.avisosSaude).toEqual([]);
     expect(JSON.stringify(j)).not.toMatch(/producao_|\.xlsx/);
+  });
+
+  it("vendedor com vínculo: só as linhas com o nome dele (inclusive duplas), sem sinistros nem manifesto", async () => {
+    usuario.mockResolvedValue(sessao("vendedor", "ana@x"));
+    nomes.mockResolvedValue([ANA]);
+    const b = await obterBase();
+    const r = await GET(req());
+    expect(r.status).toBe(200);
+    expect(nomes).toHaveBeenCalledWith("ana@x");
+    const j = await r.json();
+    const ls = decodificarLinhas(j.linhas);
+    const esperadas = b.linhas.filter((x) => x.colab.split(" , ").map((s) => s.trim()).includes(ANA));
+    expect(ls.length).toBeGreaterThan(0);
+    expect(ls.length).toBeLessThan(b.linhas.length);
+    expect(ls).toEqual(esperadas);
+    expect(decodificarSinistros(j.sinistros)).toEqual([]);
+    expect(j.manifesto).toEqual([]);
+    expect(j.avisos).toEqual([]);
+    expect(j.semAcesso).toBeUndefined();
+    expect(JSON.stringify(j)).not.toMatch(/producao_|\.xlsx/);
+  });
+
+  it("vendedores com vínculos diferentes: corpos e ETags diferentes; trocar o vínculo muda o ETag", async () => {
+    usuario.mockResolvedValue(sessao("vendedor", "ana@x"));
+    nomes.mockResolvedValue([ANA]);
+    const ra = await GET(req());
+    const ea = ra.headers.get("etag")!;
+    const la = decodificarLinhas((await ra.json()).linhas);
+    usuario.mockResolvedValue(sessao("vendedor", "bruno@x"));
+    nomes.mockResolvedValue([BRUNO]);
+    const rb = await GET(req());
+    expect(rb.headers.get("etag")).not.toBe(ea);
+    const lb = decodificarLinhas((await rb.json()).linhas);
+    expect(lb.every((x) => x.colab.includes(BRUNO))).toBe(true);
+    expect(lb).not.toEqual(la);
+    // Mesmo login, vínculo trocado: o ETag antigo não vale mais e o corpo vem com o novo recorte.
+    usuario.mockResolvedValue(sessao("vendedor", "ana@x"));
+    nomes.mockResolvedValue([BRUNO]);
+    const r2 = await GET(req({ "if-none-match": ea }));
+    expect(r2.status).toBe(200);
+    expect(decodificarLinhas((await r2.json()).linhas)).toEqual(lb);
+  });
+
+  it("banco fora ao ler os vínculos: 503 no-store, nunca um escopo maior", async () => {
+    usuario.mockResolvedValue(sessao("vendedor", "ana@x"));
+    nomes.mockRejectedValue(new Error("sem banco"));
+    const r = await GET(req());
+    expect(r.status).toBe(503);
+    expect(r.headers.get("cache-control")).toBe("no-store");
+    expect(await r.json()).toEqual({ erro: "Banco indisponível" });
+  });
+
+  it("gestão e admin não consultam os vínculos", async () => {
+    usuario.mockResolvedValue(sessao("gestao"));
+    await GET(req());
+    usuario.mockResolvedValue(sessao("admin"));
+    await GET(req());
+    expect(nomes).not.toHaveBeenCalled();
   });
 
   it("gestao: recebe todas as linhas e sinistros", async () => {

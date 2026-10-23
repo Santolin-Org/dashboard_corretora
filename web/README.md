@@ -78,10 +78,20 @@ Lista conferida contra `grep process.env` em `src/`, `parity/` e nos arquivos de
 | `npm run regressao:real` | `parity -- --lado ambos --dados $PARITY_DADOS` (planilhas reais; padrão `parity/data`) |
 | `npm run db:generate` | Gera migration do Drizzle a partir de `src/server/db/schema.ts` |
 | `npm run db:migrate` | Aplica as migrations em `DATABASE_URL` |
-| `npm run db:seed` | Sincroniza `seed/usuarios.json` na tabela `users` (upsert por e-mail minúsculo; quem não está na lista fica inativo) |
+| `npm run db:seed` | Insere em `users` os e-mails de `seed/usuarios.json` que ainda não existem (e-mail minúsculo). Nunca desativa nem sobrescreve usuário existente |
 
 Regras do seed: lista não vazia, ao menos um `admin`, sem e-mails duplicados. O e-mail deve ser o atributo `mail` da
 conta no Entra. `seed/usuarios.json` é ignorado pelo git; o formato está em `seed/usuarios.example.json`.
+
+### Usuários e vínculos
+
+A fonte da verdade dos usuários é a tela de administração **Usuários e vínculos** (`/admin/usuarios`, só `admin`):
+ela cria e edita usuários, muda papel, ativa/desativa e vincula cada login aos nomes da coluna COLABORADOR (vendedor
+vê só as linhas dos seus nomes). O seed serve apenas para o primeiro admin e para incluir e-mails que faltam; rodar de
+novo não desfaz o que foi feito na tela.
+
+Deploy: a migration `0001` (tabelas `vinculos` e `nomes_ignorados`) precisa de `npm run db:migrate` no banco de
+produção antes de subir esta versão. Quem roda é o Mitz.
 
 ## Harness de paridade
 

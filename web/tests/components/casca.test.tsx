@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
-import { render, screen, fireEvent, act, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, act, cleanup, waitFor } from "@testing-library/react";
 import type { ChartConfiguration } from "chart.js";
 import { linha } from "../domain/helpers";
 import type { BaseCliente } from "@/client/useBase";
@@ -31,6 +31,9 @@ import { SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoRecolhivel";
 import { BotaoModoTv, ModoTvEfeito } from "@/components/ModoTv";
 import { Subtitulo, textoRecBadge } from "@/components/Cabecalho";
 import { FILTROS_VAZIOS } from "@/domain/filtros";
+import { Casca } from "@/components/Casca";
+import { esquecerUsuario } from "@/client/usuario";
+import { codificarLinhas, codificarSinistros } from "@/domain/serializacao";
 
 beforeEach(() => { busca = new URLSearchParams(); window.history.replaceState(null, "", "/visao-geral"); });
 afterEach(() => { cleanup(); localStorage.clear(); document.body.className = ""; });
@@ -285,5 +288,65 @@ describe("Cabeçalho (updateDashHeader)", () => {
     const s = base({ sinistros: [{}, {}] as BaseCliente["sinistros"] });
     expect(textoRecBadge(s, 0, true)).toBe("2 sinistros");
     expect(textoRecBadge(base({}), 0, true)).toBe("—");
+  });
+});
+
+describe("Casca: /api/eu acompanha a base", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  it("base nova (200 na revalidação) → busca /api/eu de novo; 304 não", async () => {
+    esquecerUsuario();
+    const corpo = {
+      versao: "v", geradoEm: "t", hoje: "2026-10-15", linhas: codificarLinhas(LINHAS), sinistros: codificarSinistros([]),
+      manifesto: [], contagensSinistros: { sinistrosAvisados: 0, sinistrosPagamentos: 0 }, avisos: [], avisosSaude: [],
+    };
+    let nomeEu = "Ana Admin", etag = "e1", dados = 0;
+    const f = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === "/api/eu") return new Response(JSON.stringify({ email: "a@x.com", nome: nomeEu, role: "admin", nomes: [] }), { status: 200 });
+      dados++;
+      const h = (init?.headers ?? {}) as Record<string, string>;
+      if (h["If-None-Match"] === etag) return new Response(null, { status: 304 });
+      return new Response(JSON.stringify(corpo), { status: 200, headers: { etag } });
+    });
+    vi.stubGlobal("fetch", f);
+    render(<Casca><p>x</p></Casca>);
+    await screen.findByText("Ana Admin");
+    const eus = () => f.mock.calls.filter(([u]) => u === "/api/eu").length;
+    expect(eus()).toBe(1);
+    act(() => { document.dispatchEvent(new Event("visibilitychange")); }); // 304: mesma base
+    await waitFor(() => expect(dados).toBe(2));
+    expect(eus()).toBe(1);
+    nomeEu = "Ana Nova"; etag = "e2"; // escopo mudou (vínculo novo): ETag novo, corpo novo
+    act(() => { document.dispatchEvent(new Event("visibilitychange")); });
+    expect(await screen.findByText("Ana Nova")).toBeTruthy();
+    expect(eus()).toBe(2);
+  });
+});
+
+describe("Casca com a barra lateral", () => {
+  const corpo = {
+    versao: "v", geradoEm: "t", hoje: "2026-10-15", linhas: codificarLinhas(LINHAS), sinistros: codificarSinistros([]),
+    manifesto: [], contagensSinistros: { sinistrosAvisados: 0, sinistrosPagamentos: 0 }, avisos: [], avisosSaude: [],
+  };
+  beforeEach(() => {
+    esquecerUsuario();
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/eu"
+      ? new Response(JSON.stringify({ email: "a@x.com", nome: "Ana Admin", role: "admin", nomes: [] }), { status: 200 })
+      : new Response(JSON.stringify(corpo), { status: 200 })));
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("casca não renderiza mais as abas do topo", async () => {
+    const { container } = render(<Casca><p id="conteudo">x</p></Casca>);
+    await screen.findByText("Ana Admin");
+    expect(container.querySelector(".nav-tabs")).toBeNull();
+    expect(container.querySelector(".tab-btn")).toBeNull();
+    const nav = container.querySelector('nav[aria-label="Navegação principal"]')!;
+    expect(nav).not.toBeNull();
+    // cabeçalho, filtros e conteúdo continuam em #dash, com os ids da paridade
+    const dash = container.querySelector("#dash")!;
+    expect(dash.contains(nav)).toBe(false);
+    for (const id of ["dash-subtitle", "rec-badge", "f-vig-s", "conteudo"]) expect(dash.querySelector(`#${id}`)).not.toBeNull();
+    expect(nav.querySelector('a[href="/visao-geral"]')!.getAttribute("aria-current")).toBe("page");
+    expect(nav.querySelector('a[href="/admin/usuarios"]')).not.toBeNull();
   });
 });

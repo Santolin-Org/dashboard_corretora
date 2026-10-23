@@ -228,11 +228,49 @@ export function ehPublica(pathname: string): boolean {
   );
 }
 
-export function decidirAcesso(
-  pathname: string,
-  usuario: Sessao | null,
-): "passar" | "401" | "entrar" {
+export type Decisao = "passar" | "401" | "403" | "entrar" | "meu-painel";
+
+const ehApi = (p: string) => p === "/api" || p.startsWith("/api/");
+const sob = (p: string, base: string) => p === base || p.startsWith(`${base}/`);
+const PAGINAS_VENDEDOR = new Set(["/", "/meu-painel"]);
+const APIS_VENDEDOR = new Set(["/api/dados", "/api/eu"]);
+
+/** Regras por papel, na ordem. Caminho com ".." nunca passa. */
+export function decidirAcesso(pathname: string, usuario: Sessao | null): Decisao {
   if (ehPublica(pathname)) return "passar";
-  if (usuario) return "passar";
-  return pathname === "/api" || pathname.startsWith("/api/") ? "401" : "entrar";
+  const api = ehApi(pathname);
+  if (!usuario) return api ? "401" : "entrar";
+  if (pathname.includes("..")) return api ? "403" : usuario.role === "vendedor" ? "meu-painel" : "403";
+  switch (usuario.role) {
+    case "vendedor":
+      if (api) return APIS_VENDEDOR.has(pathname) ? "passar" : "403";
+      return PAGINAS_VENDEDOR.has(pathname) ? "passar" : "meu-painel";
+    case "gestao":
+      return sob(pathname, "/admin") || sob(pathname, "/api/admin") ? "403" : "passar";
+    case "admin":
+      return "passar";
+    default:
+      return api ? "403" : "entrar"; // papel desconhecido: nada passa
+  }
+}
+
+export type RespostaProxy =
+  | { tipo: "seguir" }
+  | { tipo: "json"; status: 401 | 403; erro: string }
+  | { tipo: "redirecionar"; para: "/entrar" | "/visao-geral" | "/meu-painel" };
+
+/** Tradução da decisão em resposta (o proxy só aplica). */
+export function respostaDoProxy(d: Decisao, pathname: string): RespostaProxy {
+  switch (d) {
+    case "passar":
+      return { tipo: "seguir" };
+    case "401":
+      return { tipo: "json", status: 401, erro: "não autenticado" };
+    case "403":
+      return ehApi(pathname) ? { tipo: "json", status: 403, erro: "Sem permissão" } : { tipo: "redirecionar", para: "/visao-geral" };
+    case "meu-painel":
+      return { tipo: "redirecionar", para: "/meu-painel" };
+    default:
+      return { tipo: "redirecionar", para: "/entrar" };
+  }
 }

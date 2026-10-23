@@ -13,6 +13,7 @@ import {
   TENANT_ID,
   bypassAtivo,
   decidirAcesso,
+  respostaDoProxy,
   jwtCallback,
   permitirEntrada,
   renovarToken,
@@ -189,6 +190,52 @@ describe("decidirAcesso (proxy)", () => {
   it("com usuário passa", () => {
     expect(decidirAcesso("/", usuario)).toBe("passar");
     expect(decidirAcesso("/api/dados", usuario)).toBe("passar");
+  });  it("decidirAcesso por papel", () => {
+    const sessao = usuario;
+    const v = { ...sessao, role: "vendedor" as const }, g = { ...sessao, role: "gestao" as const }, a = { ...sessao, role: "admin" as const };
+    expect(decidirAcesso("/producao", v)).toBe("meu-painel");
+    expect(decidirAcesso("/meu-painel", v)).toBe("passar");
+    expect(decidirAcesso("/api/fontes", v)).toBe("403");
+    expect(decidirAcesso("/api/produtores", v)).toBe("403");
+    expect(decidirAcesso("/api/dados", v)).toBe("passar");
+    expect(decidirAcesso("/admin/usuarios", g)).toBe("403");
+    expect(decidirAcesso("/api/admin/usuarios", g)).toBe("403");
+    expect(decidirAcesso("/api/produtores", g)).toBe("passar");
+    expect(decidirAcesso("/admin/usuarios", a)).toBe("passar");
+    expect(decidirAcesso("/admin/../producao", v)).not.toBe("passar");
+  });
+  it("vendedor: só / e /meu-painel como páginas; só /api/dados e /api/eu como APIs", () => {
+    const v = { ...usuario, role: "vendedor" as const };
+    expect(decidirAcesso("/", v)).toBe("passar");
+    for (const p of ["/visao-geral", "/producao", "/produtores", "/admin", "/admin/usuarios", "/apresentacao", "/exibicao-tv", "/meu-painelx", "/meu-painel/x"])
+      expect(decidirAcesso(p, v)).toBe("meu-painel");
+    expect(decidirAcesso("/api/eu", v)).toBe("passar");
+    for (const p of ["/api", "/api/admin/usuarios", "/api/reprocessar", "/api/dados/x", "/api/dadosx", "/api/eu/x"])
+      expect(decidirAcesso(p, v)).toBe("403");
+  });
+  it("gestão: /admin e /api/admin (com e sem barra) dão 403; o resto passa", () => {
+    const g = { ...usuario, role: "gestao" as const };
+    for (const p of ["/admin", "/admin/", "/api/admin", "/api/admin/x"]) expect(decidirAcesso(p, g)).toBe("403");
+    for (const p of ["/administrador", "/visao-geral", "/produtores", "/api/fontes", "/api/eu"]) expect(decidirAcesso(p, g)).toBe("passar");
+  });
+  it("caminho com .. nunca passa, para nenhum papel", () => {
+    for (const role of ["vendedor", "gestao", "admin"] as const) {
+      const u = { ...usuario, role };
+      for (const p of ["/admin/../producao", "/meu-painel/..", "/api/dados/../fontes", "/.."]) expect(decidirAcesso(p, u)).not.toBe("passar");
+    }
+    expect(decidirAcesso("/api/dados/../fontes", { ...usuario, role: "admin" })).toBe("403");
+  });
+});
+
+describe("respostaDoProxy", () => {
+  it("403 em API vira JSON; 403 em página vai para /visao-geral; meu-painel redireciona", () => {
+    expect(respostaDoProxy("passar", "/x")).toEqual({ tipo: "seguir" });
+    expect(respostaDoProxy("401", "/api/x")).toEqual({ tipo: "json", status: 401, erro: "não autenticado" });
+    expect(respostaDoProxy("403", "/api/fontes")).toEqual({ tipo: "json", status: 403, erro: "Sem permissão" });
+    expect(respostaDoProxy("403", "/api")).toEqual({ tipo: "json", status: 403, erro: "Sem permissão" });
+    expect(respostaDoProxy("403", "/admin/usuarios")).toEqual({ tipo: "redirecionar", para: "/visao-geral" });
+    expect(respostaDoProxy("meu-painel", "/producao")).toEqual({ tipo: "redirecionar", para: "/meu-painel" });
+    expect(respostaDoProxy("entrar", "/")).toEqual({ tipo: "redirecionar", para: "/entrar" });
   });
 });
 

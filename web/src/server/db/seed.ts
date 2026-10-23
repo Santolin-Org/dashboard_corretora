@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { neon } from "@neondatabase/serverless";
-import { notInArray } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import type { Db } from "./client";
 import { users, type Papel } from "./schema";
@@ -12,7 +11,7 @@ const PAPEIS: Papel[] = ["admin", "gestao", "vendedor"];
 
 export function validarSeed(dados: unknown): UsuarioSeed[] {
   if (!Array.isArray(dados)) throw new Error("seed: esperado um array");
-  if (dados.length === 0) throw new Error("seed: lista vazia (desativaria todos os usuários)");
+  if (dados.length === 0) throw new Error("seed: lista vazia ");
   const lista = dados.map((d, i) => {
     const { email, nome, role } = (d ?? {}) as Record<string, unknown>;
     if (typeof email !== "string" || !email.includes("@")) throw new Error(`seed[${i}]: e-mail inválido`);
@@ -29,20 +28,11 @@ export function validarSeed(dados: unknown): UsuarioSeed[] {
   return lista;
 }
 
-/** Upsert por e-mail minúsculo; quem não está na lista fica ativo=false. */
+/** Só inclui (e-mail minúsculo); a tela de usuários é a fonte da verdade: nunca altera nem desativa ninguém. */
 export async function sincronizarUsuarios(db: Db, lista: UsuarioSeed[]): Promise<void> {
-  const norm = validarSeed(lista);
-  for (const u of norm) {
-    await db
-      .insert(users)
-      .values({ ...u, ativo: true })
-      .onConflictDoUpdate({
-        target: users.email,
-        set: { nome: u.nome, role: u.role, ativo: true },
-      });
+  for (const u of validarSeed(lista)) {
+    await db.insert(users).values({ ...u, ativo: true }).onConflictDoNothing({ target: users.email });
   }
-  const emails = norm.map((u) => u.email);
-  await db.update(users).set({ ativo: false }).where(notInArray(users.email, emails));
 }
 
 async function main() {

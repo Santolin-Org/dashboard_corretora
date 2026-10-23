@@ -18,6 +18,7 @@ import { PainelAba } from "@/components/PainelAba";
 import { AbaSobDemanda } from "@/components/AbaSobDemanda";
 import { RedirecionarInicio } from "@/components/RedirecionarInicio";
 import { textoErroProducao } from "@/components/TelaErro";
+import { esquecerUsuario } from "@/client/usuario";
 
 const sin = (id: string): Sinistro => ({
   id, sinNum: id, abertura: "2026-01-02", aviso: "2026-01-02", encerra: "", status: "Aberto", seg: "Allianz", ramo: "Auto",
@@ -30,9 +31,11 @@ const corpo = (o: { erro?: typeof ERRO; sinistros?: Sinistro[] }) => ({
   ...(o.erro ? { erroProducao: o.erro } : {}),
 });
 const fetchMock = vi.fn();
-beforeEach(() => { fetchMock.mockReset(); replace.mockReset(); vi.stubGlobal("fetch", fetchMock); });
+beforeEach(() => { fetchMock.mockReset(); replace.mockReset(); esquecerUsuario(); vi.stubGlobal("fetch", fetchMock); });
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
-const responder = (b: unknown) => fetchMock.mockResolvedValue(new Response(JSON.stringify(b), { status: 200 }));
+// /api/eu indisponível (503): a casca segue sem o pé da barra; cada chamada recebe uma Response nova.
+const responder = (b: unknown) => fetchMock.mockImplementation(async (url: string) =>
+  url === "/api/eu" ? new Response("{}", { status: 503 }) : new Response(JSON.stringify(b), { status: 200 }));
 
 const ESPERADO = "producao_2026.xlsx: planilha ilegível A pasta Dashboard contém: producao_2026.xlsx, sinistrosAvisados.xlsx.";
 
@@ -119,17 +122,47 @@ describe("painel de fontes na casca", () => {
   });
 });
 
+// Mudança intencional (Task 5): a tela "acesso será liberado" (TelaSemAcesso) saiu; o vendedor sem
+// vínculo recebe a casca com a barra lateral (o aviso de sem vínculo vem no Meu painel).
 describe("escopo nada (semAcesso)", () => {
-  for (const r of ["/visao-geral", "/exibicao-tv", "/"]) {
-    it(`rota ${r}: mostra a tela de acesso pendente no lugar das abas`, async () => {
-      rota = r;
-      responder({ ...corpo({}), versao: "sem-acesso", semAcesso: true });
-      render(<Casca><PainelAba id="visao-geral"><p>conteudo-da-aba</p></PainelAba></Casca>);
-      await waitFor(() => expect(document.getElementById("sem-acesso-dash")).not.toBeNull());
-      expect(document.getElementById("sem-acesso-dash")!.textContent).toBe("Seu acesso ao dashboard será liberado na próxima etapa.");
-      expect(screen.queryByText("conteudo-da-aba")).toBeNull();
-      expect(document.getElementById("dash")).toBeNull();
-      expect(document.getElementById("sp-error")).toBeNull();
-    });
-  }
+  it("rota /meu-painel: casca com a barra lateral e o conteúdo, sem tela de erro", async () => {
+    rota = "/meu-painel";
+    responder({ ...corpo({}), versao: "sem-acesso", semAcesso: true });
+    render(<Casca><p>conteudo-da-pagina</p></Casca>);
+    await waitFor(() => expect(screen.getByText("conteudo-da-pagina")).toBeTruthy());
+    const nav = document.querySelector('nav[aria-label="Navegação principal"]')!;
+    expect(nav).not.toBeNull();
+    // sem /api/eu (falhou), semAcesso já diz que é vendedor: só Meu painel
+    expect([...nav.querySelectorAll("a")].map((a) => a.getAttribute("href"))).toEqual(["/meu-painel"]);
+    expect(document.getElementById("sem-acesso-dash")).toBeNull();
+    expect(document.getElementById("sp-error")).toBeNull();
+    expect(document.getElementById("dash")).toBeNull();
+  });
+  it("início leva o vendedor sem vínculo para /meu-painel", async () => {
+    rota = "/";
+    responder({ ...corpo({}), versao: "sem-acesso", semAcesso: true });
+    render(<Casca><RedirecionarInicio /></Casca>);
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/meu-painel"));
+  });
+});
+
+describe("início por papel", () => {
+  it("vendedor (com vínculo) vai para /meu-painel", async () => {
+    rota = "/";
+    fetchMock.mockImplementation(async (url: string) => url === "/api/eu"
+      ? new Response(JSON.stringify({ email: "g@x.com", nome: "Gabriel", role: "vendedor", nomes: ["GABRIEL"] }), { status: 200 })
+      : new Response(JSON.stringify(corpo({ sinistros: [sin("1")] })), { status: 200 }));
+    render(<Casca><RedirecionarInicio /></Casca>);
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/meu-painel"));
+    expect(replace).toHaveBeenCalledTimes(1);
+  });
+  it("gestão continua indo para a aba inicial", async () => {
+    rota = "/";
+    fetchMock.mockImplementation(async (url: string) => url === "/api/eu"
+      ? new Response(JSON.stringify({ email: "c@x.com", nome: "Cesar", role: "gestao", nomes: [] }), { status: 200 })
+      : new Response(JSON.stringify(corpo({ sinistros: [sin("1")] })), { status: 200 }));
+    render(<Casca><RedirecionarInicio /></Casca>);
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/sinistros"));
+    expect(replace).toHaveBeenCalledTimes(1);
+  });
 });

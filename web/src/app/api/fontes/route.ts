@@ -8,7 +8,7 @@ import { obterBase } from "@/server/ingestao";
 export async function GET() {
   const u = await usuarioDaRequisicao();
   if (!u) return NextResponse.json({ erro: "Não autenticado" }, { status: 401 });
-  if (escopoDoUsuario(u).tipo === "nada") return NextResponse.json({ erro: "Sem permissão" }, { status: 403 });
+  if (escopoDoUsuario(u).tipo !== "tudo") return NextResponse.json({ erro: "Sem permissão" }, { status: 403 });
   const b = await obterBase();
   return NextResponse.json({
     podeReprocessar: podeReprocessar(u),
