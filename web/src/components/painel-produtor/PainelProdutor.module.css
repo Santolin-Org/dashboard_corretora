@@ -1,0 +1,305 @@
+/* Painel do produtor (esboço vendedor-layout-v4). */
+.painel {
+  padding: 16px 20px;
+}
+
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.topo b {
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.topo span {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  background: var(--bg-raised);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-card);
+  min-width: 0;
+}
+
+.largo {
+  margin-top: 14px;
+}
+
+.card h2 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card h2 small {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.sub {
+  color: var(--text-secondary);
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.vazio {
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 18px 0;
+  text-align: center;
+}
+
+.aviso {
+  max-width: 520px;
+  margin: 40px auto;
+  padding: 14px 16px;
+  border-radius: var(--r-md);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-card);
+  color: var(--text-primary);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+/* ── Produção do mês ── */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.kpi {
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  padding: 8px 10px;
+  min-width: 0;
+}
+
+.kpi small {
+  color: var(--text-secondary);
+  font-size: 11px;
+  display: block;
+}
+
+.kpi strong {
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.totais {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+  font-size: 11px;
+}
+
+.totais span {
+  color: var(--text-secondary);
+  margin-right: 8px;
+}
+
+.selo {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.sobe {
+  color: var(--pos-text);
+  background: var(--pos-bg);
+}
+
+.cai {
+  color: var(--neg-text);
+  background: var(--neg-bg);
+}
+
+.legenda {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+
+.legenda span::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  margin-right: 4px;
+  vertical-align: middle;
+  background: var(--c);
+}
+
+/* ── A renovar ── */
+.cabeca {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.seletor {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.seletor button {
+  background: none;
+  border: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.seletor button:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.seletor strong {
+  font-size: 12px;
+  padding: 0 6px;
+  min-width: 96px;
+  text-align: center;
+}
+
+.seletor em {
+  font-style: normal;
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.grupo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  font: inherit;
+  font-size: 12px;
+  color: #ffb4b4;
+  background: rgba(127, 29, 29, .18);
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.grupo u {
+  text-decoration: none;
+  color: var(--text-secondary);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+}
+
+.lista + .lista {
+  margin-top: 10px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 6px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  background: var(--bg-elevated);
+  border-radius: 8px;
+  padding: 8px 10px 8px 0;
+}
+
+.item i {
+  align-self: stretch;
+  border-radius: 8px 0 0 8px;
+}
+
+.item b {
+  font-size: 13px;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.item small {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.k-vencida { background: rgba(127, 29, 29, .4); color: #ffb4b4; }
+.k-1 { background: rgba(255, 59, 59, .18); color: #ff7a7a; }
+.k-3 { background: rgba(255, 107, 74, .16); color: #ff9a80; }
+.k-7 { background: rgba(245, 166, 35, .15); color: #F5A623; }
+.k-15 { background: rgba(214, 194, 58, .15); color: #e5d564; }
+.k-30 { background: rgba(127, 179, 255, .14); color: #9cc4ff; }
+.k-neutra { background: var(--neu-bg); color: var(--neu-text); }
+
+/* Tema claro: tons legíveis em fundo branco (o app é dark-first, como tokens.css). */
+@media (prefers-color-scheme: light) {
+  .k-vencida { color: #7f1d1d; background: rgba(127, 29, 29, .14); }
+  .k-1 { color: #c81e1e; }
+  .k-3 { color: #c2410c; }
+  .k-7 { color: #a16207; }
+  .k-15 { color: #8a7a10; }
+  .k-30 { color: #2f6fd6; }
+  .grupo { color: #7f1d1d; background: rgba(127, 29, 29, .08); }
+}

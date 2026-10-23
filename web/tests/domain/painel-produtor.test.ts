@@ -3,6 +3,7 @@ import { linha } from './helpers';
 import {
   nomesDoColab, pertenceA, nomesDistintos, producaoDoMes, comparativoNR, mesAMes,
   faixaUrgencia, aRenovar, mesAnterior, mesSeguinte, mesDe, CORES_FAIXA,
+  fCurto, fMil, nomeMes, textoPrazo, nomeCurto,
 } from '../../src/domain/painel-produtor';
 
 describe('nomes', () => {
@@ -93,5 +94,32 @@ describe('a renovar', () => {
   it('navegação de mês na virada de ano', () => {
     expect(mesAnterior('2026-01')).toBe('2025-12'); expect(mesSeguinte('2026-12')).toBe('2027-01');
     expect(mesDe('2026-10-22')).toBe('2026-10');
+  });
+});
+
+describe('rótulos do painel', () => {
+  it('fCurto: 48k, 7,9k, inteiro abaixo de mil; arredondar para 10,0k vira 10k', () => {
+    expect([48200, 10000, 7900, 1000, 9960, 999.6, 420, 0, -7900].map(fCurto))
+      .toEqual(['48k', '10k', '7,9k', '1,0k', '10k', '1,0k', '420', '0', '-7,9k']);
+  });
+  it('fMil: R$ 15,8 mil; abaixo de mil em reais inteiros', () => {
+    expect(fMil(15800)).toBe('R$ 15,8 mil');
+    expect(fMil(1234567)).toBe('R$ 1.234,6 mil');
+    expect(fMil(850.4).replace(/\s/g, ' ')).toBe('R$ 850');
+    expect(fMil(-2500)).toBe('-R$ 2,5 mil');
+  });
+  it('nomeMes', () => {
+    expect(nomeMes('2026-10')).toBe('outubro');
+    expect(nomeMes('2026-10', 'ano')).toBe('outubro/2026');
+    expect(nomeMes('2025-10', 'abrev')).toBe('out/2025');
+    expect(nomeMes('2026-01', 'titulo')).toBe('Janeiro de 2026');
+  });
+  it('textoPrazo', () => {
+    expect([1, 0, 3, -1, -4].map(textoPrazo)).toEqual(['amanhã', 'hoje', 'em 3 dias', 'venceu há 1 dia', 'venceu há 4 dias']);
+  });
+  it('nomeCurto: parte antes de " - " de cada nome; vazio fica vazio', () => {
+    expect(nomeCurto('GABRIELA ALENCAR MOZERLE - SANTOLIN , GABRIEL VERAS - SANTOLIN')).toBe('GABRIELA ALENCAR MOZERLE, GABRIEL VERAS');
+    expect(nomeCurto('FERNANDO DE PAULA SERAFIM')).toBe('FERNANDO DE PAULA SERAFIM');
+    expect(nomeCurto('  ')).toBe('');
   });
 });

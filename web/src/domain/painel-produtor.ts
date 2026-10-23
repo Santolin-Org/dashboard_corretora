@@ -92,3 +92,38 @@ export function aRenovar(linhas: Linha[], nomes: ReadonlySet<string>, mes: strin
     });
   return { vencidas: itens.filter(i => i.fim < hoje), aVencer: itens.filter(i => i.fim >= hoje) };
 }
+
+// ── Rótulos do painel ──
+const MESES_PT = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+
+/** 'outubro' | 'outubro/2026' (ano) | 'out/2026' (abrev) | 'Outubro de 2026' (titulo). */
+export function nomeMes(mes: string, forma: 'mes' | 'ano' | 'abrev' | 'titulo' = 'mes'): string {
+  const [a, m] = mesNum(mes), n = MESES_PT[m - 1];
+  return forma === 'ano' ? `${n}/${a}` : forma === 'abrev' ? `${n.slice(0, 3)}/${a}` : forma === 'titulo' ? `${n[0].toUpperCase()}${n.slice(1)} de ${a}` : n;
+}
+
+const umaCasa = (v: number) => v.toFixed(1).replace('.', ',');
+
+/** Rótulo curto em cima das barras: 48k (≥ 10 mil), 7,9k (≥ 1 mil), 420 (inteiro). */
+export function fCurto(v: number): string {
+  const a = Math.abs(v), s = v < 0 ? '-' : '';
+  if (Math.round(a) < 1000) return s + Math.round(a);
+  const k = a / 1000;
+  return s + (+k.toFixed(1) >= 10 ? `${Math.round(k)}k` : `${umaCasa(k)}k`);
+}
+
+/** Valor nos segmentos das barras N+R: 'R$ 15,8 mil'; abaixo de mil, reais inteiros. */
+export function fMil(v: number): string {
+  const a = Math.abs(v), s = v < 0 ? '-' : '';
+  if (Math.round(a) < 1000) return `${s}R$ ${Math.round(a)}`;
+  return `${s}R$ ${new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(a / 1000)} mil`;
+}
+
+/** Selo de prazo da lista "A renovar". */
+export function textoPrazo(dias: number): string {
+  if (dias < 0) return `venceu há ${-dias} ${dias === -1 ? 'dia' : 'dias'}`;
+  return dias === 0 ? 'hoje' : dias === 1 ? 'amanhã' : `em ${dias} dias`;
+}
+
+/** Nome(s) do colaborador sem o sufixo da equipe (parte antes de " - "), separados por vírgula. */
+export const nomeCurto = (colab: string): string => nomesDoColab(colab).map(n => n.split(' - ')[0].trim()).join(', ');
