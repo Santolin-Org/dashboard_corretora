@@ -36,7 +36,7 @@ const rotulosTopo = (cores: string[]): Plugin<"bar"> => ({
 });
 
 /** 4.3 — 12 meses do ano de hoje: prêmio e comissão lado a lado, cada um na sua escala. */
-export function GraficoMesAMes({ nomes }: { nomes: ReadonlySet<string> }) {
+export function GraficoMesAMes({ nomes, prefixoTitulo = "Minha produção" }: { nomes: ReadonlySet<string>; prefixoTitulo?: string }) {
   const { base } = usePainel();
   const ano = +base.hoje.slice(0, 4), mesAtual = +base.hoje.slice(5, 7);
   const serie = useMemo(() => mesAMes(base.linhas, nomes, ano), [base, nomes, ano]);
@@ -48,7 +48,7 @@ export function GraficoMesAMes({ nomes }: { nomes: ReadonlySet<string> }) {
 
   return (
     <section className={`${s.card} ${s.largo}`} aria-labelledby="pp-mes-titulo">
-      <h2 id="pp-mes-titulo">Minha produção em {ano}, mês a mês</h2>
+      <h2 id="pp-mes-titulo">{prefixoTitulo} em {ano}, mês a mês</h2>
       <div className={s.legenda} style={{ marginTop: 0, marginBottom: 8 }}>
         <span style={{ ["--c" as string]: COR_P }}>Prêmio líquido</span>
         <span style={{ ["--c" as string]: COR_C }}>Comissão</span>

@@ -17,20 +17,24 @@ export function AvisoSemVinculo() {
  * Painel do produtor (spec 4.1–4.3) para os nomes dados. `mostrarDono` acrescenta o nome curto do
  * colaborador em cada item de "A renovar" (vários produtores). Todas as regras vêm de domain/painel-produtor.
  */
-export function PainelProdutor({ nomes, mostrarDono, saudacao }: { nomes: ReadonlySet<string>; mostrarDono: boolean; saudacao: string | null }) {
+export function PainelProdutor({ nomes, mostrarDono, saudacao, prefixoTitulo = "Minha produção" }: {
+  nomes: ReadonlySet<string>; mostrarDono: boolean; saudacao: string | null;
+  /** Início dos títulos dos cartões: "Minha produção" (Meu painel) ou "Produção" (página Produtores). */
+  prefixoTitulo?: "Minha produção" | "Produção";
+}) {
   const { base } = usePainel();
   const hoje = base.hoje;
   return (
     <div className={s.painel}>
       <div className={s.topo}>
-        <b>{saudacao}</b>
+        {saudacao ? <b>{saudacao}</b> : <span />}
         <span>{nomeMes(mesDe(hoje), "titulo")} · dados até hoje, {hoje.slice(8, 10)}/{hoje.slice(5, 7)}</span>
       </div>
       <div className={s.grade}>
-        <BlocoProducaoMes nomes={nomes} />
+        <BlocoProducaoMes nomes={nomes} prefixoTitulo={prefixoTitulo} />
         <ListaRenovar nomes={nomes} mostrarDono={mostrarDono} />
       </div>
-      <GraficoMesAMes nomes={nomes} />
+      <GraficoMesAMes nomes={nomes} prefixoTitulo={prefixoTitulo} />
     </div>
   );
 }

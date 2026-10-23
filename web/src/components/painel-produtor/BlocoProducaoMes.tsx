@@ -38,7 +38,7 @@ const rotulosSegmentos: Plugin<"bar"> = {
 };
 
 /** 4.1 — números do mês corrente e N+R contra o mesmo mês do ano anterior (prêmio líquido). */
-export function BlocoProducaoMes({ nomes }: { nomes: ReadonlySet<string> }) {
+export function BlocoProducaoMes({ nomes, prefixoTitulo = "Minha produção" }: { nomes: ReadonlySet<string>; prefixoTitulo?: string }) {
   const { base } = usePainel();
   const mes = mesDe(base.hoje);
   const { atual, anterior, variacao } = useMemo(() => comparativoNR(base.linhas, nomes, mes), [base, nomes, mes]);
@@ -54,7 +54,7 @@ export function BlocoProducaoMes({ nomes }: { nomes: ReadonlySet<string> }) {
 
   return (
     <section className={s.card} aria-labelledby="pp-producao-titulo">
-      <h2 id="pp-producao-titulo">Minha produção em {nomeMes(mes)}</h2>
+      <h2 id="pp-producao-titulo">{prefixoTitulo} em {nomeMes(mes)}</h2>
       <div className={s.sub}>Prêmio líquido, novas (N) + renovações (R), contra {nomeMes(mesAnt, "ano")}</div>
       <div className={s.kpis} role="group" aria-label="Números do mês">
         <div className={s.kpi}><small>Apólices</small><strong>{fN(atual.total.qtd)}</strong></div>
