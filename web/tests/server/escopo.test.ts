@@ -2,7 +2,8 @@ import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import { aplicarEscopo, escopoDoUsuario, podeReprocessar } from "@/server/escopo";
+import { aplicarEscopo, chaveEscopo, escopoDoUsuario, podeReprocessar } from "@/server/escopo";
+import { linha } from "../domain/helpers";
 import { buscarUsuarioAtivo, setDb } from "@/server/db/client";
 import { users } from "@/server/db/schema";
 import { sincronizarUsuarios } from "@/server/db/seed";
@@ -16,15 +17,47 @@ describe("escopoDoUsuario", () => {
     expect(escopoDoUsuario({ role: "vendedor" })).toEqual({ tipo: "nada" });
     expect(escopoDoUsuario(null)).toEqual({ tipo: "nada" });
   });
-  it("aplicarEscopo", () => {
-    expect(aplicarEscopo([1, 2], { tipo: "nada" })).toEqual([]);
-    expect(aplicarEscopo([1, 2], { tipo: "tudo" })).toEqual([1, 2]);
+  // Mudou de propósito: aplicarEscopo agora recebe Linha[] (o recorte por colaborador lê `colab`).
+  it("aplicarEscopo: nada → vazio; tudo → as mesmas linhas", () => {
+    const ls = [linha({ colab: "A" }), linha({ colab: "B" })];
+    expect(aplicarEscopo(ls, { tipo: "nada" })).toEqual([]);
+    expect(aplicarEscopo(ls, { tipo: "tudo" })).toEqual(ls);
   });
   it("só admin reprocessa", () => {
     expect(podeReprocessar({ role: "admin" })).toBe(true);
     expect(podeReprocessar({ role: "gestao" })).toBe(false);
     expect(podeReprocessar({ role: "vendedor" })).toBe(false);
     expect(podeReprocessar(null)).toBe(false);
+  });
+});
+
+describe("escopo por colaborador", () => {
+  const L = [linha({ colab: "A" }), linha({ colab: "A , B" }), linha({ colab: "C" }), linha({ colab: "" })];
+  it("vendedor recebe só linhas com o nome dele, inclusive duplas", () => {
+    const e = escopoDoUsuario({ role: "vendedor" }, ["B"]);
+    expect(e).toEqual({ tipo: "colaboradores", nomes: ["B"] });
+    expect(aplicarEscopo(L, e).map((r) => r.colab)).toEqual(["A , B"]);
+  });
+  it("vendedor sem vínculo → nada; gestão/admin → tudo", () => {
+    expect(escopoDoUsuario({ role: "vendedor" }, [])).toEqual({ tipo: "nada" });
+    expect(escopoDoUsuario({ role: "vendedor" })).toEqual({ tipo: "nada" });
+    expect(aplicarEscopo(L, escopoDoUsuario({ role: "gestao" }))).toHaveLength(4);
+    expect(escopoDoUsuario({ role: "admin" }, ["A"])).toEqual({ tipo: "tudo" });
+    expect(escopoDoUsuario(null, ["A"])).toEqual({ tipo: "nada" });
+  });
+  it("nomes ordenados e sem vazios; linha com colab vazio não pertence a ninguém", () => {
+    expect(escopoDoUsuario({ role: "vendedor" }, ["C", "A", ""])).toEqual({ tipo: "colaboradores", nomes: ["A", "C"] });
+    expect(escopoDoUsuario({ role: "vendedor" }, ["", "  "])).toEqual({ tipo: "nada" });
+    expect(aplicarEscopo([linha({ colab: "" }), linha({ colab: "   " })], { tipo: "colaboradores", nomes: [""] })).toEqual([]);
+  });
+  it("comparação exata (sem prefixo/maiúsculas)", () => {
+    const e = escopoDoUsuario({ role: "vendedor" }, ["ANA"]);
+    expect(aplicarEscopo([linha({ colab: "ANA CLARA" }), linha({ colab: "ana" }), linha({ colab: "BIA , ANA" })], e).map((r) => r.colab)).toEqual(["BIA , ANA"]);
+  });
+  it("chaveEscopo é estável e distingue nomes", () => {
+    expect(chaveEscopo({ tipo: "colaboradores", nomes: ["B", "A"] })).toBe(chaveEscopo({ tipo: "colaboradores", nomes: ["A", "B"] }));
+    expect(chaveEscopo({ tipo: "colaboradores", nomes: ["A"] })).not.toBe(chaveEscopo({ tipo: "colaboradores", nomes: ["C"] }));
+    expect(chaveEscopo({ tipo: "tudo" })).not.toBe(chaveEscopo({ tipo: "nada" }));
   });
 });
 

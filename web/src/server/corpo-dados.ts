@@ -1,6 +1,6 @@
 import { gzipSync } from "node:zlib";
 import type { Base } from "./ingestao";
-import { aplicarEscopo, type Escopo } from "./escopo";
+import { aplicarEscopo, chaveEscopo, type Escopo } from "./escopo";
 import { codificarLinhas, codificarSinistros } from "@/domain/serializacao";
 
 /**
@@ -15,10 +15,9 @@ let chaveBase: string | null = null;
 const cache = new Map<string, Entrada>();
 let codificacoes = 0;
 
-const escopoChave = (e: Escopo) => JSON.stringify(e);
-
 /** O recorte de escopo acontece ANTES de codificar: quem não tem escopo nunca recebe as linhas.
- *  Manifesto/avisos (nomes de arquivos, contagens, erros) só vão para quem vê tudo. */
+ *  Vendedor (escopo colaboradores) recebe só as linhas com um dos seus nomes e nenhum sinistro.
+ *  Manifesto/avisos (nomes de arquivos, contagens, erros) e sinistros só vão para quem vê tudo. */
 export function payloadDados(b: Pick<Base, "versao" | "geradoEm" | "hoje" | "linhas" | "sinistros" | "manifesto" | "contagensSinistros" | "avisos" | "avisosSaude" | "erroProducao">, escopo: Escopo) {
   const tudo = escopo.tipo === "tudo";
   return {
@@ -26,7 +25,7 @@ export function payloadDados(b: Pick<Base, "versao" | "geradoEm" | "hoje" | "lin
     geradoEm: b.geradoEm,
     hoje: b.hoje,
     linhas: codificarLinhas(aplicarEscopo(b.linhas, escopo)),
-    sinistros: codificarSinistros(aplicarEscopo(b.sinistros, escopo)),
+    sinistros: codificarSinistros(tudo ? b.sinistros : []),
     manifesto: tudo ? b.manifesto : [],
     contagensSinistros: tudo ? b.contagensSinistros : { sinistrosAvisados: 0, sinistrosPagamentos: 0 },
     avisos: tudo ? b.avisos : [],
@@ -43,7 +42,7 @@ export function corpoGzip(b: Parameters<typeof payloadDados>[0], escopo: Escopo)
     cache.clear();
     chaveBase = cb;
   }
-  const k = escopoChave(escopo);
+  const k = chaveEscopo(escopo);
   let e = cache.get(k);
   if (!e) {
     codificacoes++;
