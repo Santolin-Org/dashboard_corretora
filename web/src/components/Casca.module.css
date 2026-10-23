@@ -1,0 +1,16 @@
+/* Barra lateral + conteúdo (esboço sidebar-v5). */
+.casca {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.conteudo {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .casca {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

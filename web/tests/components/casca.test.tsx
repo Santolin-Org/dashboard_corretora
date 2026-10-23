@@ -31,6 +31,9 @@ import { SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoRecolhivel";
 import { BotaoModoTv, ModoTvEfeito } from "@/components/ModoTv";
 import { Subtitulo, textoRecBadge } from "@/components/Cabecalho";
 import { FILTROS_VAZIOS } from "@/domain/filtros";
+import { Casca } from "@/components/Casca";
+import { esquecerUsuario } from "@/client/usuario";
+import { codificarLinhas, codificarSinistros } from "@/domain/serializacao";
 
 beforeEach(() => { busca = new URLSearchParams(); window.history.replaceState(null, "", "/visao-geral"); });
 afterEach(() => { cleanup(); localStorage.clear(); document.body.className = ""; });
@@ -285,5 +288,34 @@ describe("Cabeçalho (updateDashHeader)", () => {
     const s = base({ sinistros: [{}, {}] as BaseCliente["sinistros"] });
     expect(textoRecBadge(s, 0, true)).toBe("2 sinistros");
     expect(textoRecBadge(base({}), 0, true)).toBe("—");
+  });
+});
+
+describe("Casca com a barra lateral", () => {
+  const corpo = {
+    versao: "v", geradoEm: "t", hoje: "2026-10-15", linhas: codificarLinhas(LINHAS), sinistros: codificarSinistros([]),
+    manifesto: [], contagensSinistros: { sinistrosAvisados: 0, sinistrosPagamentos: 0 }, avisos: [], avisosSaude: [],
+  };
+  beforeEach(() => {
+    esquecerUsuario();
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => url === "/api/eu"
+      ? new Response(JSON.stringify({ email: "a@x.com", nome: "Ana Admin", role: "admin", nomes: [] }), { status: 200 })
+      : new Response(JSON.stringify(corpo), { status: 200 })));
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("casca não renderiza mais as abas do topo", async () => {
+    const { container } = render(<Casca><p id="conteudo">x</p></Casca>);
+    await screen.findByText("Ana Admin");
+    expect(container.querySelector(".nav-tabs")).toBeNull();
+    expect(container.querySelector(".tab-btn")).toBeNull();
+    const nav = container.querySelector('nav[aria-label="Navegação principal"]')!;
+    expect(nav).not.toBeNull();
+    // cabeçalho, filtros e conteúdo continuam em #dash, com os ids da paridade
+    const dash = container.querySelector("#dash")!;
+    expect(dash.contains(nav)).toBe(false);
+    for (const id of ["dash-subtitle", "rec-badge", "f-vig-s", "conteudo"]) expect(dash.querySelector(`#${id}`)).not.toBeNull();
+    expect(nav.querySelector('a[href="/visao-geral"]')!.getAttribute("aria-current")).toBe("page");
+    expect(nav.querySelector('a[href="/admin/usuarios"]')).not.toBeNull();
   });
 });
