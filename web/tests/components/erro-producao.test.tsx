@@ -166,3 +166,20 @@ describe("início por papel", () => {
     expect(replace).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("barra lateral recolhível na casca", () => {
+  it("« recolhe, a escolha fica no localStorage e volta recolhida ao montar de novo", async () => {
+    rota = "/visao-geral";
+    localStorage.removeItem("barraLateral:recolhida");
+    responder(corpo({ sinistros: [sin("1")] }));
+    const { unmount } = render(<Casca><PainelAba id="visao-geral"><p>x</p></PainelAba></Casca>);
+    fireEvent.click(await screen.findByRole("button", { name: "Recolher menu" }));
+    expect(document.querySelector("aside")!.getAttribute("data-recolhida")).toBe("true");
+    expect(localStorage.getItem("barraLateral:recolhida")).toBe("1");
+    unmount();
+    esquecerUsuario();
+    render(<Casca><PainelAba id="visao-geral"><p>x</p></PainelAba></Casca>);
+    expect(await screen.findByRole("button", { name: "Expandir menu" })).toBeTruthy();
+    localStorage.removeItem("barraLateral:recolhida");
+  });
+});

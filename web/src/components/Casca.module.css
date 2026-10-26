@@ -5,12 +5,30 @@
   min-height: 100vh;
 }
 
+.casca.recolhida {
+  grid-template-columns: 56px minmax(0, 1fr);
+}
+
 .conteudo {
   min-width: 0;
 }
 
+/* Painel do produtor: a página ocupa a altura da janela e distribui o espaço entre os blocos. */
+.telaCheia {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
 @media (max-width: 900px) {
-  .casca {
+  .casca,
+  .casca.recolhida {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .telaCheia {
+    height: auto;
+    overflow: visible;
   }
 }

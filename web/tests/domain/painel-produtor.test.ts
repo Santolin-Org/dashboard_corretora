@@ -3,7 +3,7 @@ import { linha } from './helpers';
 import {
   nomesDoColab, pertenceA, nomesDistintos, producaoDoMes, comparativoNR, mesAMes,
   faixaUrgencia, aRenovar, mesAnterior, mesSeguinte, mesDe, CORES_FAIXA,
-  fCurto, fMil, nomeMes, textoPrazo, nomeCurto,
+  fCurto, fMil, nomeMes, textoPrazo, nomeCurto, paginar,
 } from '../../src/domain/painel-produtor';
 
 describe('nomes', () => {
@@ -127,5 +127,21 @@ describe('rótulos do painel', () => {
     expect(nomeCurto('GABRIELA ALENCAR MOZERLE - SANTOLIN , GABRIEL VERAS - SANTOLIN')).toBe('GABRIELA ALENCAR MOZERLE, GABRIEL VERAS');
     expect(nomeCurto('FERNANDO DE PAULA SERAFIM')).toBe('FERNANDO DE PAULA SERAFIM');
     expect(nomeCurto('  ')).toBe('');
+  });
+});
+
+describe('paginar', () => {
+  const l = [1, 2, 3, 4, 5, 6, 7];
+  it('fatia por página e conta o total de páginas', () => {
+    expect(paginar(l, 3, 1)).toEqual({ pagina: 1, paginas: 3, itens: [1, 2, 3] });
+    expect(paginar(l, 3, 3)).toEqual({ pagina: 3, paginas: 3, itens: [7] });
+  });
+  it('página fora do intervalo cai na última/primeira (lista encolheu ou mês mudou)', () => {
+    expect(paginar(l, 3, 9)).toEqual({ pagina: 3, paginas: 3, itens: [7] });
+    expect(paginar(l, 3, 0)).toEqual({ pagina: 1, paginas: 3, itens: [1, 2, 3] });
+  });
+  it('lista vazia tem 1 página vazia; porPagina < 1 vira 1', () => {
+    expect(paginar([], 5, 2)).toEqual({ pagina: 1, paginas: 1, itens: [] });
+    expect(paginar(l, 0, 2)).toEqual({ pagina: 2, paginas: 7, itens: [2] });
   });
 });

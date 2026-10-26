@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import s from "./SeletorProdutores.module.css";
 
 export type Opcao = { id: string; rotulo: string; nomes: string[] };
@@ -36,6 +36,16 @@ export function SeletorProdutores({ opcoes, selecionados, aoMudar }: {
 }) {
   const [aberto, setAberto] = useState(false);
   const [busca, setBusca] = useState("");
+  const raiz = useRef<HTMLDivElement>(null);
+  // Fecha com Esc ou clique fora do seletor.
+  useEffect(() => {
+    if (!aberto) return;
+    const fora = (e: MouseEvent) => { if (!raiz.current?.contains(e.target as Node)) setAberto(false); };
+    const tecla = (e: KeyboardEvent) => { if (e.key === "Escape") setAberto(false); };
+    document.addEventListener("mousedown", fora);
+    document.addEventListener("keydown", tecla);
+    return () => { document.removeEventListener("mousedown", fora); document.removeEventListener("keydown", tecla); };
+  }, [aberto]);
   const todas = [...opcoes.pessoas, ...opcoes.semDono];
   const marcadas = todas.filter((o) => selecionados.has(o.id));
   const alternar = (id: string) => {
@@ -61,7 +71,7 @@ export function SeletorProdutores({ opcoes, selecionados, aoMudar }: {
     );
   };
   return (
-    <div className={s.sel}>
+    <div ref={raiz} className={s.sel}>
       <span className={s.rotulo}>Produtores:</span>
       {marcadas.map((o) => (
         <span key={o.id} className={s.chip} title={o.nomes.join(" , ")}>
@@ -72,7 +82,7 @@ export function SeletorProdutores({ opcoes, selecionados, aoMudar }: {
       <button type="button" className={s.add} aria-expanded={aberto} onClick={() => setAberto((a) => !a)}>+ adicionar</button>
       {aberto && (
         <div className={s.menu}>
-          <input type="search" placeholder="Buscar produtor…" aria-label="Buscar produtor" value={busca} onChange={(e) => setBusca(e.target.value)} />
+          <input type="search" placeholder="Buscar produtor…" aria-label="Buscar produtor" autoFocus value={busca} onChange={(e) => setBusca(e.target.value)} />
           {grupo("Pessoas", opcoes.pessoas)}
           {grupo("Nomes sem dono", opcoes.semDono)}
           {!filtra(todas).length && <p className={s.vazio}>Nenhum produtor encontrado.</p>}

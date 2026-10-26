@@ -54,7 +54,7 @@ export function GraficoMesAMes({ nomes, prefixoTitulo = "Minha produção" }: { 
         <span style={{ ["--c" as string]: COR_C }}>Comissão</span>
       </div>
       {vazio ? <p className={s.vazio}>Nenhuma produção em {ano}.</p> : (
-        <Grafico id="pp-mes" altura={200} chave={JSON.stringify([premio, com, mesAtual])}
+        <Grafico id="pp-mes" altura={160} chave={JSON.stringify([premio, com, mesAtual])}
           construir={(escuro): ChartConfiguration => ({
             type: "bar",
             data: {

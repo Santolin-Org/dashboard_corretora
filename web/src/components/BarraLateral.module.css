@@ -17,6 +17,73 @@
   border-right: 1px solid var(--border-subtle);
 }
 
+.topoNav {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.recolher {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.recolher:hover,
+.recolher:focus-visible {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+  outline: none;
+}
+
+/* Recolhida: só ícones; o nome de cada item fica no title. */
+.recolhida .nav {
+  padding: 16px 8px;
+}
+
+.recolhida .topoNav {
+  flex-direction: column;
+  align-items: center;
+}
+
+.recolhida .marca {
+  display: none;
+}
+
+.recolhida .topoNav {
+  padding-bottom: 8px;
+}
+
+.recolhida .texto,
+.recolhida .rotuloGrupo,
+.recolhida .pe {
+  display: none;
+}
+
+.recolhida .grupo + .grupo {
+  border-top: 1px solid var(--border-subtle);
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.recolhida .item {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.recolhida .icone {
+  width: auto;
+  font-size: 15px;
+}
+
 .marca {
   font-family: var(--font-body);
   font-weight: 700;
@@ -166,6 +233,28 @@
 
   .aberta .nav {
     transform: none;
+  }
+
+  .recolher {
+    display: none;
+  }
+
+  .recolhida .texto,
+  .recolhida .rotuloGrupo {
+    display: inline;
+  }
+
+  .recolhida .rotuloGrupo {
+    display: block;
+  }
+
+  .recolhida .pe {
+    display: block;
+  }
+
+  .recolhida .item {
+    justify-content: flex-start;
+    padding: 7px 8px;
   }
 
   .aberta .veu {

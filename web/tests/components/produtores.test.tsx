@@ -81,6 +81,17 @@ describe("Página Produtores", () => {
     expect(screen.queryByLabelText(IG)).toBeNull();
   });
 
+  it("o menu fecha com Esc e com clique fora; clique dentro não fecha", async () => {
+    await abrir();
+    fireEvent.mouseDown(screen.getByLabelText("Buscar produtor"));
+    expect(screen.getByLabelText("Buscar produtor")).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByLabelText("Buscar produtor")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "+ adicionar" }));
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByLabelText("Buscar produtor")).toBeNull();
+  });
+
   it("restaura a seleção do localStorage e descarta id inexistente", async () => {
     localStorage.setItem("produtores:selecao", JSON.stringify(["p:2", "p:99", "p:Bruno Reis"]));
     render(<Raiz><Produtores /></Raiz>);

@@ -18,6 +18,12 @@ import { TelaCarregando, TelaErro, textoErroProducao } from "./TelaErro";
 import s from "./Casca.module.css";
 
 const ROTAS_ABAS = new Set<string>(ABAS.map((a) => a.id));
+/** Páginas do painel do produtor: ocupam a altura da janela (tudo visível sem rolar). */
+const ROTAS_TELA_CHEIA = new Set<string>(["meu-painel", "produtores"]);
+
+const CHAVE_RECOLHIDA = "barraLateral:recolhida";
+const lerRecolhida = (): boolean => { try { return localStorage.getItem(CHAVE_RECOLHIDA) === "1"; } catch { return false; } };
+const gravarRecolhida = (v: boolean) => { try { localStorage.setItem(CHAVE_RECOLHIDA, v ? "1" : "0"); } catch { /* sem armazenamento: só nesta sessão */ } };
 /** Rotas com a barra lateral: as abas + as páginas do painel do produtor e do admin. */
 const ROTAS_COM_CASCA = new Set<string>([...ROTAS_ABAS, "meu-painel", "produtores", "admin"]);
 
@@ -85,10 +91,13 @@ function Painel({ children, usuario, carregandoUsuario }: { children: ReactNode;
   const { inicial, recBadgeContagem } = useFiltros();
   const rota = usePathname().split("/")[1] ?? "";
   const { base, abrirFontes } = usePainel();
+  // Só monta depois da base (busca no cliente): ler o localStorage no useState não diverge do servidor.
+  const [recolhida, setRecolhida] = useState(lerRecolhida);
+  const alternarRecolhida = useCallback(() => setRecolhida((v) => { gravarRecolhida(!v); return !v; }), []);
   if (!ROTAS_COM_CASCA.has(rota)) return <>{children}</>;
   return (
-    <div className={s.casca}>
-      <BarraLateral usuario={usuario} carregando={carregandoUsuario} base={base} />
+    <div className={`${s.casca}${recolhida ? ` ${s.recolhida}` : ""}`}>
+      <BarraLateral usuario={usuario} carregando={carregandoUsuario} base={base} recolhida={recolhida} aoAlternarRecolhida={alternarRecolhida} />
       {ROTAS_ABAS.has(rota) ? (
         <div id="dash" className={s.conteudo}>
           <Cabecalho base={base} recBadge={textoRecBadge(base, recBadgeContagem, inicial)} onAbrirFontes={abrirFontes} />
@@ -96,7 +105,7 @@ function Painel({ children, usuario, carregandoUsuario }: { children: ReactNode;
           {children}
         </div>
       ) : (
-        <div className={s.conteudo}>{children}</div>
+        <div className={`${s.conteudo}${ROTAS_TELA_CHEIA.has(rota) ? ` ${s.telaCheia}` : ""}`}>{children}</div>
       )}
     </div>
   );

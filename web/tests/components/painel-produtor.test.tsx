@@ -120,6 +120,73 @@ describe("A renovar", () => {
   });
 });
 
+describe("A renovar: paginação e lista completa", () => {
+  // 12 apólices a vencer em outubro (dias 23..31 e mais 3 no dia 31) + 1 vencida.
+  const MUITAS = [
+    linha({ colab: GV, tipo: "N", fim: "2026-10-18", sit: "Vencida", cli: "Vencida Um", vig: "2025-10-18" }),
+    ...Array.from({ length: 12 }, (_, k) => linha({
+      colab: GV, tipo: "R", fim: `2026-10-${String(Math.min(23 + k, 31)).padStart(2, "0")}`, sit: "Ativa",
+      cli: `Cliente ${String(k + 1).padStart(2, "0")}`, vig: "2025-10-01", apolice: `A${k}`,
+    })),
+  ];
+  const itensVisiveis = () => [...lista().querySelectorAll("ul li b")].map((b) => b.textContent);
+
+  it("mostra uma página (5 sem medição em jsdom); › e ‹ trocam de página; mês novo volta à página 1", () => {
+    painel({}, fakeBase(MUITAS));
+    expect(itensVisiveis()).toEqual(["Vencida Um", "Cliente 01", "Cliente 02", "Cliente 03", "Cliente 04"]);
+    expect(lista().textContent).toContain("1 de 3");
+    expect((screen.getByRole("button", { name: "Página anterior" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Próxima página" }));
+    expect(itensVisiveis()).toEqual(["Cliente 05", "Cliente 06", "Cliente 07", "Cliente 08", "Cliente 09"]);
+    fireEvent.click(screen.getByRole("button", { name: "Próxima página" }));
+    expect(itensVisiveis()).toEqual(["Cliente 10", "Cliente 11", "Cliente 12"]);
+    expect((screen.getByRole("button", { name: "Próxima página" }) as HTMLButtonElement).disabled).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Mês anterior" }));
+    fireEvent.click(screen.getByRole("button", { name: "Próximo mês" }));
+    expect(lista().textContent).toContain("1 de 3");
+  });
+
+  it("vencidas minimizadas saem da paginação", () => {
+    painel({}, fakeBase(MUITAS));
+    fireEvent.click(screen.getByRole("button", { name: /minimizar/ }));
+    expect(itensVisiveis()[0]).toBe("Cliente 01");
+    expect(lista().textContent).toContain("1 de 3");
+  });
+
+  it("sem paginação quando cabe numa página", () => {
+    painel();
+    expect(screen.queryByRole("button", { name: "Próxima página" })).toBeNull();
+  });
+
+  it("Ver lista completa abre a janela com todas as apólices do mês; Esc e Fechar fecham", () => {
+    painel({ mostrarDono: true }, fakeBase(MUITAS));
+    fireEvent.click(screen.getByRole("button", { name: "Ver lista completa" }));
+    const d = screen.getByRole("dialog", { name: /A renovar/ });
+    expect(d.textContent).toContain("outubro/2026");
+    expect(d.querySelectorAll("tbody tr").length).toBe(13);
+    expect(d.textContent).toContain("Vencida Um");
+    expect(d.textContent).toContain("Cliente 12");
+    expect([...d.querySelectorAll("th")].map((th) => th.textContent)).toEqual(["Prazo", "Cliente", "Ramo", "Seguradora", "Apólice", "Fim da vigência", "Produtor"]);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Ver lista completa" }));
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("a janela navega de mês junto com o cartão e não mostra coluna Produtor com um só produtor", () => {
+    painel({}, fakeBase([...MUITAS, LINHAS[3]]));
+    fireEvent.click(screen.getByRole("button", { name: "Ver lista completa" }));
+    const d = screen.getByRole("dialog", { name: /A renovar/ });
+    expect([...d.querySelectorAll("th")].map((th) => th.textContent)).not.toContain("Produtor");
+    fireEvent.click(d.querySelector('button[aria-label="Mês anterior"]')!);
+    expect(d.textContent).toContain("setembro/2026");
+    expect(d.textContent).toContain("Setembro Cli");
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(lista().textContent).toContain("setembro/2026");
+  });
+});
+
 describe("Minha produção no mês", () => {
   it("três números do mês e selo de variação oculto sem o mesmo mês do ano anterior", () => {
     const { container } = painel({}, fakeBase([LINHAS[5]])); // nada em out/2025

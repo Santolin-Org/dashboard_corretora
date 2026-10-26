@@ -29,7 +29,7 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe("itensDaBarra", () => {
   it("itensDaBarra por papel", () => {
-    expect(itensDaBarra("vendedor")).toEqual([{ grupo: "Painéis", itens: [{ href: "/meu-painel", rotulo: "Meu painel" }] }]);
+    expect(itensDaBarra("vendedor")).toEqual([{ grupo: "Painéis", itens: [{ href: "/meu-painel", rotulo: "Resumo pessoal" }] }]);
     expect(itensDaBarra("gestao").map((g) => g.grupo)).toEqual(["Painéis", "Equipe", "Exibição"]);
     expect(itensDaBarra("admin").at(-1)).toEqual({ grupo: "Admin", itens: [{ href: "/admin/usuarios", rotulo: "Usuários e vínculos" }] });
   });
@@ -40,6 +40,25 @@ describe("itensDaBarra", () => {
     expect(g[2].itens.map((i) => i.rotulo)).toEqual(["Apresentação", "Exibição TV"]);
     expect(g[2].itens[0].href).toBe("/apresentacao");
     expect(itensDaBarra("admin").map((x) => x.grupo)).toEqual(["Painéis", "Equipe", "Exibição", "Admin"]);
+  });
+});
+
+describe("BarraLateral recolhível", () => {
+  it("botão « recolhe e » expande; recolhida esconde os textos e põe o nome no title", () => {
+    const alternar = vi.fn();
+    const { rerender } = render(<BarraLateral usuario={ADMIN} base={base} recolhida={false} aoAlternarRecolhida={alternar} />);
+    fireEvent.click(screen.getByRole("button", { name: "Recolher menu" }));
+    expect(alternar).toHaveBeenCalledTimes(1);
+    rerender(<BarraLateral usuario={ADMIN} base={base} recolhida aoAlternarRecolhida={alternar} />);
+    const prod = screen.getByRole("link", { name: /Produção/ });
+    expect(prod.getAttribute("title")).toBe("Produção");
+    expect(document.querySelector("aside")!.getAttribute("data-recolhida")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Expandir menu" }));
+    expect(alternar).toHaveBeenCalledTimes(2);
+  });
+  it("sem aoAlternarRecolhida não há botão de recolher", () => {
+    render(<BarraLateral usuario={ADMIN} base={base} />);
+    expect(screen.queryByRole("button", { name: "Recolher menu" })).toBeNull();
   });
 });
 
@@ -68,7 +87,7 @@ describe("BarraLateral", () => {
     fireEvent.click(screen.getByRole("button", { name: "Sair" }));
     expect(signOut).toHaveBeenCalledWith({ callbackUrl: "/entrar" });
   });
-  it("vendedor vê só Meu painel", () => {
+  it("vendedor vê só Resumo pessoal", () => {
     rota = "/meu-painel";
     render(<BarraLateral usuario={VEND} base={base} />);
     const links = screen.getAllByRole("link");

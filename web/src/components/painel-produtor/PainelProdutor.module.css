@@ -1,6 +1,12 @@
 /* Painel do produtor (esboço vendedor-layout-v4). */
+/* Tela cheia: o painel ocupa a altura que sobra na janela; a linha de cima (produção + lista) fica
+   com o espaço livre e a lista pagina o que não couber. Abaixo de ~640px de altura a página rola. */
 .painel {
-  padding: 16px 20px;
+  flex: 1;
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 20px 16px;
 }
 
 .topo {
@@ -23,14 +29,26 @@
 }
 
 .grade {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   gap: 14px;
 }
 
+.grade > .card {
+  overflow: hidden;
+}
+
 @media (max-width: 900px) {
+  .painel {
+    min-height: 0;
+  }
+
   .grade {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
   }
 }
 
@@ -43,6 +61,7 @@
 }
 
 .largo {
+  flex: none;
   margin-top: 14px;
 }
 
@@ -245,8 +264,155 @@
   list-style: none;
 }
 
-.lista + .lista {
-  margin-top: 10px;
+/* Cartão da lista: a lista ocupa o que sobra entre o cabeçalho e o rodapé, sem rolar. */
+.cardLista {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardLista .lista {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .cardLista .lista {
+    flex: none;
+  }
+}
+
+.rodapeLista {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.paginacao button {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border-default);
+  border-radius: 6px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.paginacao button:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.verTudo {
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.verTudo:hover {
+  text-decoration: underline;
+}
+
+/* ── Janela da lista completa ── */
+.veu {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, .55);
+}
+
+.modal {
+  width: min(1100px, 100%);
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-raised);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-dropdown);
+  padding: 18px 20px;
+}
+
+.modalTopo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.modalTopo h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.modalTopo h2 small {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.fechar {
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.modalCorpo {
+  overflow: auto;
+  min-height: 0;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.tabela th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+
+.tabela td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.tabela tbody tr:hover {
+  background: var(--bg-elevated);
 }
 
 .item {

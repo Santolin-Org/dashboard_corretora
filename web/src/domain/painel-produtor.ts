@@ -130,3 +130,11 @@ export function textoPrazo(dias: number): string {
 
 /** Nome(s) do colaborador sem o sufixo da equipe (parte antes de " - "), separados por vírgula. */
 export const nomeCurto = (colab: string): string => nomesDoColab(colab).map(n => n.split(' - ')[0].trim()).join(', ');
+
+/** Uma página da lista (1-based); página fora do intervalo cai no limite mais próximo. */
+export function paginar<T>(itens: T[], porPagina: number, pagina: number): { pagina: number; paginas: number; itens: T[] } {
+  const n = Math.max(1, Math.floor(porPagina));
+  const paginas = Math.max(1, Math.ceil(itens.length / n));
+  const p = Math.min(paginas, Math.max(1, Math.floor(pagina)));
+  return { pagina: p, paginas, itens: itens.slice((p - 1) * n, p * n) };
+}
