@@ -5,23 +5,37 @@ import { SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoRecolhivel";
 import { axisClr, gridClr } from "@/client/tema";
 import { idObjeto } from "@/client/versao";
 import { fBRL, fN, fShort } from "@/domain/formatos";
-import { METRICAS_COMP, graficoComp, type DadosComp, type MetricaComp } from "@/domain/comparativo";
+import {
+  AGRUPAMENTOS, BASES_COMPARACAO, METRICAS_COMP, graficoCompAgrupado,
+  type Agrupamento, type BaseComparacao, type DadosComp, type MetricaComp,
+} from "@/domain/comparativo";
+import type { DataISO } from "@/domain/tipos";
 import s from "./Comparativo.module.css";
 
-// renderCompChart: #sc-comp-chart com ch-comp-main (barras atual/anterior + linha de variação %).
-export function BlocoGrafico({ d, metrica, aoMudar }: { d: DadosComp; metrica: MetricaComp; aoMudar(m: MetricaComp): void }) {
-  const g = useMemo(() => graficoComp(d, metrica), [d, metrica]);
+const TITULO: Record<Agrupamento, string> = {
+  mes: "Evolução mensal comparativa", trimestre: "Evolução trimestral comparativa",
+  semestre: "Evolução semestral comparativa", ano: "Evolução anual comparativa",
+};
+
+// renderCompChart: #sc-comp-chart com ch-comp-main (barras atual/anterior + linha de variação %). Mês × mesmo período
+// do ano anterior é o gráfico do app antigo; trimestre/semestre/ano e "período imediatamente anterior" são do app novo.
+export function BlocoGrafico({ d, metrica, aoMudar, hoje, agrupamento = "mes", aoMudarAgrupamento, base = "ano", aoMudarBase }: {
+  d: DadosComp; metrica: MetricaComp; aoMudar(m: MetricaComp): void; hoje: DataISO;
+  agrupamento?: Agrupamento; aoMudarAgrupamento?(a: Agrupamento): void; base?: BaseComparacao; aoMudarBase?(b: BaseComparacao): void;
+}) {
+  const g = useMemo(() => graficoCompAgrupado(d, metrica, agrupamento, base, hoje), [d, metrica, agrupamento, base, hoje]);
+  const fechados = agrupamento !== "mes";
   return (
     <SecaoRecolhivel
       chave="comp-chart"
       cabecalho={
         <div>
-          <SecaoTitulo>Evolução mensal comparativa</SecaoTitulo>
+          <SecaoTitulo>{TITULO[agrupamento]}</SecaoTitulo>
           {" "}
           <div className="legend" style={{ marginTop: 5 }}>
             <span><span className="leg-dot" style={{ background: "#4E80FF" }} />Período atual</span>
             {" "}
-            <span><span className="leg-dot" style={{ background: "#7888A8" }} />Período anterior</span>
+            <span><span className="leg-dot" style={{ background: "#7888A8" }} />{base === "ano" ? "Período anterior" : <span data-so-novo="">{g.rotuloAnterior}</span>}</span>
             {" "}
             <span><span className="leg-dot" style={{ background: "#F5A623" }} />Variação %</span>
           </div>
@@ -41,6 +55,34 @@ export function BlocoGrafico({ d, metrica, aoMudar }: { d: DadosComp; metrica: M
       }
     >
       <div style={{ padding: 16 }}>
+        {aoMudarAgrupamento && aoMudarBase && (
+          <div className={s.agrupamento} data-so-novo="">
+            <div role="radiogroup" aria-label="Agrupar por" className={s.metricToggle}>
+              <span className={s.rotuloToggle}>Agrupar por</span>
+              {AGRUPAMENTOS.map((a) => (
+                <Fragment key={a.valor}>
+                  <input type="radio" name="comp-agrup" id={`comp-agrup-${a.valor}`} checked={agrupamento === a.valor} onChange={() => aoMudarAgrupamento(a.valor)} />
+                  <label htmlFor={`comp-agrup-${a.valor}`}>{a.rotulo}</label>
+                </Fragment>
+              ))}
+            </div>
+            <div role="radiogroup" aria-label="Comparar com" className={s.metricToggle}>
+              <span className={s.rotuloToggle}>Comparar com</span>
+              {BASES_COMPARACAO.map((b) => (
+                <Fragment key={b.valor}>
+                  <input type="radio" name="comp-base" id={`comp-base-${b.valor}`} checked={base === b.valor} onChange={() => aoMudarBase(b.valor)} />
+                  <label htmlFor={`comp-base-${b.valor}`}>{b.rotulo}</label>
+                </Fragment>
+              ))}
+            </div>
+          </div>
+        )}
+        {fechados && g.labels.length === 0 && (
+          <p className={s.semPeriodos} data-so-novo="">Nenhum período fechado dentro do intervalo escolhido. Amplie o período no topo da aba.</p>
+        )}
+        {fechados && g.labels.length > 0 && (
+          <p className={s.notaFechados} data-so-novo="">Só períodos fechados e inteiros dentro do intervalo; o período em andamento entra quando terminar.</p>
+        )}
         <div className="cw" style={{ height: 300 }}>
           <Grafico
             id="ch-comp-main" chave={idObjeto(g)}

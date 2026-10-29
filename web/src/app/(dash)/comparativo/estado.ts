@@ -5,7 +5,7 @@ import { useFiltros } from "@/client/filtros";
 import { usePainel } from "@/client/painel";
 import {
   METRICA_COMP_INICIAL, periodoPadraoComp,
-  type DimRank, type MetricaComp, type MetricaPivo, type MetricaRank, type PeriodoManual, type VisaoPivo,
+  type Agrupamento, type BaseComparacao, type DimRank, type MetricaComp, type MetricaPivo, type MetricaRank, type PeriodoManual, type VisaoPivo,
 } from "@/domain/comparativo";
 
 // Estado de UI da aba Comparativo. No antigo vivia em globais (compStartDate/EndDate, compPeriodManual, compMetric,
@@ -34,9 +34,12 @@ export function useEstadoComp() {
   const [recolhidas, setRecolhidas] = useEstadoAba<string[]>("comparativo:recolhidas", []);
   const [dim, setDim] = useEstadoAba<DimRank>("comparativo:dim", "colab");
   const [metricaRank, setMetricaRank] = useEstadoAba<MetricaRank>("comparativo:metrica-rank", "premio");
+  const [agrupamento, setAgrupamento] = useEstadoAba<Agrupamento>("comparativo:agrupamento", "mes");
+  const [baseComparacao, setBaseComparacao] = useEstadoAba<BaseComparacao>("comparativo:base", "ano");
   return {
     manual, setManual: (m: PeriodoManual | null) => setGuardado({ manual: m, geracao: geracaoLimpeza }),
     metrica, setMetrica, visao, setVisao, metricaPivo, setMetricaPivo, recolhidas, setRecolhidas, dim, setDim, metricaRank, setMetricaRank,
+    agrupamento, setAgrupamento, baseComparacao, setBaseComparacao,
   };
 }
 export type EstadoComp = ReturnType<typeof useEstadoComp>;

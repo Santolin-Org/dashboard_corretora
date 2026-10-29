@@ -6,20 +6,35 @@ import { FiltrosProvider, useFiltros } from "@/client/filtros";
 import { EstadoAbasProvider } from "@/client/estadoAbas";
 import { usePodeReprocessar } from "@/client/podeReprocessar";
 import { ContextoPainel, usePainel, type ValorPainel } from "@/client/painel";
+import { useUsuario, type Usuario } from "@/client/usuario";
 import { AvisoSessao, AvisoSemConexao } from "./AvisoSessao";
-import { ABAS, Abas } from "./Abas";
+import { ABAS } from "./Abas";
+import { BarraLateral } from "./BarraLateral";
 import { Cabecalho, textoRecBadge } from "./Cabecalho";
 import { FiltrosGlobais } from "./FiltrosGlobais";
 import { PainelFontes } from "./PainelFontes";
 import { ModoTvEfeito } from "./ModoTv";
-import { TelaCarregando, TelaErro, TelaSemAcesso, textoErroProducao } from "./TelaErro";
+import { TelaCarregando, TelaErro, textoErroProducao } from "./TelaErro";
+import s from "./Casca.module.css";
 
-const ROTAS_COM_CASCA = new Set<string>(ABAS.map((a) => a.id));
+const ROTAS_ABAS = new Set<string>(ABAS.map((a) => a.id));
+/** Páginas do painel do produtor: ocupam a altura da janela (tudo visível sem rolar). */
+const ROTAS_TELA_CHEIA = new Set<string>(["meu-painel", "produtores"]);
 
-// Casca do painel (#dash): cabeçalho, abas e filtros globais em volta da aba atual.
-// /exibicao-tv e /apresentacao são telas cheias: recebem os mesmos contextos, sem a casca.
+const CHAVE_RECOLHIDA = "barraLateral:recolhida";
+const lerRecolhida = (): boolean => { try { return localStorage.getItem(CHAVE_RECOLHIDA) === "1"; } catch { return false; } };
+const gravarRecolhida = (v: boolean) => { try { localStorage.setItem(CHAVE_RECOLHIDA, v ? "1" : "0"); } catch { /* sem armazenamento: só nesta sessão */ } };
+/** Rotas com a barra lateral: as abas + as páginas do painel do produtor e do admin. */
+const ROTAS_COM_CASCA = new Set<string>([...ROTAS_ABAS, "meu-painel", "produtores", "admin"]);
+
+// Casca do painel: barra lateral + conteúdo. Nas rotas das abas o conteúdo é #dash (cabeçalho e
+// filtros globais em volta da aba atual). /exibicao-tv e /apresentacao são telas cheias: recebem
+// os mesmos contextos, sem a casca.
 export function Casca({ children }: { children: ReactNode }) {
   const { estado, base, erro, recarregar, ultimaBoaEm, semConexaoDesde } = useBase();
+  // Depois do useBase: a busca de /api/dados sai primeiro. Não bloqueia o painel enquanto carrega.
+  // A base como sinal: base nova (ETag mudou, p.ex. vínculo novo) → /api/eu de novo (nomes atualizados).
+  const { usuario, carregando: carregandoUsuario } = useUsuario(base);
   const [fontesAberto, setFontesAberto] = useState(false);
   const abrirFontes = useCallback(() => setFontesAberto(true), []);
   const fecharFontes = useCallback(() => setFontesAberto(false), []);
@@ -35,10 +50,6 @@ export function Casca({ children }: { children: ReactNode }) {
     } else {
       conteudo = <TelaCarregando />;
     }
-  } else if (base.semAcesso) {
-    // Escopo "nada" (vendedor na Etapa 1): o servidor não manda dados; em vez de um painel zerado,
-    // uma tela clara.
-    conteudo = <TelaSemAcesso />;
   } else if (base.erroProducao && base.sinistros.length === 0) {
     // Sem produção e sem sinistros: nada para mostrar além do motivo (sem upload). Com
     // sinistros, o painel abre e as abas de produção mostram o motivo (PainelAba).
@@ -55,7 +66,7 @@ export function Casca({ children }: { children: ReactNode }) {
     conteudo = (
       <ContextoPainel.Provider value={painel}>
         <FiltrosProvider linhas={base.linhas}>
-          <Painel>{children}</Painel>
+          <Painel usuario={usuario} carregandoUsuario={carregandoUsuario}>{children}</Painel>
         </FiltrosProvider>
       </ContextoPainel.Provider>
     );
@@ -75,17 +86,27 @@ export function Casca({ children }: { children: ReactNode }) {
   );
 }
 
-function Painel({ children }: { children: ReactNode }) {
+// Escopo "nada" (vendedor sem vínculo) também cai aqui: a casca abre com o Meu painel, que avisa.
+function Painel({ children, usuario, carregandoUsuario }: { children: ReactNode; usuario: Usuario | null; carregandoUsuario: boolean }) {
   const { inicial, recBadgeContagem } = useFiltros();
   const rota = usePathname().split("/")[1] ?? "";
   const { base, abrirFontes } = usePainel();
+  // Só monta depois da base (busca no cliente): ler o localStorage no useState não diverge do servidor.
+  const [recolhida, setRecolhida] = useState(lerRecolhida);
+  const alternarRecolhida = useCallback(() => setRecolhida((v) => { gravarRecolhida(!v); return !v; }), []);
   if (!ROTAS_COM_CASCA.has(rota)) return <>{children}</>;
   return (
-    <div id="dash">
-      <Cabecalho base={base} recBadge={textoRecBadge(base, recBadgeContagem, inicial)} onAbrirFontes={abrirFontes} />
-      <Abas />
-      <FiltrosGlobais temProducao={base.linhas.length > 0} />
-      {children}
+    <div className={`${s.casca}${recolhida ? ` ${s.recolhida}` : ""}`}>
+      <BarraLateral usuario={usuario} carregando={carregandoUsuario} base={base} recolhida={recolhida} aoAlternarRecolhida={alternarRecolhida} />
+      {ROTAS_ABAS.has(rota) ? (
+        <div id="dash" className={s.conteudo}>
+          <Cabecalho base={base} recBadge={textoRecBadge(base, recBadgeContagem, inicial)} onAbrirFontes={abrirFontes} />
+          <FiltrosGlobais temProducao={base.linhas.length > 0} />
+          {children}
+        </div>
+      ) : (
+        <div className={`${s.conteudo}${ROTAS_TELA_CHEIA.has(rota) ? ` ${s.telaCheia}` : ""}`}>{children}</div>
+      )}
     </div>
   );
 }

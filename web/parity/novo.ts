@@ -191,7 +191,15 @@ export async function snapshotNovo(page: Page, baseUrl: string, c: Cenario, idsG
   const snap = await page.evaluate((container) => {
     const colapsar = (s: string) => s.replace(/\s+/g, " ").trim();
     const textos: Record<string, string> = {};
-    const coleta = (el: Element) => { if (el.id && !(el.id in textos)) textos[el.id] = colapsar(el.textContent ?? ""); };
+    // [data-so-novo] marca controles que só existem no app novo (sem equivalente no antigo, p.ex. o agrupamento por
+    // trimestre do Comparativo): o texto deles sai da captura; o resto do contêiner e os gráficos seguem comparados.
+    const texto = (el: Element) => {
+      if (!el.querySelector("[data-so-novo]")) return el.textContent ?? "";
+      const c = el.cloneNode(true) as Element;
+      c.querySelectorAll("[data-so-novo]").forEach((x) => x.remove());
+      return c.textContent ?? "";
+    };
+    const coleta = (el: Element) => { if (el.id && !(el.id in textos) && !el.closest("[data-so-novo]")) textos[el.id] = colapsar(texto(el)); };
     const raiz = document.querySelector(container);
     if (raiz) {
       coleta(raiz);

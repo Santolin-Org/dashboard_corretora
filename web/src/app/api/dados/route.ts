@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { gunzipSync } from "node:zlib";
 import { NextResponse } from "next/server";
 import { usuarioDaRequisicao } from "@/server/auth";
-import { escopoDoUsuario } from "@/server/escopo";
+import { nomesDoUsuario } from "@/server/db/client";
+import { chaveEscopo, escopoDoUsuario } from "@/server/escopo";
 import { hojeDaIngestao, obterBase } from "@/server/ingestao";
 import { corpoGzip, streamDe } from "@/server/corpo-dados";
 
@@ -18,8 +19,17 @@ export async function GET(req: Request) {
   const u = await usuarioDaRequisicao();
   if (!u) return NextResponse.json({ erro: "Não autenticado" }, { status: 401, headers: { "Cache-Control": "no-store" } });
 
-  const escopo = escopoDoUsuario(u);
-  // Escopo "nada" (vendedor na Etapa 1, sem papel): não dispara a ingestão; recebe o payload vazio.
+  // Vínculos só para vendedor; banco fora → 503 (nunca cai para um escopo maior).
+  let nomes: string[] = [];
+  if (u.role === "vendedor") {
+    try {
+      nomes = await nomesDoUsuario(u.email);
+    } catch {
+      return NextResponse.json({ erro: "Banco indisponível" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    }
+  }
+  const escopo = escopoDoUsuario(u, nomes);
+  // Escopo "nada" (vendedor sem vínculo): não dispara a ingestão; recebe o payload vazio.
   const b =
     escopo.tipo === "nada"
       ? {
@@ -28,8 +38,9 @@ export async function GET(req: Request) {
         }
       : await obterBase();
 
-  // ETag forte: versão + dia ("hoje" muda sem mudar a versão) + usuário + escopo (o recorte muda o corpo).
-  const etag = `"${createHash("sha256").update(JSON.stringify([b.versao, b.hoje, u.email, escopo.tipo])).digest("hex").slice(0, 32)}"`;
+  // ETag forte: versão + dia ("hoje" muda sem mudar a versão) + usuário + escopo com os nomes (o recorte muda o corpo;
+  // trocar o vínculo invalida o ETag).
+  const etag = `"${createHash("sha256").update(JSON.stringify([b.versao, b.hoje, u.email, chaveEscopo(escopo)])).digest("hex").slice(0, 32)}"`;
   const candidatos = (req.headers.get("if-none-match") ?? "").split(",").map((s) => s.trim().replace(/^W\//, ""));
   if (candidatos.includes(etag) || candidatos.includes("*")) {
     return new NextResponse(null, { status: 304, headers: { ETag: etag, "Cache-Control": CACHE, Vary: "Accept-Encoding" } });

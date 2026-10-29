@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { PAINEIS_TV } from "@/domain/paineis-tv";
 import { escolherPainelTv, usePainelTv } from "@/client/painelTv";
 import { abrirExibicaoTv } from "@/client/exibicaoTv";
@@ -7,7 +7,11 @@ import s from "./MenuExibicaoTv.module.css";
 
 // Botão "📺 Exibição TV" do cabeçalho: abre a lista de painéis e a escolha abre a exibição já nele.
 // O painel só se escolhe ANTES de abrir — a tela da TV não tem seletor. A escolha fica salva no aparelho.
-export function MenuExibicaoTv({ temDados, ir }: { temDados: boolean; ir: (href: string) => void }) {
+// A barra lateral usa o mesmo menu com outros ids (sem repetir os do cabeçalho) e o visual dela.
+export function MenuExibicaoTv({ temDados, ir, prefixoId = "", classeBotao = "btn-sm", classeMenu, classeLista, rotulo = "📺 Exibição TV" }: {
+  temDados: boolean; ir: (href: string) => void;
+  prefixoId?: string; classeBotao?: string; classeMenu?: string; classeLista?: string; rotulo?: ReactNode;
+}) {
   const atual = usePainelTv();
   const [aberto, setAberto] = useState(false);
   const raiz = useRef<HTMLDivElement>(null);
@@ -33,20 +37,20 @@ export function MenuExibicaoTv({ temDados, ir }: { temDados: boolean; ir: (href:
   };
 
   return (
-    <div className={s.menu} ref={raiz}>
+    <div className={classeMenu ? `${s.menu} ${classeMenu}` : s.menu} ref={raiz}>
       <button
         type="button"
-        id="tv-ex-abrir"
-        className="btn-sm"
+        id={`${prefixoId}tv-ex-abrir`}
+        className={classeBotao}
         onClick={alternar}
         title="Abrir exibição em tela cheia para TV"
         aria-haspopup="menu"
         aria-expanded={aberto}
       >
-        📺 Exibição TV
+        {rotulo}
       </button>
       {aberto && (
-        <div id="tv-painel-menu" className={s.lista} role="menu" aria-label="Escolha o painel da TV">
+        <div id={`${prefixoId}tv-painel-menu`} className={classeLista ? `${s.lista} ${classeLista}` : s.lista} role="menu" aria-label="Escolha o painel da TV">
           <div className={s.titulo}>Painel da TV</div>
           {PAINEIS_TV.map((p) => (
             <button

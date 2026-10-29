@@ -8,7 +8,8 @@
   border-bottom: 1px solid var(--border-subtle);
   align-items: flex-end;
   position: sticky;
-  top: 99px;
+  /* logo abaixo do cabeçalho (as abas do topo, que ficavam entre os dois, foram para a barra lateral) */
+  top: 59px;
   z-index: 200;
 }
 

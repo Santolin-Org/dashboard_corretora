@@ -40,3 +40,6 @@ web/seed/usuarios.json
 *.xls
 *.XLSX
 *.XLS
+
+# Rascunhos do brainstorming/SDD (superpowers)
+.superpowers/
