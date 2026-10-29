@@ -12,7 +12,7 @@ vi.mock("@/server/auth", () => ({ usuarioDaRequisicao: vi.fn() }));
 
 import { parseProducao } from "@/domain/producao/parse";
 import { usuarioDaRequisicao } from "@/server/auth";
-import { obterBase, definirDependencias, reiniciarIngestao, reprocessarTudo } from "@/server/ingestao";
+import { obterBase, definirDependencias, reiniciarIngestao, reprocessarTudo, temposUltimaMontagem } from "@/server/ingestao";
 import { criarArmazemMemoria } from "@/server/snapshots";
 import { PastaLocalFonte } from "@/server/fontes/pasta-local";
 import { ErroFonte, type ArquivoMeta, type FonteArquivos } from "@/server/fontes/tipos";
@@ -46,6 +46,20 @@ afterEach(() => {
 });
 
 describe("obterBase", () => {
+  it("tempos da montagem: conta planilhas lidas do xlsx e de snapshot; base em memória não é montagem nova", async () => {
+    expect(temposUltimaMontagem()).toBeNull();
+    await obterBase();
+    const t1 = temposUltimaMontagem()!;
+    expect(t1).toMatchObject({ lidas: 3, snapshots: 0 });
+    expect(t1.totalMs).toBeGreaterThanOrEqual(t1.producaoMs);
+    await obterBase();
+    expect(temposUltimaMontagem()!.seq).toBe(t1.seq); // veio da memória
+    const t = new Date(Date.now() + 60_000);
+    utimesSync(join(dir, "producao_2025.xlsx"), t, t);
+    await obterBase();
+    expect(temposUltimaMontagem()).toMatchObject({ seq: t1.seq + 1, lidas: 1, snapshots: 2 });
+  });
+
   it("1ª chamada parseia os 3 arquivos de produção; 2ª sem mudança não parseia nenhum", async () => {
     const b1 = await obterBase();
     expect(parse).toHaveBeenCalledTimes(3);

@@ -43,6 +43,22 @@ afterEach(() => {
 });
 
 describe("GET /api/dados", () => {
+  it("Server-Timing: detalha a montagem quando a requisição esperou por ela; depois, base em memória", async () => {
+    usuario.mockResolvedValue(sessao("admin"));
+    const h1 = (await GET(req())).headers.get("server-timing")!;
+    expect(h1).toMatch(/base;dur=\d+;desc="montada"/);
+    expect(h1).toMatch(/producao;dur=\d+;desc="[1-9]\d* lidas do xlsx, 0 de snapshot"/);
+    expect(h1).toMatch(/gzip;dur=\d+/);
+    expect(h1).toMatch(/total;dur=\d+$/);
+    const r2 = await GET(req());
+    const h2 = r2.headers.get("server-timing")!;
+    expect(h2).toMatch(/base;dur=\d+;desc="em memória"/);
+    expect(h2).not.toMatch(/producao;/);
+    const r3 = await GET(req({ "If-None-Match": r2.headers.get("etag")! }));
+    expect(r3.status).toBe(304);
+    expect(r3.headers.get("server-timing")).toMatch(/total;dur=\d+$/);
+  });
+
   it("sem sessão: 401", async () => {
     usuario.mockResolvedValue(null);
     const r = await GET(req());

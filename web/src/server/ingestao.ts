@@ -22,6 +22,20 @@ export type Base = {
   erroProducao?: { mensagem: string; arquivosNaPasta: string[] };
 };
 
+/** Quanto cada etapa da última montagem levou (ms). Só tempos e contagens: vai no cabeçalho Server-Timing. */
+export type TemposMontagem = {
+  /** Número da montagem no processo: muda a cada montagem nova. */
+  seq: number;
+  listarMs: number;
+  producaoMs: number;
+  /** Planilhas de produção lidas do zero (xlsx) e recuperadas de um snapshot. */
+  lidas: number;
+  snapshots: number;
+  fixosMs: number;
+  montarMs: number;
+  totalMs: number;
+};
+
 export type Dependencias = {
   fonte: () => FonteArquivos;
   armazem: ArmazemSnapshots;
@@ -56,6 +70,13 @@ let padrao: Dependencias | null = null;
 const fontes = new WeakMap<Dependencias, FonteArquivos>();
 // Última listagem bem-sucedida, reaproveitada por ttlListagemMs.
 let listagem: { d: Dependencias; ate: number; metas: ArquivoMeta[] } | null = null;
+let tempos: TemposMontagem | null = null;
+let seqMontagem = 0;
+
+/** Tempos da última montagem (null antes da primeira). Base em memória não conta como montagem. */
+export function temposUltimaMontagem(): TemposMontagem | null {
+  return tempos;
+}
 
 export function definirDependencias(d: Dependencias | null): void {
   deps = d;
@@ -69,6 +90,7 @@ export function reiniciarIngestao(): void {
   forcadaEmAndamento = null;
   buffers.clear();
   listagem = null;
+  tempos = null;
 }
 
 function dependencias(): Dependencias {
@@ -164,11 +186,11 @@ async function carregarProducao(
   fonte: FonteArquivos,
   armazem: ArmazemSnapshots,
   a: ArquivoMeta,
-): Promise<Linha[]> {
+): Promise<{ linhas: Linha[]; doSnapshot: boolean }> {
   const chave = chaveProd(a);
   try {
     const snap = await armazem.ler(chave);
-    if (snap) return decodificarLinhas(snap);
+    if (snap) return { linhas: decodificarLinhas(snap), doSnapshot: true };
   } catch {
     // snapshot ilegível ou armazém fora do ar: reparseia
   }
@@ -178,7 +200,7 @@ async function carregarProducao(
   } catch (e) {
     console.warn("[ingestao] não gravou snapshot", chave, e);
   }
-  return linhas;
+  return { linhas, doSnapshot: false };
 }
 
 type Resultado = {
@@ -189,7 +211,10 @@ type Resultado = {
   podarProd?: Set<string>;
 };
 
+const ms = (desde: number) => Math.round(performance.now() - desde);
+
 async function montar(forcar: boolean): Promise<Resultado> {
+  const t0 = performance.now();
   let d: Dependencias;
   let hoje: DataISO;
   let metas: ArquivoMeta[];
@@ -204,6 +229,7 @@ async function montar(forcar: boolean): Promise<Resultado> {
   } catch (e) {
     return falhaInicial(e, hojeServidor());
   }
+  const tListar = performance.now();
   try {
     fonte = fonteDe(d);
     metas = await listarPasta(d, fonte, forcar); // uma listagem por montagem: as tags usadas são as dela
@@ -222,6 +248,7 @@ async function montar(forcar: boolean): Promise<Resultado> {
   if (!forcar && atual && atual.chave === versaoArquivos && atual.hoje === hoje) {
     return { base: atual.base, modo: "ok" };
   }
+  const listarMs = ms(tListar);
   if (forcar) buffers.clear();
   const vivos = new Set(usados.map((m) => `${m.nome}@${m.tag}`));
   for (const k of [...buffers.keys()]) if (!vivos.has(k)) buffers.delete(k);
@@ -232,13 +259,15 @@ async function montar(forcar: boolean): Promise<Resultado> {
 
   // Produção: um snapshot por arquivo; só o que mudou é reparseado. Até PARALELO_PRODUCAO arquivos
   // por vez; os resultados são tratados na ordem da listagem (a ordem decide o dedup "primeiro vence").
+  const tProd = performance.now();
   const carregados = await emParalelo(prod, PARALELO_PRODUCAO, async (a) => {
     try {
-      return { ok: true as const, linhas: await carregarProducao(fonte, d.armazem, a) };
+      return { ok: true as const, ...(await carregarProducao(fonte, d.armazem, a)) };
     } catch (e) {
       return { ok: false as const, e };
     }
   });
+  const producaoMs = ms(tProd);
   const fontesProd: FonteProducao[] = [];
   for (let i = 0; i < prod.length; i++) {
     const a = prod[i];
@@ -267,6 +296,7 @@ async function montar(forcar: boolean): Promise<Resultado> {
   }
 
   // Sinistros e saúde seguem mesmo sem produção.
+  const tFixos = performance.now();
   const [bufAv, bufPg, bufSaude] = [
     await baixarFixo(fonte, sinAv, avisos, rede),
     await baixarFixo(fonte, sinPg, avisos, rede),
@@ -288,6 +318,8 @@ async function montar(forcar: boolean): Promise<Resultado> {
     }
   }
 
+  const fixosMs = ms(tFixos);
+  const tMontar = performance.now();
   let linhas: Linha[] = [];
   let manifesto: ManifestoFonte[] = [];
   let avisosSaude: string[] = [];
@@ -299,6 +331,11 @@ async function montar(forcar: boolean): Promise<Resultado> {
     }
   }
 
+  const ok = carregados.flatMap((c) => (c.ok ? [c] : []));
+  tempos = {
+    seq: ++seqMontagem, listarMs, producaoMs, fixosMs, montarMs: ms(tMontar), totalMs: ms(t0),
+    lidas: ok.filter((c) => !c.doSnapshot).length, snapshots: ok.filter((c) => c.doSnapshot).length,
+  };
   // Falha de rede/HTTP é transitória (TTL curto). Arquivo ilegível é determinístico: depende só de
   // (nome, tag) e fica em memória até o arquivo ser salvo de novo.
   const comFalha = avisos.length > 0 || (!!erroProducao && prod.length > 0);
