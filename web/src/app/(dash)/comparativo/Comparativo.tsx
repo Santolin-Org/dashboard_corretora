@@ -23,7 +23,8 @@ export default function Comparativo() {
     <>
       <FiltroPeriodo e={e} per={per} d={d} filtros={filtros} geracao={geracaoLimpeza} />
       {" "}
-      <BlocoGrafico d={d} metrica={e.metrica} aoMudar={e.setMetrica} />
+      <BlocoGrafico d={d} metrica={e.metrica} aoMudar={e.setMetrica} hoje={base.hoje}
+        agrupamento={e.agrupamento} aoMudarAgrupamento={e.setAgrupamento} base={e.baseComparacao} aoMudarBase={e.setBaseComparacao} />
       {" "}
       <BlocoKpis todas={base.linhas} filtros={filtros} d={d} />
       {" "}

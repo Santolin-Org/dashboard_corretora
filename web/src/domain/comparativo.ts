@@ -222,6 +222,60 @@ export function graficoComp(d: DadosComp, metrica: MetricaComp): GraficoComp {
   return { labels, valA, valP, varPct, isMoney, rotulo: ROTULOS_METRICA_COMP[metrica] };
 }
 
+// ── Gráfico agrupado (trimestre / semestre / ano) ──────────────────────────────
+// Recurso do app novo (o antigo só tinha mês × mesmo mês do ano anterior, que segue idêntico em 'mes' + 'ano').
+// Agrupado, só entram períodos FECHADOS e inteiros dentro do intervalo: o trimestre em andamento
+// compararia meses incompletos com um trimestre cheio.
+export type Agrupamento = 'mes' | 'trimestre' | 'semestre' | 'ano';
+export type BaseComparacao = 'ano' | 'anterior';
+export const AGRUPAMENTOS: { valor: Agrupamento; rotulo: string }[] = [
+  { valor: 'mes', rotulo: 'Mês' }, { valor: 'trimestre', rotulo: 'Trimestre' }, { valor: 'semestre', rotulo: 'Semestre' }, { valor: 'ano', rotulo: 'Ano' },
+];
+export const BASES_COMPARACAO: { valor: BaseComparacao; rotulo: string }[] = [
+  { valor: 'ano', rotulo: 'Mesmo período do ano anterior' }, { valor: 'anterior', rotulo: 'Período imediatamente anterior' },
+];
+const MESES_POR: Record<Exclude<Agrupamento, 'mes'>, number> = { trimestre: 3, semestre: 6, ano: 12 };
+const chaveMes = (a: number, m0: number) => `${a}-${String(m0 + 1).padStart(2, '0')}`;
+const ultimoDia = (a: number, m0: number) => new Date(Date.UTC(a, m0 + 1, 0)).getUTCDate();
+
+/** Meses (chaves 'aaaa-mm') de um período que começa em (a, m0) e dura `n` meses, `desloc` meses depois. */
+function mesesDe(a: number, m0: number, n: number, desloc = 0): string[] {
+  return Array.from({ length: n }, (_, i) => { const t = a * 12 + m0 + desloc + i; return chaveMes(Math.floor(t / 12), t % 12); });
+}
+
+export function graficoCompAgrupado(d: DadosComp, metrica: MetricaComp, agrup: Agrupamento, base: BaseComparacao, hoje: DataISO): GraficoComp & { rotuloAnterior: string } {
+  const rotuloAnterior = BASES_COMPARACAO.find(b => b.valor === base)!.rotulo;
+  if (agrup === 'mes' && base === 'ano') return { ...graficoComp(d, metrica), rotuloAnterior };
+
+  const byA = compAggByMonth(d.atual, metrica), byP = compAggByMonth(d.anterior, metrica);
+  const noIntervalo = new Set(getMonthsInRange(d.start, d.end).map(m => m.key));
+  // Ano anterior: sempre a base do ano anterior (como o gráfico mensal). Período anterior: o do intervalo quando
+  // cai nele, senão a base anterior (o período antes do 1º do intervalo).
+  const soma = (chaves: string[], soAnterior: boolean) => chaves.reduce((s, k) => s + ((!soAnterior && noIntervalo.has(k) ? byA[k] : byP[k]) || 0), 0);
+
+  const n = agrup === 'mes' ? 1 : MESES_POR[agrup];
+  const periodos: { label: string; meses: string[]; antes: string[] }[] = [];
+  const [ai, mi] = [+d.start.slice(0, 4), +d.start.slice(5, 7) - 1];
+  for (let t = ai * 12 + Math.floor(mi / n) * n; ; t += n) {
+    const a = Math.floor(t / 12), m0 = t % 12;
+    const ini = `${chaveMes(a, m0)}-01`;
+    const fimM = (t + n - 1) % 12, fimA = Math.floor((t + n - 1) / 12);
+    const fim = `${chaveMes(fimA, fimM)}-${String(ultimoDia(fimA, fimM)).padStart(2, '0')}`;
+    if (ini > d.end) break;
+    if (agrup !== 'mes' && (ini < d.start || fim > d.end || fim >= hoje)) continue;
+    const label = agrup === 'mes' ? ML[m0] + '/' + String(a).slice(2)
+      : agrup === 'ano' ? String(a)
+      : `${agrup === 'trimestre' ? 'T' : 'S'}${m0 / n + 1}/${String(a).slice(2)}`;
+    periodos.push({ label, meses: mesesDe(a, m0, n), antes: mesesDe(a, m0, n, base === 'ano' ? -12 : -n) });
+  }
+
+  const valA = periodos.map(p => soma(p.meses, false));
+  const valP = periodos.map(p => soma(p.antes, base === 'ano'));
+  const varPct = valA.map((a, i) => { const p = valP[i] || 0; return p === 0 ? (a > 0 ? 100 : 0) : ((a - p) / p) * 100; });
+  const isMoney = ['premio_novo', 'premio_total', 'com_nova', 'com_total'].includes(metrica);
+  return { labels: periodos.map(p => p.label), valA, valP, varPct, isMoney, rotulo: ROTULOS_METRICA_COMP[metrica], rotuloAnterior };
+}
+
 // ── Churn do Comparativo ──────────────────────────────────────────────────────
 // Churn do Comparativo (regra de negócio própria, diferente da aba Retenção):
 //   churn = 1 − renovações (R) do período ÷ total (N + R) do mesmo período do ano anterior
