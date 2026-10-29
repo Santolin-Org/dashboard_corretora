@@ -2,7 +2,7 @@
 import { useMemo } from "react";
 import { useFiltros } from "@/client/filtros";
 import { usePainel } from "@/client/painel";
-import { dadosComp, periodoComp } from "@/domain/comparativo";
+import { chipsEscopo, dadosComp, periodoComp } from "@/domain/comparativo";
 import { BlocoGrafico } from "./BlocoGrafico";
 import { BlocoKpis } from "./BlocoKpis";
 import { BlocoPivo } from "./BlocoPivo";
@@ -18,6 +18,8 @@ export default function Comparativo() {
   const { filtros, fd, geracaoLimpeza } = useFiltros();
   const e = useEstadoComp();
   const per = periodoComp(e.manual, filtros, base.hoje);
+  const manualAtivo = !!(e.manual && e.manual.start && e.manual.end);
+  const chips = chipsEscopo(filtros, manualAtivo, per.seguindoGlobal).chips;
   const d = useMemo(() => dadosComp(base.linhas, filtros, { start: per.start, end: per.end }), [base.linhas, filtros, per.start, per.end]);
   return (
     <>
@@ -26,7 +28,7 @@ export default function Comparativo() {
       <BlocoGrafico d={d} metrica={e.metrica} aoMudar={e.setMetrica} hoje={base.hoje}
         agrupamento={e.agrupamento} aoMudarAgrupamento={e.setAgrupamento} base={e.baseComparacao} aoMudarBase={e.setBaseComparacao} />
       {" "}
-      <BlocoKpis todas={base.linhas} filtros={filtros} d={d} />
+      <BlocoKpis todas={base.linhas} filtros={filtros} d={d} chips={chips} renovacaoSoMeta={e.renovacaoSoMeta} aoMudarRenovacaoSoMeta={e.setRenovacaoSoMeta} />
       {" "}
       <BlocoPivo fd={fd} e={e} />
       {" "}
