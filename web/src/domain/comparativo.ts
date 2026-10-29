@@ -291,7 +291,9 @@ export function calcChurnComp(dataAtual: Linha[], dataAnoAnterior: Linha[]): { r
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
-export type CartaoComp = { rotulo: string; titulo: string; trendCls: string; trendTxt: string; valor: string; foot: string };
+/** Valores numéricos do cartão, para a exportação. null = sem base (o cartão mostra "—"). Percentuais em fração. */
+export type BrutoCartao = { unidade: 'money' | 'count' | 'pct'; atual: number | null; anterior: number | null };
+export type CartaoComp = { rotulo: string; titulo: string; trendCls: string; trendTxt: string; valor: string; foot: string; bruto: BrutoCartao };
 export type BlocoComp = { titulo: string; cartoes: CartaoComp[] };
 
 const fPct2 = (v: number): string => (v * 100).toFixed(2) + '%';
@@ -372,6 +374,7 @@ function kpiCard(label: string, vA: number, vP: number, type: 'money' | 'count' 
     trendCls: (na || naCompare) ? 'trend-neutral' : tCls,
     trendTxt: (na || naCompare) ? '—' : arrow + badgeTxt,
     valor: na ? '—' : fmt(vA), foot,
+    bruto: { unidade: type, atual: na ? null : vA, anterior: naCompare ? null : vP },
   };
 }
 
@@ -474,6 +477,64 @@ export function kpisComp(d: DadosComp, k: DadosKpisComp, opts: OpcoesKpisComp = 
       ],
     },
   ];
+}
+
+// ── Exportação dos indicadores complementares ─────────────────────────────────
+/** Como cada indicador é calculado (vai na planilha). Renovação e churn usam a dica do próprio cartão, que muda com a opção. */
+export const COMO_CALCULA_KPI: Record<string, string> = {
+  'Prêmio total': 'Soma do prêmio das linhas N, R, EN e ER com início de vigência no período.',
+  'Comissão total': 'Soma da comissão das linhas N, R, EN e ER com início de vigência no período.',
+  'Apólices': 'Quantidade de linhas N, R, EN e ER (inclui endossos e faturas).',
+  'Clientes únicos': 'Clientes distintos entre as linhas do período (qualquer tipo).',
+  'Prêmio novo': 'Soma do prêmio das linhas N e EN.',
+  'Prêmio renovação': 'Soma do prêmio das linhas R e ER.',
+  'Mix novo': 'Prêmio novo ÷ prêmio total.',
+  'Ticket médio': 'Prêmio total ÷ apólices (linhas N, R, EN e ER).',
+  'Comissão média (%)': 'Comissão total ÷ prêmio total.',
+  'Prêmio em risco': 'Soma, em valor absoluto, do prêmio das linhas com situação Cancelada.',
+  'Produtores ativos': 'Colaboradores distintos nas linhas N, R, EN e ER.',
+  'Seguradoras ativas': 'Seguradoras distintas nas linhas N, R, EN e ER.',
+  'Ramos ativos': 'Ramos distintos nas linhas N, R, EN e ER.',
+  'Endossos (EN + ER)': 'Quantidade de linhas EN e ER.',
+};
+
+const UNIDADE: Record<BrutoCartao['unidade'], string> = { money: 'R$', count: 'quantidade', pct: '%' };
+const arred = (v: number, casas: number) => Math.round(v * 10 ** casas) / 10 ** casas;
+/** Valor na unidade da planilha: R$ com 2 casas, quantidade inteira, percentual em pontos (88,17 = 88,17%). */
+const naUnidade = (v: number, u: BrutoCartao['unidade']) => (u === 'pct' ? arred(v * 100, 2) : u === 'money' ? arred(v, 2) : v);
+
+export type PlanilhaKpis = { arquivo: string; abas: { nome: string; cabecalho: string[]; linhas: Record<string, string | number>[] }[] };
+
+/** Planilha dos indicadores complementares: uma linha por cartão (valores numéricos) e uma aba com o recorte usado. */
+export function exportacaoKpisComp(blocos: BlocoComp[], d: Pick<DadosComp, 'start' | 'end' | 'prev'>, chips: string[], soRamosMeta: boolean): PlanilhaKpis {
+  const colAtual = `Período atual (${fmtLabel(d.start)} → ${fmtLabel(d.end)})`;
+  const colAnt = `Período anterior (${fmtLabel(d.prev.start)} → ${fmtLabel(d.prev.end)})`;
+  const cabecalho = ['Bloco', 'Indicador', 'Unidade', colAtual, colAnt, 'Diferença', 'Variação %', 'Observação', 'Como é calculado'];
+  const linhas = blocos.flatMap((b) => b.cartoes.map((c) => {
+    const { unidade: u, atual: a, anterior: p } = c.bruto;
+    const ambos = a !== null && p !== null;
+    return {
+      'Bloco': b.titulo,
+      'Indicador': c.rotulo,
+      'Unidade': u === 'pct' ? '% (diferença em p.p.)' : UNIDADE[u],
+      [colAtual]: a === null ? '' : naUnidade(a, u),
+      [colAnt]: p === null ? '' : naUnidade(p, u),
+      'Diferença': ambos ? naUnidade(a - p, u) : '',
+      'Variação %': ambos && p !== 0 ? arred(((a - p) / Math.abs(p)) * 100, 1) : '',
+      'Observação': c.foot,
+      'Como é calculado': c.titulo || COMO_CALCULA_KPI[c.rotulo] || '',
+    };
+  }));
+  const recorte = [
+    { Item: 'Período atual', Valor: `${fmtLabel(d.start)} → ${fmtLabel(d.end)} (início de vigência)` },
+    { Item: 'Período anterior', Valor: `${fmtLabel(d.prev.start)} → ${fmtLabel(d.prev.end)}` },
+    { Item: 'Filtros', Valor: chips.join('; ') },
+    { Item: 'Renovação e churn', Valor: soRamosMeta ? 'Só ramos da meta; churn só evitável' : 'Todos os ramos e motivos' },
+  ];
+  return {
+    arquivo: `Comparativo_Indicadores_${d.start}_a_${d.end}.xlsx`,
+    abas: [{ nome: 'Indicadores', cabecalho, linhas }, { nome: 'Recorte', cabecalho: ['Item', 'Valor'], linhas: recorte }],
+  };
 }
 
 // ── Comparativo por seguradora e ramo (pivô por ano civil sobre FD) ───────────
