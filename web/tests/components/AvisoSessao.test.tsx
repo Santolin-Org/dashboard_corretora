@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
 }));
 
-import { AvisoSessao, AvisoSemConexao } from "@/components/AvisoSessao";
+import { AvisoDadosSalvos, AvisoSessao, AvisoSemConexao } from "@/components/AvisoSessao";
 import { Casca } from "@/components/Casca";
 import { useFiltros } from "@/client/filtros";
 import { usePainel } from "@/client/painel";
@@ -93,5 +93,16 @@ describe("Casca com revalidação", () => {
     await avancar(INTERVALO_REVALIDACAO_MS);
     expect(document.getElementById("aviso-sem-conexao")!.textContent).toMatch(/^Sem conexão com o servidor desde \d\d:\d\d$/);
     expect(document.getElementById("sonda")!.textContent).toBe("v1|Ana|Allianz");
+  });
+});
+
+describe("AvisoDadosSalvos", () => {
+  afterEach(cleanup);
+  it("diz de quando são os dados salvos e se está atualizando ou se a atualização falhou", () => {
+    const em = Date.UTC(2026, 9, 28, 20, 5); // 28/10 17:05 em São Paulo
+    const { rerender } = render(<AvisoDadosSalvos salvoEm={em} falhou={false} />);
+    expect(screen.getByRole("status").textContent).toBe("Mostrando os dados salvos em 28/10, 17:05. Atualizando…");
+    rerender(<AvisoDadosSalvos salvoEm={em} falhou />);
+    expect(screen.getByRole("status").textContent).toBe("Não foi possível atualizar agora. Mostrando os dados salvos em 28/10, 17:05.");
   });
 });

@@ -19,3 +19,18 @@ export function AvisoSessao({ desde }: { desde?: number }) {
 export function AvisoSemConexao({ desde }: { desde: number }) {
   return <div className={`${s.aviso} ${s.discreto}`} role="status" id="aviso-sem-conexao">Sem conexão com o servidor desde {hhmm(desde)}</div>;
 }
+
+const diaHora = (ms: number) => new Date(ms).toLocaleString("pt-BR", {
+  day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo",
+});
+
+/** Aviso discreto: o painel abriu com a cópia salva neste navegador enquanto a base nova chega. */
+export function AvisoDadosSalvos({ salvoEm, falhou }: { salvoEm: number; falhou: boolean }) {
+  return (
+    <div className={`${s.aviso} ${s.discreto}`} role="status" id="aviso-dados-salvos" data-so-novo="">
+      {falhou
+        ? `Não foi possível atualizar agora. Mostrando os dados salvos em ${diaHora(salvoEm)}.`
+        : `Mostrando os dados salvos em ${diaHora(salvoEm)}. Atualizando…`}
+    </div>
+  );
+}
