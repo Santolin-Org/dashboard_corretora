@@ -26,7 +26,7 @@ export default function Comparativo() {
       <BlocoGrafico d={d} metrica={e.metrica} aoMudar={e.setMetrica} hoje={base.hoje}
         agrupamento={e.agrupamento} aoMudarAgrupamento={e.setAgrupamento} base={e.baseComparacao} aoMudarBase={e.setBaseComparacao} />
       {" "}
-      <BlocoKpis todas={base.linhas} filtros={filtros} d={d} />
+      <BlocoKpis todas={base.linhas} filtros={filtros} d={d} renovacaoSoMeta={e.renovacaoSoMeta} aoMudarRenovacaoSoMeta={e.setRenovacaoSoMeta} />
       {" "}
       <BlocoPivo fd={fd} e={e} />
       {" "}

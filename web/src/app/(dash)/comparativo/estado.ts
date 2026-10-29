@@ -36,10 +36,12 @@ export function useEstadoComp() {
   const [metricaRank, setMetricaRank] = useEstadoAba<MetricaRank>("comparativo:metrica-rank", "premio");
   const [agrupamento, setAgrupamento] = useEstadoAba<Agrupamento>("comparativo:agrupamento", "mes");
   const [baseComparacao, setBaseComparacao] = useEstadoAba<BaseComparacao>("comparativo:base", "ano");
+  // Taxa de renovação e churn só com os ramos da meta (churn também só evitável). Desligado: a regra do app antigo.
+  const [renovacaoSoMeta, setRenovacaoSoMeta] = useEstadoAba<boolean>("comparativo:renovacao-so-meta", false);
   return {
     manual, setManual: (m: PeriodoManual | null) => setGuardado({ manual: m, geracao: geracaoLimpeza }),
     metrica, setMetrica, visao, setVisao, metricaPivo, setMetricaPivo, recolhidas, setRecolhidas, dim, setDim, metricaRank, setMetricaRank,
-    agrupamento, setAgrupamento, baseComparacao, setBaseComparacao,
+    agrupamento, setAgrupamento, baseComparacao, setBaseComparacao, renovacaoSoMeta, setRenovacaoSoMeta,
   };
 }
 export type EstadoComp = ReturnType<typeof useEstadoComp>;

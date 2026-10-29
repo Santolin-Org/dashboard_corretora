@@ -5,6 +5,8 @@ import type { FiltrosGlobais } from './filtros';
 import { fBRL, fN } from './formatos';
 import { SIT, SIT_DESFECHO_RENOVACAO, isApolice } from './situacoes';
 import { saudeFaturaConta } from './saude/aplicar';
+import { classifyRamo } from './ramos';
+import { isForaDoChurn } from './retencao';
 
 export const TIPOS_PROD = ['N', 'R', 'ER', 'EN'];
 
@@ -390,9 +392,23 @@ export function dadosKpisComp(todas: Linha[], f: FiltrosGlobais, d: DadosComp): 
   };
 }
 
-export function kpisComp(d: DadosComp, k: DadosKpisComp): BlocoComp[] {
-  const churn = { atual: calcChurnComp(d.atual, d.anterior), prev: calcChurnComp(d.anterior, k.prev2) };
-  const fA = calcSafra(k.safraAtual), fP2 = calcSafra(k.safraPrev);
+/** Opções dos KPIs. `soRamosMeta`:
+ *  - taxa de renovação ignora os ramos que não renovam — os mesmos que ficam fora da meta (classifyRamo = 'excluded':
+ *    viagem, carta verde, AP, previdência, eventos, transporte…);
+ *  - taxa de churn usa a regra "Só evitável" da aba Retenção (isForaDoChurn): sem esses ramos e sem os cancelamentos
+ *    não evitáveis (venda do bem, reemissão, erro de emissão, falecimento, perda total, troca de seguradora), tanto
+ *    nas renovações do período quanto na base N + R do ano anterior. */
+export type OpcoesKpisComp = { soRamosMeta?: boolean };
+
+const soRamosMeta = (l: Linha[]): Linha[] => l.filter(r => classifyRamo(r.ramo) !== 'excluded');
+const soChurnEvitavel = (l: Linha[]): Linha[] => l.filter(r => !isForaDoChurn(r, true));
+
+export function kpisComp(d: DadosComp, k: DadosKpisComp, opts: OpcoesKpisComp = {}): BlocoComp[] {
+  const soMeta = !!opts.soRamosMeta;
+  const ch = soMeta ? soChurnEvitavel : (l: Linha[]) => l;
+  const churn = { atual: calcChurnComp(ch(d.atual), ch(d.anterior)), prev: calcChurnComp(ch(d.anterior), ch(k.prev2)) };
+  const fA = calcSafra(soMeta ? soRamosMeta(k.safraAtual) : k.safraAtual);
+  const fP2 = calcSafra(soMeta ? soRamosMeta(k.safraPrev) : k.safraPrev);
   const sA = calcKPIs(d.atual), sP = calcKPIs(d.anterior);
   return [
     {
@@ -418,10 +434,13 @@ export function kpisComp(d: DadosComp, k: DadosKpisComp): BlocoComp[] {
             + 'caiu no período: quantas foram Renovadas ÷ (Renovadas + Vencidas). '
             + 'Canceladas, Suspensas e Perda Total ficam fora da base — saíram no meio da '
             + 'vigência, não eram candidatas a renovar. Recorte por término de vigência, '
-            + 'diferente dos demais cards, que usam o início.',
+            + 'diferente dos demais cards, que usam o início.'
+            + (soMeta ? ' Só ramos que renovam: os mesmos da meta (sem viagem, carta verde, acidentes pessoais, '
+              + 'previdência, eventos aleatórios, transporte nacional e educacional).' : ''),
           footExtra: () => fA.base === 0
             ? 'nada venceu no período'
-            : `${fN(fA.renovadas)} renov. · ${fN(fA.vencidas)} venc. · ant. ${fP2.base ? fPct2(fP2.taxa as number) : '—'}`,
+            : `${fN(fA.renovadas)} renov. · ${fN(fA.vencidas)} venc. · ant. ${fP2.base ? fPct2(fP2.taxa as number) : '—'}`
+              + (soMeta ? ' · só ramos da meta' : ''),
         }),
         // "maior" mix novo não é bom nem ruim por si só (depende da estratégia) — cor neutra.
         kpiCard('Mix novo', sA.mixNovo, sP.mixNovo, 'pct', { neutral: true }),
@@ -433,8 +452,12 @@ export function kpisComp(d: DadosComp, k: DadosKpisComp): BlocoComp[] {
         kpiCard('Comissão média (%)', sA.comMediaPct, sP.comMediaPct, 'pct'),
         kpiCard('Taxa de churn', churn.atual.taxa, churn.prev.taxa, 'pct', {
           lowerIsBetter: true, naCompare: !churn.prev.base, na: !churn.atual.base,
-          title: '1 − renovações (R) do período ÷ apólices N + R do mesmo período do ano anterior. Só apólices, sem endossos.',
-          footExtra: () => `${fN(churn.atual.renov)} renov. ÷ ${fN(churn.atual.base)} N+R ano ant. · ant. ${churn.prev.base ? fPct2(churn.prev.taxa) : '—'}`,
+          title: '1 − renovações (R) do período ÷ apólices N + R do mesmo período do ano anterior. Só apólices, sem endossos.'
+            + (soMeta ? ' Só evitável, como na aba Retenção: sem os ramos fora da meta e sem os cancelamentos que a '
+              + 'corretora não tinha como evitar (venda do bem, reemissão, erro de emissão, falecimento, perda total, '
+              + 'troca de seguradora).' : ''),
+          footExtra: () => `${fN(churn.atual.renov)} renov. ÷ ${fN(churn.atual.base)} N+R ano ant. · ant. ${churn.prev.base ? fPct2(churn.prev.taxa) : '—'}`
+            + (soMeta ? ' · só evitável' : ''),
         }),
         kpiCard('Prêmio em risco', sA.premioRisco, sP.premioRisco, 'money', {
           lowerIsBetter: true,
