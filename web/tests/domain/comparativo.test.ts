@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
+import { semDivergencias } from '../../parity/diff';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { montarBase } from '../../src/domain/producao/base';
@@ -77,7 +78,8 @@ describe('Comparativo de períodos contra os dourados da fixture', () => {
     expect(gg.datasets.map(x => x.label)).toEqual([`Atual — ${gr.rotulo}`, `Anterior — ${gr.rotulo}`, 'Variação %']);
     expect([gr.valA, gr.valP, gr.varPct].map(a => a.map(x => Number(x.toFixed(6))))).toEqual(gg.datasets.map(x => x.data.map(y => Number(y.toFixed(6)))));
 
-    expect(textoKpis(kpisComp(d, dadosKpisComp(ALL, f, d)))).toBe(g.textos['comp-kpis-grid']);
+    // Mudou de propósito: o cartão Taxa de churn diverge do app antigo (DIVERGENCIAS_INTENCIONAIS); o resto segue igual.
+    expect(semDivergencias(textoKpis(kpisComp(d, dadosKpisComp(ALL, f, d))))).toBe(semDivergencias(colapsar(g.textos['comp-kpis-grid'])));
 
     const rec = new Set<string>();
     if (c.recolher) getCompPivotData(fd, campoPivo(c.metricaPivo ?? 'premio')).seguradoras.forEach(s => rec.add(s.nome));

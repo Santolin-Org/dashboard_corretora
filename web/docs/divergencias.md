@@ -13,6 +13,12 @@ O `main.js` da raiz não é alterado.
    Regra nova em `src/domain/situacoes.ts` e METRICAS.md §1.2. A trava `TIPO DOCUMENTO =
    'APÓLICE'` continua, então endossos de verdade com "0" seguem de fora.
 
+2. **Taxa de churn do Comparativo: canceladas ÷ total de apólices do período** (30/10/2026).
+   O antigo mostra `1 − renovações ÷ N + R do ano anterior`. Aqui a correção não é aplicada ao
+   lado antigo: o cartão sai da comparação de texto nos dois lados
+   (`DIVERGENCIAS_INTENCIONAIS` em `parity/diff.ts`); os outros 15 cartões seguem comparados.
+   Regra em METRICAS.md (churn do Comparativo).
+
 ## Task 3 — domínio base
 
 - **`#rec-badge` mostra "0 registros" na carga inicial no app antigo.** `updateDashHeader`

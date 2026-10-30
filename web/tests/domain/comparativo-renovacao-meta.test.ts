@@ -47,18 +47,21 @@ describe('Taxa de renovação só com ramos da meta (opção soRamosMeta)', () =
   });
 });
 
-describe('Taxa de churn com a opção soRamosMeta: regra "Só evitável" da aba Retenção', () => {
-  // Base (N + R com início em 2025) e renovações R com início em 2026.
+// Mudou de propósito (30/10/2026): o churn do Comparativo passou a ser canceladas ÷ total de apólices do período.
+describe('Taxa de churn: canceladas ÷ total de apólices; com soRamosMeta, regra "Só evitável" da aba Retenção', () => {
   const ap = (o: Parameters<typeof linha>[0]) => linha({ fim: '', ...o });
   const CHURN = [
-    ap({ tipo: 'N', vig: '2025-02-01', ramo: 'Automóvel - Casco' }),
-    ap({ tipo: 'N', vig: '2025-03-01', ramo: 'Automóvel - Casco', sit: 'Cancelada', motivo: 'Venda do veículo' }), // não evitável
-    ap({ tipo: 'N', vig: '2025-04-01', ramo: 'Compreensivo Residencial', sit: 'Cancelada', trocaSeg: true }),   // troca de seguradora
-    ap({ tipo: 'N', vig: '2025-05-01', ramo: 'Seguro Viagem Individual' }),                                     // ramo fora da meta
-    ap({ tipo: 'R', vig: '2025-06-01', ramo: 'Responsabilidade Civil Geral' }),
-    ap({ tipo: 'R', vig: '2026-02-01', ramo: 'Automóvel - Casco' }),
-    ap({ tipo: 'R', vig: '2026-05-01', ramo: 'Seguro Viagem Individual' }),
+    // período atual (início de vigência em 2026)
+    ap({ tipo: 'N', vig: '2026-02-01', ramo: 'Automóvel - Casco' }),
+    ap({ tipo: 'N', vig: '2026-02-05', ramo: 'Automóvel - Casco', sit: 'Cancelada' }),                            // sem motivo: evitável
+    ap({ tipo: 'N', vig: '2026-03-01', ramo: 'Automóvel - Casco', sit: 'Cancelada', motivo: 'Venda do veículo' }), // não evitável
+    ap({ tipo: 'R', vig: '2026-04-01', ramo: 'Compreensivo Residencial', sit: 'Cancelada', trocaSeg: true }),     // troca de seguradora
+    ap({ tipo: 'N', vig: '2026-05-01', ramo: 'Seguro Viagem Individual', sit: 'Cancelada' }),                      // ramo fora da meta
     ap({ tipo: 'R', vig: '2026-06-01', ramo: 'Responsabilidade Civil Geral' }),
+    ap({ tipo: 'EN', vig: '2026-06-10', ramo: 'Automóvel - Casco', sit: 'Cancelada', endosso: '1' }),             // endosso: fora
+    // período anterior (2025)
+    ap({ tipo: 'N', vig: '2025-02-01', ramo: 'Automóvel - Casco', sit: 'Cancelada' }),
+    ap({ tipo: 'N', vig: '2025-03-01', ramo: 'Automóvel - Casco', sit: 'Renovada' }),
   ];
   const churn = (soRamosMeta: boolean) => {
     const d = dadosComp(CHURN, FILTROS_VAZIOS, P);
@@ -66,16 +69,25 @@ describe('Taxa de churn com a opção soRamosMeta: regra "Só evitável" da aba 
       .flatMap((x) => x.cartoes).find((c) => c.rotulo === 'Taxa de churn')!;
   };
 
-  it('desligada: 1 − 3 renovações ÷ 5 N+R do ano anterior', () => {
-    expect(churn(false).valor).toBe('40.00%');
-    expect(churn(false).foot).toBe('3 renov. ÷ 5 N+R ano ant. · ant. —');
-    expect(churn(false).titulo).not.toMatch(/Só evitável/);
+  it('desligada: 4 canceladas ÷ 6 apólices N e R (endosso fora); anterior 1 ÷ 2', () => {
+    const c = churn(false);
+    expect(c.valor).toBe('66.67%');
+    expect(c.foot).toBe('4 canc. ÷ 6 apólices · ant. 50.00%');
+    expect(c.trendCls).toBe('trend-down'); // subiu, e churn menor é melhor
+    expect(c.titulo).toMatch(/^Apólices canceladas ÷ total de apólices do período/);
+    expect(c.titulo).not.toMatch(/Só evitável/);
   });
 
-  it('ligada: tira ramo fora da meta e cancelamentos não evitáveis (motivo e troca de seguradora) da base e das renovações', () => {
+  it('ligada: tira ramo fora da meta e cancelamentos não evitáveis (motivo e troca de seguradora) do numerador e do total', () => {
     const c = churn(true);
-    expect(c.valor).toBe('0.00%'); // 1 − 2 ÷ 2
-    expect(c.foot).toBe('2 renov. ÷ 2 N+R ano ant. · ant. — · só evitável');
+    expect(c.valor).toBe('33.33%'); // 1 ÷ 3
+    expect(c.foot).toBe('1 canc. ÷ 3 apólices · ant. 50.00% · só evitável');
     expect(c.titulo).toMatch(/Só evitável, como na aba Retenção/);
+  });
+
+  it('sem apólices no período: —', () => {
+    const d = dadosComp([], FILTROS_VAZIOS, P);
+    const c = kpisComp(d, dadosKpisComp([], FILTROS_VAZIOS, d)).flatMap((x) => x.cartoes).find((x) => x.rotulo === 'Taxa de churn')!;
+    expect(c.valor).toBe('—');
   });
 });
