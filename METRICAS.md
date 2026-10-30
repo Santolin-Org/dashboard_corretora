@@ -216,18 +216,25 @@ consumido pelos pontos que antes divergiam entre si:
 A Visão Geral calculava um churn (`canceladas ÷ linhas`) que nenhum card exibia;
 o cálculo foi removido.
 
-**A taxa de churn do Comparativo tem regra própria** (decisão de 28/09/2026), porque a
-aba compara com o ano anterior (`calcChurnComp`):
+**A taxa de churn do Comparativo tem regra própria** (`calcChurnComp`). Desde 30/10/2026:
 
 ```
-churn = 1 − renovações (R) do período ÷ apólices N + R do mesmo período do ano anterior
+churn = apólices canceladas ÷ total de apólices do período
 ```
 
-Conta apólices (`isApolice`, sem endossos/faturas), em **todos os ramos**, com os
-filtros globais; as duas pontas ancoradas no início de vigência. O valor do período
-anterior faz a mesma conta um ano antes (usa o período de dois anos atrás como base).
-Pode ficar negativo quando entram mais renovações do que havia de base — renovação
-de apólice vinda de outra corretora, por exemplo. Antes era `(CN + CR) ÷ produção`.
+Apólices N e R (`isApolice`, sem endossos/faturas) com início de vigência no período, em
+**qualquer situação**, com os filtros globais. O período anterior faz a mesma conta no
+mesmo intervalo um ano antes. O denominador é o total, e não só as `Ativa`: a situação é a
+de hoje (a apólice que venceu vira Renovada ou Vencida), então nos períodos passados quase
+não sobram ativas e `canceladas ÷ ativas` passaria de 100%.
+
+Com a caixa "Renovação e churn só com ramos da meta" marcada, vale a regra "Só evitável"
+da aba Retenção (`isForaDoChurn`): saem os ramos fora da meta e os cancelamentos não
+evitáveis, no numerador e no total.
+
+Histórico: de 28/09 a 29/10/2026 era `1 − renovações (R) do período ÷ apólices N + R do
+mesmo período do ano anterior` (a regra que o app antigo ainda mostra); antes disso,
+`(CN + CR) ÷ produção`.
 
 O painel *Apólices em risco de não renovação* (score por seguradora/ramo/colaborador)
 e a *Análise de coorte* foram removidos da aba em 28/09/2026: não traziam dado

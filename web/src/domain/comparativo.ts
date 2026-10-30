@@ -280,14 +280,15 @@ export function graficoCompAgrupado(d: DadosComp, metrica: MetricaComp, agrup: A
 
 // ── Churn do Comparativo ──────────────────────────────────────────────────────
 // Churn do Comparativo (regra de negócio própria, diferente da aba Retenção):
-//   churn = 1 − renovações (R) do período ÷ total (N + R) do mesmo período do ano anterior
-// Conta apólices (sem endossos/faturas), em todos os ramos, com os filtros globais.
-// Pode ficar negativo quando entram mais renovações do que havia de base — renovação
-// de apólice que veio de outra corretora, por exemplo.
-export function calcChurnComp(dataAtual: Linha[], dataAnoAnterior: Linha[]): { renov: number; base: number; taxa: number } {
-  const renov = dataAtual.filter(r => isApolice(r) && r.tipo === 'R').length;
-  const base = dataAnoAnterior.filter(r => isApolice(r) && (r.tipo === 'N' || r.tipo === 'R')).length;
-  return { renov, base, taxa: base ? 1 - renov / base : 0 };
+//   churn = apólices canceladas ÷ total de apólices do período
+// Apólices N e R (sem endossos/faturas) com início de vigência no período, em qualquer situação, com os filtros
+// globais. O denominador é o total e não só as "Ativas": a situação é a de hoje (a apólice que venceu vira
+// Renovada/Vencida), então nos períodos passados quase não sobram ativas e a razão perderia o sentido.
+// Diverge de propósito do app antigo (1 − renovações ÷ N + R do ano anterior): ver DIVERGENCIAS_INTENCIONAIS.
+export function calcChurnComp(data: Linha[]): { canceladas: number; base: number; taxa: number } {
+  const apolices = data.filter(r => isApolice(r) && (r.tipo === 'N' || r.tipo === 'R'));
+  const canceladas = apolices.filter(r => r.sit === SIT.CANCELADA).length;
+  return { canceladas, base: apolices.length, taxa: apolices.length ? canceladas / apolices.length : 0 };
 }
 
 // ── KPIs ──────────────────────────────────────────────────────────────────────
@@ -378,16 +379,11 @@ function kpiCard(label: string, vA: number, vP: number, type: 'money' | 'count' 
   };
 }
 
-/** Dados que o bloco de KPIs precisa além do par atual/anterior: o de dois anos atrás (churn) e as safras. */
-export type DadosKpisComp = { prev2: Linha[]; safraAtual: Linha[]; safraPrev: Linha[] };
+/** Dados que o bloco de KPIs precisa além do par atual/anterior: as safras de renovação. */
+export type DadosKpisComp = { safraAtual: Linha[]; safraPrev: Linha[] };
 export function dadosKpisComp(todas: Linha[], f: FiltrosGlobais, d: DadosComp): DadosKpisComp {
   const escopo = criarEscopo(f);
-  // Churn do Comparativo compara com o ano anterior, então o card do período anterior
-  // precisa do período de dois anos atrás (ver calcChurnComp).
-  const prev2 = prevYearDates(d.prev.start, d.prev.end);
-  const emPrev2 = shiftEmissaoRangeToPrevYear(d.emPrev.start, d.emPrev.end);
   return {
-    prev2: getCompData(todas, escopo, prev2.start, prev2.end, emPrev2.start, emPrev2.end),
     // Safra de renovação: recorte próprio (ancorado no término de vigência), por isso
     // não sai de atual/anterior, que estão filtrados pelo início de vigência.
     safraAtual: getCompSafraData(todas, escopo, d.start, d.end, f.emIni, f.emFim),
@@ -400,7 +396,7 @@ export function dadosKpisComp(todas: Linha[], f: FiltrosGlobais, d: DadosComp): 
  *    viagem, carta verde, AP, previdência, eventos, transporte…);
  *  - taxa de churn usa a regra "Só evitável" da aba Retenção (isForaDoChurn): sem esses ramos e sem os cancelamentos
  *    não evitáveis (venda do bem, reemissão, erro de emissão, falecimento, perda total, troca de seguradora), tanto
- *    nas renovações do período quanto na base N + R do ano anterior. */
+ *    nas canceladas quanto no total de apólices. */
 export type OpcoesKpisComp = { soRamosMeta?: boolean };
 
 const soRamosMeta = (l: Linha[]): Linha[] => l.filter(r => classifyRamo(r.ramo) !== 'excluded');
@@ -409,7 +405,7 @@ const soChurnEvitavel = (l: Linha[]): Linha[] => l.filter(r => !isForaDoChurn(r,
 export function kpisComp(d: DadosComp, k: DadosKpisComp, opts: OpcoesKpisComp = {}): BlocoComp[] {
   const soMeta = !!opts.soRamosMeta;
   const ch = soMeta ? soChurnEvitavel : (l: Linha[]) => l;
-  const churn = { atual: calcChurnComp(ch(d.atual), ch(d.anterior)), prev: calcChurnComp(ch(d.anterior), ch(k.prev2)) };
+  const churn = { atual: calcChurnComp(ch(d.atual)), prev: calcChurnComp(ch(d.anterior)) };
   const fA = calcSafra(soMeta ? soRamosMeta(k.safraAtual) : k.safraAtual);
   const fP2 = calcSafra(soMeta ? soRamosMeta(k.safraPrev) : k.safraPrev);
   const sA = calcKPIs(d.atual), sP = calcKPIs(d.anterior);
@@ -455,11 +451,12 @@ export function kpisComp(d: DadosComp, k: DadosKpisComp, opts: OpcoesKpisComp = 
         kpiCard('Comissão média (%)', sA.comMediaPct, sP.comMediaPct, 'pct'),
         kpiCard('Taxa de churn', churn.atual.taxa, churn.prev.taxa, 'pct', {
           lowerIsBetter: true, naCompare: !churn.prev.base, na: !churn.atual.base,
-          title: '1 − renovações (R) do período ÷ apólices N + R do mesmo período do ano anterior. Só apólices, sem endossos.'
+          title: 'Apólices canceladas ÷ total de apólices do período (N e R, sem endossos, pelo início de vigência, '
+            + 'em qualquer situação).'
             + (soMeta ? ' Só evitável, como na aba Retenção: sem os ramos fora da meta e sem os cancelamentos que a '
               + 'corretora não tinha como evitar (venda do bem, reemissão, erro de emissão, falecimento, perda total, '
               + 'troca de seguradora).' : ''),
-          footExtra: () => `${fN(churn.atual.renov)} renov. ÷ ${fN(churn.atual.base)} N+R ano ant. · ant. ${churn.prev.base ? fPct2(churn.prev.taxa) : '—'}`
+          footExtra: () => `${fN(churn.atual.canceladas)} canc. ÷ ${fN(churn.atual.base)} apólices · ant. ${churn.prev.base ? fPct2(churn.prev.taxa) : '—'}`
             + (soMeta ? ' · só evitável' : ''),
         }),
         kpiCard('Prêmio em risco', sA.premioRisco, sP.premioRisco, 'money', {

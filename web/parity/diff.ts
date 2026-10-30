@@ -10,7 +10,23 @@ export type Diferenca = {
 
 export const TOLERANCIA = 1e-9;
 
-const norm = (s: string) => colapsar(s.replace(/ /g, " "));
+/**
+ * Divergências intencionais: trechos que o app novo calcula diferente do antigo DE PROPÓSITO (pedido do negócio).
+ * Saem dos dois lados antes de comparar; o resto do texto continua comparado. Cada uma diz o motivo.
+ */
+export const DIVERGENCIAS_INTENCIONAIS: { motivo: string; trecho: RegExp }[] = [
+  {
+    motivo: "Comparativo, cartão Taxa de churn: canceladas ÷ total de apólices do período (antes: 1 − renovações ÷ N + R do ano anterior). Pedido de 30/10/2026.",
+    trecho: /Taxa de churn .{0,200}?(?=Prêmio em risco)/g,
+  },
+];
+
+/** Texto sem os trechos de DIVERGENCIAS_INTENCIONAIS (cada um vira uma marca fixa, igual nos dois lados). */
+export function semDivergencias(s: string): string {
+  return DIVERGENCIAS_INTENCIONAIS.reduce((t, d, i) => t.replace(d.trecho, `[divergência intencional ${i + 1}] `), s);
+}
+
+const norm = (s: string) => colapsar(semDivergencias(colapsar(s.replace(/ /g, " "))));
 
 /** Janela curta em volta do primeiro caractere diferente (o textContent do contêiner inteiro é enorme). */
 function janela(a: string, b: string, raio = 60): { antigo: string; novo: string; posicao: number } {

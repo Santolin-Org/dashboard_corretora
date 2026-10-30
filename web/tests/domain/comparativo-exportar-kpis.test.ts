@@ -48,7 +48,7 @@ describe('exportacaoKpisComp', () => {
   it('"Como é calculado": todo cartão tem explicação; renovação e churn trazem a dica do cartão', () => {
     for (const l of planilha().abas[0].linhas) expect(String(l['Como é calculado']).length).toBeGreaterThan(10);
     expect(Object.keys(COMO_CALCULA_KPI)).toHaveLength(14);
-    expect(linhaDe('Taxa de churn')['Como é calculado']).toMatch(/^1 − renovações/);
+    expect(linhaDe('Taxa de churn')['Como é calculado']).toMatch(/^Apólices canceladas ÷ total de apólices/);
     expect(planilha(true).abas[0].linhas.find((l) => l.Indicador === 'Taxa de churn')!['Como é calculado']).toMatch(/Só evitável/);
   });
 
