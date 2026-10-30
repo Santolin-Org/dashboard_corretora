@@ -3,6 +3,7 @@ import { useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { memoriaBase } from "@/client/memoriaBase";
 import type { Papel } from "@/server/db/schema";
 import type { Usuario } from "@/client/usuario";
 import type { BaseCliente } from "@/client/useBase";
@@ -94,7 +95,7 @@ export function BarraLateral({ usuario, carregando = false, base, recolhida = fa
             <b>{usuario.nome}</b>
             <span>{ROTULO_PAPEL[usuario.role]}</span>
             {" · "}
-            <button type="button" className={s.sair} onClick={() => void signOut({ callbackUrl: "/entrar" })}>Sair</button>
+            <button type="button" className={s.sair} onClick={() => void memoriaBase().apagar().finally(() => signOut({ callbackUrl: "/entrar" }))}>Sair</button>
           </div>
         )}
       </nav>
