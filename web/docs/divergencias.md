@@ -19,6 +19,11 @@ O `main.js` da raiz não é alterado.
    (`DIVERGENCIAS_INTENCIONAIS` em `parity/diff.ts`); os outros 15 cartões seguem comparados.
    Regra em METRICAS.md (churn do Comparativo).
 
+3. **Prêmio renovação do Comparativo compara com a produção N + R do ano anterior** (05/11/2026).
+   O que renova neste período veio do que foi produzido (N + R, com os endossos EN + ER) no
+   período anterior; o antigo comparava com o R do ano anterior. O valor do cartão (R + ER do
+   período) não mudou. Mesmo tratamento do item 2 na paridade (`DIVERGENCIAS_INTENCIONAIS`).
+
 ## Task 3 — domínio base
 
 - **`#rec-badge` mostra "0 registros" na carga inicial no app antigo.** `updateDashHeader`

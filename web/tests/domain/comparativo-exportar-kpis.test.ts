@@ -40,9 +40,16 @@ describe('exportacaoKpisComp', () => {
     expect(t).toMatchObject({ [COL_A]: '', [COL_P]: '', 'Diferença': '', 'Variação %': '', 'Observação': 'nada venceu no período' });
   });
 
+  // Mudou de propósito (05/11/2026): este caso usava o Prêmio renovação, que agora compara com a produção N + R do
+  // ano anterior (não é mais zero aqui). O caso "anterior zero" passou para Endossos.
   it('anterior zero: diferença sim, variação % vazia', () => {
+    expect(linhaDe('Endossos (EN + ER)')).toMatchObject({ [COL_A]: 0, [COL_P]: 0, 'Diferença': 0, 'Variação %': '' });
+  });
+
+  it('Prêmio renovação: período anterior é a produção N + R do ano anterior', () => {
     const r = linhaDe('Prêmio renovação');
-    expect(r).toMatchObject({ [COL_A]: 500, [COL_P]: 0, 'Diferença': 500, 'Variação %': '' });
+    expect(r).toMatchObject({ [COL_A]: 500, [COL_P]: 800, 'Diferença': -300, 'Variação %': -37.5 });
+    expect(r['Como é calculado']).toMatch(/comparada com a produção N \+ R/);
   });
 
   it('"Como é calculado": todo cartão tem explicação; renovação e churn trazem a dica do cartão', () => {

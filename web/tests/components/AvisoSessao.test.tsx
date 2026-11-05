@@ -18,7 +18,9 @@ import { useFiltros } from "@/client/filtros";
 import { usePainel } from "@/client/painel";
 import { INTERVALO_REVALIDACAO_MS } from "@/client/useBase";
 
-const hhmm = (ms: number) => new Date(ms).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+// O aviso mostra o horário de São Paulo (timeZone fixo no componente), qualquer que seja o fuso da máquina.
+// Corrigido em 05/11/2026: o teste usava o fuso da máquina e só passava quando ela estava em São Paulo.
+const hhmm = (ms: number) => new Date(ms).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
 const corpo = (versao: string, cli: string) => ({
   versao, geradoEm: "t", hoje: "2026-10-15", linhas: codificarLinhas([linha({ cli })]), sinistros: codificarSinistros([]),
   manifesto: [], contagensSinistros: { sinistrosAvisados: 0, sinistrosPagamentos: 0 }, avisos: [], avisosSaude: [],
