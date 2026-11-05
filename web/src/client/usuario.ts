@@ -44,6 +44,12 @@ function buscarUsuario(forcar = false): Promise<void> {
 /** Busca /api/eu de novo (sem voltar a "carregando": o usuário atual fica na tela até a resposta). */
 export function recarregarUsuario(): void { void buscarUsuario(true); }
 
+/** O usuário logado, buscando /api/eu se ainda não buscou (null se falhou). */
+export async function obterUsuario(): Promise<Usuario | null> {
+  if (!resolvido) await buscarUsuario();
+  return resolvido?.usuario ?? null;
+}
+
 /** Só para testes: esquece a busca feita, para a próxima chamada buscar de novo. */
 export function esquecerUsuario(): void { busca = null; resolvido = null; }
 

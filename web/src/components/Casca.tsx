@@ -7,7 +7,7 @@ import { EstadoAbasProvider } from "@/client/estadoAbas";
 import { usePodeReprocessar } from "@/client/podeReprocessar";
 import { ContextoPainel, usePainel, type ValorPainel } from "@/client/painel";
 import { useUsuario, type Usuario } from "@/client/usuario";
-import { AvisoSessao, AvisoSemConexao } from "./AvisoSessao";
+import { AvisoDadosSalvos, AvisoSessao, AvisoSemConexao } from "./AvisoSessao";
 import { ABAS } from "./Abas";
 import { BarraLateral } from "./BarraLateral";
 import { Cabecalho, textoRecBadge } from "./Cabecalho";
@@ -31,7 +31,7 @@ const ROTAS_COM_CASCA = new Set<string>([...ROTAS_ABAS, "meu-painel", "produtore
 // filtros globais em volta da aba atual). /exibicao-tv e /apresentacao são telas cheias: recebem
 // os mesmos contextos, sem a casca.
 export function Casca({ children }: { children: ReactNode }) {
-  const { estado, base, erro, recarregar, ultimaBoaEm, semConexaoDesde } = useBase();
+  const { estado, base, erro, recarregar, ultimaBoaEm, semConexaoDesde, daMemoriaDe } = useBase();
   // Depois do useBase: a busca de /api/dados sai primeiro. Não bloqueia o painel enquanto carrega.
   // A base como sinal: base nova (ETag mudou, p.ex. vínculo novo) → /api/eu de novo (nomes atualizados).
   const { usuario, carregando: carregandoUsuario } = useUsuario(base);
@@ -76,6 +76,7 @@ export function Casca({ children }: { children: ReactNode }) {
     <EstadoAbasProvider>
       <ModoTvEfeito />
       {base && estado === "sessao-expirada" && <AvisoSessao desde={ultimaBoaEm} />}
+      {base && daMemoriaDe !== undefined && estado !== "sessao-expirada" && <AvisoDadosSalvos salvoEm={daMemoriaDe} falhou={estado === "erro"} />}
       {base && estado !== "sessao-expirada" && semConexaoDesde !== undefined && <AvisoSemConexao desde={semConexaoDesde} />}
       {conteudo}
       {base && !base.semAcesso && (
