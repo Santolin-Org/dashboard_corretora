@@ -19,6 +19,10 @@ export const DIVERGENCIAS_INTENCIONAIS: { motivo: string; trecho: RegExp }[] = [
     motivo: "Comparativo, cartão Taxa de churn: canceladas ÷ total de apólices do período (antes: 1 − renovações ÷ N + R do ano anterior). Pedido de 30/10/2026.",
     trecho: /Taxa de churn .{0,200}?(?=Prêmio em risco)/g,
   },
+  {
+    motivo: "Comparativo, cartão Prêmio renovação: compara com a produção N + R do ano anterior (antes: com o R do ano anterior). Pedido de 05/11/2026.",
+    trecho: /Prêmio renovação .{0,200}?(?=Taxa de renovação)/g,
+  },
 ];
 
 /** Texto sem os trechos de DIVERGENCIAS_INTENCIONAIS (cada um vira uma marca fixa, igual nos dois lados). */

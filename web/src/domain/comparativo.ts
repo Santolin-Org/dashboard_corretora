@@ -421,7 +421,14 @@ export function kpisComp(d: DadosComp, k: DadosKpisComp, opts: OpcoesKpisComp = 
     {
       titulo: 'Novo × Renovação', cartoes: [
         kpiCard('Prêmio novo', sA.premioNovo, sP.premioNovo, 'money'),
-        kpiCard('Prêmio renovação', sA.premioRenov, sP.premioRenov, 'money'),
+        // O que renova neste período veio do que foi produzido (novo + renovação) no período anterior: a comparação é
+        // contra a produção N + R (com os endossos EN + ER) do ano anterior, e não contra o R de lá. Diverge de propósito
+        // do app antigo (DIVERGENCIAS_INTENCIONAIS).
+        kpiCard('Prêmio renovação', sA.premioRenov, sP.premioTotal, 'money', {
+          title: 'Soma do prêmio das linhas R e ER do período, comparada com a produção N + R (com endossos EN + ER) do '
+            + 'mesmo período do ano anterior: o que podia renovar agora. A variação mostra quanto do prêmio voltou.',
+          footExtra: (_delta, deltaTxt) => `base N+R ant. ${fBRL(sP.premioTotal)} · Δ ${deltaTxt}`,
+        }),
         // Único card da aba ancorado no TÉRMINO de vigência (o resto usa o início) —
         // daí o tooltip: sem ele o número parece incoerente com os vizinhos.
         kpiCard('Taxa de renovação', fA.taxa || 0, fP2.taxa || 0, 'pct', {

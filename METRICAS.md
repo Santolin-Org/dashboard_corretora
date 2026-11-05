@@ -100,6 +100,22 @@ valor exibido mas badge de variação `—`, para não inventar um `▲ 100%` co
 
 ---
 
+## 2.1 Prêmio renovação (aba Comparativo)
+
+Desde 05/11/2026 o cartão compara o prêmio de renovação do período com a **produção N + R
+do mesmo período do ano anterior** (com os endossos EN + ER, ou seja, o prêmio total de lá):
+
+```
+valor   = prêmio R + ER do período
+base    = prêmio N + R + EN + ER do mesmo período do ano anterior
+variação = (valor − base) ÷ base
+```
+
+O que renova agora veio do que foi produzido, novo ou renovação, no ano anterior; comparar
+com o R de lá (regra antiga, que o app antigo ainda mostra) ignorava o negócio novo que
+chegava à primeira renovação. A variação costuma ser negativa e mostra quanto do prêmio
+voltou.
+
 ## 3. Churn (aba Retenção)
 
 ### O que era

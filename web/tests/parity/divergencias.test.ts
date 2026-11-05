@@ -16,3 +16,10 @@ test("não engole texto de outras abas: sem 'Prêmio em risco' logo depois, nada
   const retencao = "Taxa de churn 12% evitável " + "x".repeat(300) + " Prêmio em risco";
   expect(semDivergencias(retencao)).toBe(retencao);
 });
+
+test("o cartão Prêmio renovação também sai dos dois lados, sem levar a Taxa de renovação junto", () => {
+  const a = "Prêmio novo ▲ 1.0% R$ 10,00 ant. R$ 9,00 Prêmio renovação ▲ 5.0% R$ 50,00 ant. R$ 40,00 · Δ +R$ 10,00 Taxa de renovação ▲ 1.0% 90.00% 9 renov.";
+  const n = "Prêmio novo ▲ 1.0% R$ 10,00 ant. R$ 9,00 Prêmio renovação ▼ 50.0% R$ 50,00 base N+R ant. R$ 100,00 · Δ −R$ 50,00 Taxa de renovação ▲ 1.0% 90.00% 9 renov.";
+  expect(compararSnapshots("c", snap(a), snap(n))).toEqual([]);
+  expect(compararSnapshots("c", snap(a), snap(n.replace("90.00%", "91.00%")))).toHaveLength(1);
+});
