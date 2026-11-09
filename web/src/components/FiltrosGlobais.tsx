@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { useFiltros } from "@/client/filtros";
 import type { FiltrosGlobais as Filtros } from "@/domain/filtros";
 import { MultiSelect } from "./MultiSelect";
@@ -14,6 +15,8 @@ const CAMPOS: [string, CampoData][] = [["f-vig-s", "vigIni"], ["f-vig-e", "vigFi
 // dispatchEvent (o harness faz isso; um input controlado do React ignoraria esse caso).
 export function FiltrosGlobais({ temProducao }: { temProducao: boolean }) {
   const { filtros, definir, limpar, opcoes, tipos } = useFiltros();
+  // Na aba Metas a lista de colaboradores inclui quem produziu no mesmo período do ano anterior (a base da meta).
+  const colOpcoes = (usePathname() ?? "").split("/")[1] === "metas" ? opcoes.colComAnoAnterior : opcoes.col;
   const raiz = useRef<HTMLDivElement>(null);
   const atual = useRef(filtros);
   useEffect(() => { atual.current = filtros; }, [filtros]);
@@ -61,7 +64,7 @@ export function FiltrosGlobais({ temProducao }: { temProducao: boolean }) {
       </div>
       <div className={`${s.grupo} f-group`}>
         <span className={`${s.rotulo} f-label`}>Colaborador</span>
-        <MultiSelect id="ms-col" chave="col" valores={opcoes.col} selecionados={filtros.col} placeholder="Todos" onChange={(col) => definir({ col })} />
+        <MultiSelect id="ms-col" chave="col" valores={colOpcoes} selecionados={filtros.col} placeholder="Todos" onChange={(col) => definir({ col })} />
       </div>
       <div className={`${s.grupo} f-group`}>
         <span className={`${s.rotulo} f-label`}>Grupo de produção</span>
