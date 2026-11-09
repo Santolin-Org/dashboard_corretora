@@ -1,0 +1,42 @@
+.periodo {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+}
+
+.busca {
+  width: min(360px, 100%);
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: var(--r-md, 6px);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-raised);
+  color: inherit;
+}
+
+.tabelaWrap {
+  overflow-x: auto;
+}
+
+.selo {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.renovada { background: #dcfce7; color: #15803d; }
+.vencida { background: #fee2e2; color: #b91c1c; }
+.emAberto { background: #fef3c7; color: #b45309; }
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 11px;
+  color: var(--text-secondary);
+}

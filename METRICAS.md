@@ -470,6 +470,23 @@ números repetidos. O painel de fontes passou a apontar esse caso (coluna *Ativa
 vencidas*, ver `contarAtivasVencidas`). As proteções não substituem reexportar o
 arquivo: o churn continua dependendo da situação correta.
 
+## 6.2 Aba Renovações
+
+Criada em 09/11/2026. Compara o que **chegou para renovar** no período com as **renovações**
+que entraram nele, e lista apólice por apólice com a renovação de cada uma
+(`web/src/domain/renovacoes.ts`).
+
+- **Período:** a vigência dos filtros globais (as duas pontas); sem ela, o mês atual inteiro.
+- **Chegaram para renovar:** apólices N e R (sem endossos) com **fim de vigência** no período.
+- **Renovações:** apólices R com **início de vigência** no período.
+- **Fora dos dois lados:** Cancelada, Perda Total e Suspensa (saíram no meio da vigência).
+- **Filtros globais:** valem colaborador, grupo, ramo e seguradora; tipo e emissão não.
+- **Ligação antiga → renovação:** mesmo CPF/CNPJ + mesmo ramo + a R começa no fim da antiga
+  (até 1 dia de diferença). Com mais de uma candidata (dois carros), cada R é usada uma vez,
+  ligada à antiga de prêmio mais parecido. Sem CPF/CNPJ não há ligação.
+- **Situação na lista:** *Renovada* (a planilha diz Renovada ou há ligação), *Vencida*,
+  ou *Em aberto* (ainda Ativa).
+
 ## 7. Pendências e decisões em aberto
 
 - **Prêmio em risco (Comparativo)** ainda soma as canceladas que começaram no

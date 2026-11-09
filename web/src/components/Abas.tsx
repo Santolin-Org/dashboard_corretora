@@ -3,6 +3,7 @@ export const ABAS = [
   { id: "visao-geral", rotulo: "Visão geral" },
   { id: "producao", rotulo: "Produção" },
   { id: "retencao", rotulo: "Retenção & Churn" },
+  { id: "renovacoes", rotulo: "Renovações" },
   { id: "crosssell", rotulo: "Cross-sell" },
   { id: "comparativo", rotulo: "Comparativo" },
   { id: "metas", rotulo: "Metas" },
@@ -11,4 +12,4 @@ export const ABAS = [
 export type AbaId = (typeof ABAS)[number]["id"];
 
 /** Abas que dependem da produção (PROD_TABS do main.js). */
-export const ABAS_PRODUCAO: readonly string[] = ["visao-geral", "producao", "retencao", "comparativo", "metas", "crosssell"];
+export const ABAS_PRODUCAO: readonly string[] = ["visao-geral", "producao", "retencao", "renovacoes", "comparativo", "metas", "crosssell"];
