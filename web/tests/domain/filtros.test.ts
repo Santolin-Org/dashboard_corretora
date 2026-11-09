@@ -93,6 +93,26 @@ describe('opcoesFiltros (populateFilters / buildColabOptions)', () => {
     expect(opcoesFiltros(rs, f({ vigIni: '2025-01-01', col: ['Z', 'B'] })).col).toEqual(['A', 'B', 'D', 'Z']);
     expect(opcoesFiltros(rs, f({ emIni: '2025-03-01' })).col).toEqual(['D']);
   });
+
+  it('colComAnoAnterior (aba Metas): do mesmo mês do ano anterior até o fim do filtro', () => {
+    const rs = [
+      linha({ colab: 'SO_2026', tipo: 'N', vig: '2026-11-05' }),
+      linha({ colab: 'SO_BASE', tipo: 'N', vig: '2025-11-20' }),        // só no mês da base: aparece
+      linha({ colab: 'NO_MEIO', tipo: 'R', vig: '2026-03-10' }),        // entre a base e o filtro: aparece
+      linha({ colab: 'ANTES', tipo: 'N', vig: '2025-10-31' }),          // antes da base: fora
+      linha({ colab: 'DEPOIS', tipo: 'N', vig: '2026-12-01' }),         // depois do filtro: fora
+      linha({ colab: 'CANC', tipo: 'CN', vig: '2025-11-20' }),          // cancelamento não é produção
+    ];
+    const nov = f({ vigIni: '2026-11-01', vigFim: '2026-11-30' });
+    expect(opcoesFiltros(rs, nov).col).toEqual(['SO_2026']);
+    expect(opcoesFiltros(rs, nov).colComAnoAnterior).toEqual(['NO_MEIO', 'SO_2026', 'SO_BASE']);
+    expect(opcoesFiltros(rs, { ...nov, col: ['Z'] }).colComAnoAnterior).toContain('Z');                    // marcado fica
+    expect(opcoesFiltros(rs, f({ vigFim: '2026-11-30' })).colComAnoAnterior).toEqual(['ANTES', 'NO_MEIO', 'SO_2026', 'SO_BASE']); // sem início: aberto
+    // emissão também recua um ano
+    const em = [linha({ colab: 'E', tipo: 'N', vig: '', em: '2025-11-10' })];
+    expect(opcoesFiltros(em, f({ emIni: '2026-11-01', emFim: '2026-11-30' })).col).toEqual([]);
+    expect(opcoesFiltros(em, f({ emIni: '2026-11-01', emFim: '2026-11-30' })).colComAnoAnterior).toEqual(['E']);
+  });
 });
 
 describe('tiposDisponiveis (buildTipoBtns)', () => {

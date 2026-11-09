@@ -33,7 +33,7 @@ export type ValorFiltros = {
   inicial: boolean;
   /** Número de #rec-badge ("N registros"): 0 na carga inicial (quirk do app antigo), depois fd.length. */
   recBadgeContagem: number;
-  opcoes: { col: string[]; grp: string[]; ram: string[]; seg: string[] };
+  opcoes: ReturnType<typeof opcoesFiltros>;
   tipos: string[];
   /**
    * Contador incrementado a cada limpar() (resetFilters do app antigo). As abas o observam para zerar

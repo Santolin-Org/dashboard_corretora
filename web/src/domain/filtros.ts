@@ -54,10 +54,19 @@ const uniq = (l: Linha[], campo: 'grp' | 'ramo' | 'seg' | 'tipo'): string[] => {
   return [...s].sort();
 };
 
-/** Opções dos seletores globais. `col` segue a regra de "Colaboradores com produção no período". */
-export function opcoesFiltros(l: Linha[], f: FiltrosGlobais): { col: string[]; grp: string[]; ram: string[]; seg: string[] } {
+/** Mesma data um ano antes, como texto (a comparação de datas é por string); vazio continua vazio. */
+const umAnoAntes = (d: DataISO): DataISO => (d ? `${parseInt(d.slice(0, 4), 10) - 1}${d.slice(4)}` : d);
+
+/**
+ * Opções dos seletores globais. `col` segue a regra de "Colaboradores com produção no período".
+ * `colComAnoAnterior` (aba Metas): a janela começa um ano antes — do mesmo mês do ano anterior até o fim do filtro —,
+ * porque a meta usa como base o mesmo período do ano anterior. Assim aparece também quem produziu só na base.
+ */
+export function opcoesFiltros(l: Linha[], f: FiltrosGlobais): { col: string[]; colComAnoAnterior: string[]; grp: string[]; ram: string[]; seg: string[] } {
+  const vigIniBase = umAnoAntes(f.vigIni), emIniBase = umAnoAntes(f.emIni);
   return {
     col: colabsComProducao(l, r => entre(r.vig, f.vigIni, f.vigFim) && entre(r.em, f.emIni, f.emFim), f.col),
+    colComAnoAnterior: colabsComProducao(l, r => entre(r.vig, vigIniBase, f.vigFim) && entre(r.em, emIniBase, f.emFim), f.col),
     grp: uniq(l, 'grp'),
     ram: uniq(l, 'ramo'),
     seg: uniq(l, 'seg'),
