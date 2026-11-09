@@ -16,7 +16,7 @@ const HREF_EXIBICAO_TV = "/exibicao-tv";
 const ROTAS_ABAS = new Set<string>(ABAS.map((a) => `/${a.id}`));
 
 const ICONES: Record<string, string> = {
-  "/visao-geral": "◧", "/producao": "▤", "/retencao": "↻", "/crosssell": "⇄", "/comparativo": "≋", "/metas": "◎",
+  "/visao-geral": "◧", "/producao": "▤", "/retencao": "↻", "/renovacoes": "⟳", "/crosssell": "⇄", "/comparativo": "≋", "/metas": "◎",
   "/sinistros": "⚠", "/meu-painel": "☺", "/produtores": "☺", "/apresentacao": "▶", [HREF_EXIBICAO_TV]: "📺",
   "/admin/usuarios": "⚙",
 };
