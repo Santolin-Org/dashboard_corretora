@@ -59,6 +59,13 @@ export function renovacoesDoPeriodo(linhas: Linha[], f: FiltrosGlobais, p: Perio
   return linhas.filter(r => r.tipo === 'R' && candidata(r) && dentro(r.vig, p) && noEscopo(r));
 }
 
+/** Antigas que podem chegar a renovar (N/R, sem endossos, com fim, fora Cancelada/Perda Total/Suspensa), na base
+ *  inteira. A ligação com a renovação é sempre feita sobre este conjunto todo, para que a aba e a atribuição
+ *  (domain/atribuicoes.ts) liguem igual mesmo com filtros (caso de dois carros do mesmo cliente). */
+export function candidatasRenovacao(linhas: Linha[]): Linha[] {
+  return linhas.filter(r => (r.tipo === 'N' || r.tipo === 'R') && candidata(r) && !!r.fim);
+}
+
 const chaveLigacao = (r: Linha) => `${r.docDigits}|${r.ramo}`;
 
 /** Liga cada antiga à sua renovação (ver topo) e ordena por vencimento e cliente. `todas`: onde procurar as R. */
@@ -129,6 +136,7 @@ export function buscarRenovacoes(itens: ItemRenovacao[], termo: string): ItemRen
 
 export function dadosRenovacoes(linhas: Linha[], f: FiltrosGlobais, hoje: DataISO): { periodo: PeriodoRenov; itens: ItemRenovacao[]; cards: CardsRenovacoes } {
   const periodo = periodoRenovacoes(f, hoje);
-  const itens = ligarRenovacoes(chegaramParaRenovar(linhas, f, periodo), linhas);
+  const chegaram = new Set(chegaramParaRenovar(linhas, f, periodo));
+  const itens = ligarRenovacoes(candidatasRenovacao(linhas), linhas).filter(i => chegaram.has(i.antiga));
   return { periodo, itens, cards: cardsRenovacoes(itens, renovacoesDoPeriodo(linhas, f, periodo)) };
 }

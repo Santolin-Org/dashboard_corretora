@@ -12,7 +12,8 @@ export function escopoDoUsuario(u: { role: Papel } | null, nomes: string[] = [],
   if (u && (u.role === "admin" || u.role === "gestao")) return { tipo: "tudo" };
   if (u?.role === "vendedor") {
     const ns = [...new Set(nomes.filter((n) => n.trim() !== ""))].sort();
-    const minhas = atribs.filter((a) => ns.includes(a.para));
+    const conjunto = new Set(ns);
+    const minhas = atribs.filter((a) => pertenceA({ colab: a.para }, conjunto)); // "A , B" vale para A e para B
     if (ns.length) return { tipo: "colaboradores", nomes: ns, ...(minhas.length ? { atribuicoes: minhas } : {}) };
   }
   return { tipo: "nada" };

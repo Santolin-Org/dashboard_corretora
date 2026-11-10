@@ -11,7 +11,9 @@ export function AtribuirResponsavel({ antiga, colaboradores, salvar, desfazer }:
   salvar(a: NovaAtribuicao): Promise<void>; desfazer(k: ChaveAtribuicao): Promise<void>;
 }) {
   const [aberto, setAberto] = useState(false);
-  const [para, setPara] = useState(antiga.resp ?? "");
+  // Só a atribuição própria desta vigência ('base') pode ser desfeita aqui; a herdada vem da antiga do ano anterior.
+  const propria = antiga.atrib === "base";
+  const [para, setPara] = useState(propria ? antiga.resp ?? "" : "");
   const [ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState("");
   const chave = { seg: antiga.seg, apolice: antiga.apolice, fim: antiga.fim };
@@ -26,9 +28,9 @@ export function AtribuirResponsavel({ antiga, colaboradores, salvar, desfazer }:
         <option value="">Escolha…</option>
         {colaboradores.filter((c) => c !== antiga.colab).map((c) => <option key={c} value={c}>{c}</option>)}
       </select>
-      <button type="button" className="btn-sm" disabled={ocupado || !para || para === antiga.resp}
+      <button type="button" className="btn-sm" disabled={ocupado || !para || (propria && para === antiga.resp)}
         onClick={() => executar(() => salvar({ ...chave, para, de: antiga.colab }))}>Salvar</button>
-      {antiga.resp !== undefined && (
+      {propria && (
         <button type="button" className="btn-sm" disabled={ocupado} onClick={() => executar(() => desfazer(chave))}>Voltar ao original</button>
       )}
       <button type="button" className="btn-sm" disabled={ocupado} onClick={() => setAberto(false)}>Cancelar</button>

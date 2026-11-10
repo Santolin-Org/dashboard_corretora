@@ -23,9 +23,9 @@ async function enviar(method: "PUT" | "DELETE", corpo: unknown): Promise<void> {
   }
 }
 
-/** Atribuições de renovação (spec 2026-11-10): busca uma vez quando `ativo`; salvar/desfazer gravam no servidor e
+/** Atribuições de renovação (spec 2026-11-10): busca quando `ativo` e de novo a cada `sinal` novo; salvar/desfazer gravam no servidor e
  *  atualizam a lista local, sem recarregar /api/dados. */
-export function useAtribuicoes(ativo: boolean): EstadoAtribuicoes {
+export function useAtribuicoes(ativo: boolean, sinal?: unknown): EstadoAtribuicoes {
   const [atribuicoes, setAtribuicoes] = useState<Atribuicao[]>([]);
   const [erro, setErro] = useState(false);
 
@@ -44,7 +44,8 @@ export function useAtribuicoes(ativo: boolean): EstadoAtribuicoes {
       })
       .catch(() => { if (vivo) { setAtribuicoes((l) => (l.length ? [] : l)); setErro(true); } });
     return () => { vivo = false; };
-  }, [ativo]);
+    // `sinal` (a Casca passa a base): base nova (outro gestor atribuiu, o ETag mudou) → lista nova também.
+  }, [ativo, sinal]);
 
   const salvar = useCallback(async (a: NovaAtribuicao) => {
     await enviar("PUT", a);

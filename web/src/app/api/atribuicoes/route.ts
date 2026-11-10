@@ -1,5 +1,7 @@
 import { desfazerAtribuicao, listarAtribuicoes, nomesDoUsuario, salvarAtribuicao } from "@/server/db/client";
 import { erro400, exigirPapel, indisponivel, lerCorpo, resposta } from "@/server/api-admin";
+import { bypassAtivo } from "@/server/auth-core";
+import { pertenceA } from "@/domain/painel-produtor";
 
 // Atribuições de renovação (spec 2026-11-10). Leitura: gestão/admin veem todas; vendedor só as para ou de um nome
 // dele. Escrita (atribuir/desfazer): só gestão e admin.
@@ -15,11 +17,14 @@ function chave(c: Record<string, unknown>): { seg: string; apolice: string; fim:
 export async function GET() {
   const a = await exigirPapel([...GESTORES, "vendedor"]);
   if ("res" in a) return a.res;
+  // Bypass de paridade (sem banco, como /api/eu): nenhuma atribuição.
+  if (bypassAtivo()) return resposta({ atribuicoes: [] });
   try {
     const todas = await listarAtribuicoes();
     if (a.u.role !== "vendedor") return resposta({ atribuicoes: todas });
     const nomes = new Set(await nomesDoUsuario(a.u.email));
-    return resposta({ atribuicoes: todas.filter((x) => nomes.has(x.para) || nomes.has(x.de)) });
+    // Nome composto ("A , B") vale para A e para B, como no resto do painel.
+    return resposta({ atribuicoes: todas.filter((x) => pertenceA({ colab: x.para }, nomes) || pertenceA({ colab: x.de }, nomes)) });
   } catch {
     return indisponivel();
   }

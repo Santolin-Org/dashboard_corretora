@@ -8,7 +8,7 @@
 // Atribuição sem linha correspondente (planilha mudou) é ignorada; atribuir ao próprio colaborador não marca nada.
 import type { DataISO, Linha } from './tipos';
 import { isApolice, chaveApolice } from './situacoes';
-import { ligarRenovacoes } from './renovacoes';
+import { candidatasRenovacao, ligarRenovacoes } from './renovacoes';
 
 export type Atribuicao = { seg: string; apolice: string; fim: DataISO; para: string; de: string; por: string; em: string };
 export type Divergencia = { antiga: Linha; renovacao: Linha; para: string };
@@ -46,13 +46,23 @@ export function aplicarAtribuicoes(linhas: Linha[], atribs: Atribuicao[]): { lin
   const divergencias: Divergencia[] = [];
   const indice = new Map(linhas.map((r, i) => [r, i] as const));
   const paraDe = new Map(antigas.map(x => [linhas[x.i], x.para] as const));
-  for (const item of ligarRenovacoes(antigas.map(x => linhas[x.i]), linhas)) {
+  // Liga sobre todas as candidatas (como a aba Renovações), não só as atribuídas: com dois carros do mesmo cliente o
+  // par "prêmio mais parecido" depende do conjunto inteiro.
+  const conjunto = new Set(candidatasRenovacao(linhas));
+  for (const x of antigas) conjunto.add(linhas[x.i]);
+  for (const item of ligarRenovacoes([...conjunto], linhas)) {
     const ren = item.renovacao;
-    if (!ren) continue;
-    const para = paraDe.get(item.antiga)!;
+    const para = paraDe.get(item.antiga);
+    if (!ren || para === undefined) continue;
+    const ir = indice.get(ren)!;
+    // Vigências seguidas: a R que tem a própria atribuição (como antiga do ano seguinte) fica com ela.
+    if (marcas.get(ir)?.atrib === 'base') continue;
     const divergente = ren.colab !== para;
     if (divergente) divergencias.push({ antiga: item.antiga, renovacao: ren, para });
-    for (const j of [indice.get(ren)!, ...endossos(ren)]) marcas.set(j, { resp: para, atrib: 'renovacao', ...(divergente ? { divergente } : {}) });
+    for (const j of [ir, ...endossos(ren)]) {
+      if (marcas.get(j)?.atrib === 'base') continue;
+      marcas.set(j, { resp: para, atrib: 'renovacao', ...(divergente ? { divergente } : {}) });
+    }
   }
 
   if (!marcas.size) return { linhas, divergencias };

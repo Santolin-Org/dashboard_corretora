@@ -153,3 +153,10 @@ describe("escopo com atribuições de renovação", () => {
     expect(outra).not.toBe(com);
   });
 });
+
+describe("atribuições com nome composto", () => {
+  const at = (para: string): Atribuicao => ({ seg: "S", apolice: "A1", fim: "2026-11-10", para, de: "X", por: "g", em: "" });
+  it("atribuição para 'ANA , BIA' entra no escopo da vendedora ANA", () => {
+    expect(escopoDoUsuario({ role: "vendedor" }, ["ANA"], [at("ANA , BIA")])).toMatchObject({ atribuicoes: [at("ANA , BIA")] });
+  });
+});

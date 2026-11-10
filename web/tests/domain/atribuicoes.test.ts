@@ -86,3 +86,25 @@ describe('respDe e tipoMetaDe', () => {
     expect(tipoMetaDe({ ...v2, tipoEfetivo: 'R' })).toBe('R');
   });
 });
+
+describe('revisão final', () => {
+  it('vigências seguidas: a atribuição própria da R vence a marca herdada da antiga', () => {
+    // A1 (fim 2026) atribuída à BIA; a renovação B9 (fim 2027) atribuída ao CAIO.
+    const { linhas } = aplicarAtribuicoes([v2, r], [atrib(), atrib({ apolice: 'B9', fim: '2027-11-10', para: 'CAIO', de: 'BIA' })]);
+    expect(achar(linhas, 'B9', '2026-11-10')).toMatchObject({ resp: 'CAIO', atrib: 'base' });
+    expect(achar(linhas, 'B9', '2026-11-10').tipoEfetivo).toBeUndefined();
+    expect(achar(linhas, 'A1', '2025-11-10')).toMatchObject({ resp: 'BIA', atrib: 'base' });
+  });
+
+  it('dois carros (mesmo CPF e ramo): a ligação é a mesma da lista completa, não só das atribuídas', () => {
+    const c1 = linha({ tipo: 'N', seg: 'S', apolice: 'C1', vig: '2025-11-10', fim: '2026-11-10', colab: 'NAT', docDigits: '9', ramo: 'Auto', premio: 1000 });
+    const c2 = linha({ tipo: 'N', seg: 'S', apolice: 'C2', vig: '2025-11-10', fim: '2026-11-10', colab: 'NAT', docDigits: '9', ramo: 'Auto', premio: 1040 });
+    const r1 = linha({ tipo: 'R', seg: 'S', apolice: 'R1', vig: '2026-11-10', fim: '2027-11-10', colab: 'NAT', docDigits: '9', ramo: 'Auto', premio: 1050 });
+    const r2 = linha({ tipo: 'R', seg: 'S', apolice: 'R2', vig: '2026-11-10', fim: '2027-11-10', colab: 'CESAR', docDigits: '9', ramo: 'Auto', premio: 1300 });
+    const { linhas, divergencias } = aplicarAtribuicoes([c1, c2, r1, r2], [atrib({ apolice: 'C1', para: 'CESAR', de: 'NAT', seg: 'S' })]);
+    // A lista completa liga C2→R1 (|1050−1040| é o par mais próximo) e C1→R2; a atribuição de C1 marca R2.
+    expect(achar(linhas, 'R2', '2026-11-10')).toMatchObject({ resp: 'CESAR', atrib: 'renovacao' });
+    expect(achar(linhas, 'R1', '2026-11-10').resp).toBeUndefined();
+    expect(divergencias).toEqual([]);
+  });
+});

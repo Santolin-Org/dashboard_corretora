@@ -34,6 +34,15 @@ beforeEach(async () => {
 });
 
 describe("/api/atribuicoes", () => {
+  it("bypass de paridade: lista vazia sem consultar o banco (o harness roda sem banco)", async () => {
+    vi.stubEnv("PARITY_AUTH_BYPASS", "1");
+    await salvarAtribuicao({ ...K, para: "BIA", de: "ANA" }, "g");
+    const r = await GET();
+    vi.unstubAllEnvs();
+    expect(r.status).toBe(200);
+    expect(await r.json()).toEqual({ atribuicoes: [] });
+  });
+
   it("sem sessão: 401", async () => {
     usuario.mockResolvedValue(null);
     for (const r of [await GET(), await PUT(req("PUT", { ...K, para: "BIA", de: "ANA" })), await DELETE(req("DELETE", K))]) expect(r.status).toBe(401);
@@ -76,5 +85,15 @@ describe("/api/atribuicoes", () => {
     usuario.mockResolvedValue(sessao("vendedor", "bia@x.com"));
     const g = await (await GET()).json();
     expect(g.atribuicoes.map((a: { apolice: string }) => a.apolice).sort()).toEqual(["A1", "A2"]);
+  });
+});
+
+describe("/api/atribuicoes com nome composto", () => {
+  it("vendedor recebe a atribuição cujo de/para é um nome composto que inclui o dele", async () => {
+    await salvarAtribuicao({ ...K, para: "CESAR", de: "ANA , BIA" }, "g");
+    await salvarAtribuicao({ ...K, apolice: "A9", para: "BIA , DAVI", de: "ANA" }, "g");
+    usuario.mockResolvedValue(sessao("vendedor", "bia@x.com"));
+    const g = await (await GET()).json();
+    expect(g.atribuicoes.map((a: { apolice: string }) => a.apolice).sort()).toEqual(["A1", "A9"]);
   });
 });

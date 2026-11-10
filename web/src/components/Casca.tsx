@@ -41,7 +41,7 @@ export function Casca({ children }: { children: ReactNode }) {
   const fecharFontes = useCallback(() => setFontesAberto(false), []);
   const podeReprocessar = usePodeReprocessar(fontesAberto);
   // Atribuições de renovação: buscadas uma vez com a base e aplicadas sobre ela (as abas recebem base.linhas marcadas).
-  const atrib = useAtribuicoes(!!base);
+  const atrib = useAtribuicoes(!!base, base);
   const aplicada = useMemo(() => (base ? comAtribuicoes(base, atrib.atribuicoes) : null), [base, atrib.atribuicoes]);
   const painel = useMemo<ValorPainel | null>(() => (aplicada ? {
     base: aplicada.base, recarregar, abrirFontes, atribuicoes: atrib.atribuicoes, divergencias: aplicada.divergencias,

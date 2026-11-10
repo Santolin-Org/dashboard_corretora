@@ -25,6 +25,14 @@ describe("useAtribuicoes", () => {
     expect(fetchMock).toHaveBeenCalledWith("/api/atribuicoes", expect.objectContaining({ credentials: "same-origin" }));
   });
 
+  it("busca de novo quando a base muda (sinal), para não ficar com a lista velha", async () => {
+    fetchMock.mockImplementation(() => json({ atribuicoes: [] }));
+    const { rerender } = renderHook(({ s }) => useAtribuicoes(true, s), { initialProps: { s: {} as unknown } });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    rerender({ s: {} });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
+  });
+
   it("não busca enquanto inativo", () => {
     renderHook(() => useAtribuicoes(false));
     expect(fetchMock).not.toHaveBeenCalled();
