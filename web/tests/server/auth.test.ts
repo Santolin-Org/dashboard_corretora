@@ -204,13 +204,15 @@ describe("decidirAcesso (proxy)", () => {
     expect(decidirAcesso("/admin/usuarios", a)).toBe("passar");
     expect(decidirAcesso("/admin/../producao", v)).not.toBe("passar");
   });
-  it("vendedor: só / e /meu-painel como páginas; só /api/dados e /api/eu como APIs", () => {
+  // Mudou de propósito (atribuição de renovações): o vendedor também lê /api/atribuicoes (só as dele; escrita é 403 na rota).
+  it("vendedor: só / e /meu-painel como páginas; só /api/dados, /api/eu e /api/atribuicoes como APIs", () => {
     const v = { ...usuario, role: "vendedor" as const };
     expect(decidirAcesso("/", v)).toBe("passar");
     for (const p of ["/visao-geral", "/producao", "/produtores", "/admin", "/admin/usuarios", "/apresentacao", "/exibicao-tv", "/meu-painelx", "/meu-painel/x"])
       expect(decidirAcesso(p, v)).toBe("meu-painel");
     expect(decidirAcesso("/api/eu", v)).toBe("passar");
-    for (const p of ["/api", "/api/admin/usuarios", "/api/reprocessar", "/api/dados/x", "/api/dadosx", "/api/eu/x"])
+    expect(decidirAcesso("/api/atribuicoes", v)).toBe("passar");
+    for (const p of ["/api", "/api/admin/usuarios", "/api/reprocessar", "/api/dados/x", "/api/dadosx", "/api/eu/x", "/api/atribuicoes/x"])
       expect(decidirAcesso(p, v)).toBe("403");
   });
   it("gestão: /admin e /api/admin (com e sem barra) dão 403; o resto passa", () => {

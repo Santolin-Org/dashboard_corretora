@@ -1,3 +1,4 @@
+import { respDe } from './responsavel';
 import type { DataISO, Linha } from './tipos';
 import { filtrarLinhas, FILTROS_VAZIOS } from './filtros';
 import { isApolice, SIT } from './situacoes';
@@ -87,11 +88,11 @@ const utcDia = (d: DataISO) => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.s
 export function aRenovar(linhas: Linha[], nomes: ReadonlySet<string>, mes: string, hoje: DataISO): { vencidas: ItemRenovar[]; aVencer: ItemRenovar[] } {
   const itens = linhas
     .filter(r => isApolice(r) && (r.tipo === 'N' || r.tipo === 'R') && r.fim.slice(0, 7) === mes
-      && (r.sit === SIT.ATIVA || r.sit === SIT.VENCIDA) && pertenceA(r, nomes))
+      && (r.sit === SIT.ATIVA || r.sit === SIT.VENCIDA) && pertenceA({ colab: respDe(r) }, nomes))
     .sort((a, b) => (a.fim < b.fim ? -1 : a.fim > b.fim ? 1 : 0))
     .map((r): ItemRenovar => {
       const dias = utcDia(r.fim) - utcDia(hoje);
-      return { cli: r.cli, ramo: r.ramo, seg: r.seg, fim: r.fim, colab: r.colab, apolice: r.apolice, dias, faixa: faixaUrgencia(dias) };
+      return { cli: r.cli, ramo: r.ramo, seg: r.seg, fim: r.fim, colab: respDe(r), apolice: r.apolice, dias, faixa: faixaUrgencia(dias) };
     });
   return { vencidas: itens.filter(i => i.fim < hoje), aVencer: itens.filter(i => i.fim >= hoje) };
 }

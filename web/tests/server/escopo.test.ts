@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { aplicarEscopo, chaveEscopo, escopoDoUsuario, podeReprocessar } from "@/server/escopo";
 import { linha } from "../domain/helpers";
+import type { Atribuicao } from "@/domain/atribuicoes";
 import { buscarUsuarioAtivo, setDb } from "@/server/db/client";
 import { users } from "@/server/db/schema";
 import { sincronizarUsuarios } from "@/server/db/seed";
@@ -121,5 +122,41 @@ describe("usuários no banco (pglite)", () => {
       ]),
     ).rejects.toThrow(/duplicado: a@exemplo.com.br/);
     expect(await buscarUsuarioAtivo("a@exemplo.com.br")).not.toBeNull();
+  });
+});
+
+describe("escopo com atribuições de renovação", () => {
+  // Fictício: apólice A1 da ANA atribuída à BIA; Z9 da ANA atribuída ao CAIO.
+  const a1 = linha({ colab: "ANA", seg: "S", apolice: "A1", vig: "2025-11-10", fim: "2026-11-10" });
+  const a1End = linha({ colab: "ANA", seg: "S", apolice: "A1", endosso: "1", tipoDoc: "ENDOSSO", tipo: "EN", vig: "2026-02-01", fim: "2026-11-10" });
+  const z9 = linha({ colab: "ANA", seg: "S", apolice: "Z9", vig: "2025-12-01", fim: "2026-12-01", docDigits: "222" });
+  const bia = linha({ colab: "BIA", apolice: "B1", docDigits: "333" });
+  const at = (apolice: string, fim: string, para: string): Atribuicao => ({ seg: "S", apolice, fim, para, de: "ANA", por: "g", em: "2026-11-10T00:00:00Z" });
+  const atribs = [at("A1", "2026-11-10", "BIA"), at("Z9", "2026-12-01", "CAIO")];
+
+  it("vendedor recebe as apólices atribuídas a ele (com endossos), não as atribuídas a outro, e sem as marcas", () => {
+    const e = escopoDoUsuario({ role: "vendedor" }, ["BIA"], atribs);
+    const ls = aplicarEscopo([a1, a1End, z9, bia], e);
+    expect(ls).toEqual([a1, a1End, bia]);
+    expect(ls.every((r) => r.resp === undefined)).toBe(true);
+  });
+  it("só as atribuições para os nomes do vendedor entram no escopo; sem elas o escopo é o de sempre", () => {
+    expect(escopoDoUsuario({ role: "vendedor" }, ["BIA"], atribs)).toEqual({ tipo: "colaboradores", nomes: ["BIA"], atribuicoes: [atribs[0]] });
+    expect(escopoDoUsuario({ role: "vendedor" }, ["DAVI"], atribs)).toEqual({ tipo: "colaboradores", nomes: ["DAVI"] });
+    expect(escopoDoUsuario({ role: "gestao" }, [], atribs)).toEqual({ tipo: "tudo" });
+  });
+  it("chaveEscopo muda quando muda a atribuição do vendedor", () => {
+    const sem = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["BIA"]));
+    const com = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["BIA"], atribs));
+    const outra = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at("A1", "2027-11-10", "BIA")]));
+    expect(com).not.toBe(sem);
+    expect(outra).not.toBe(com);
+  });
+});
+
+describe("atribuições com nome composto", () => {
+  const at = (para: string): Atribuicao => ({ seg: "S", apolice: "A1", fim: "2026-11-10", para, de: "X", por: "g", em: "" });
+  it("atribuição para 'ANA , BIA' entra no escopo da vendedora ANA", () => {
+    expect(escopoDoUsuario({ role: "vendedor" }, ["ANA"], [at("ANA , BIA")])).toMatchObject({ atribuicoes: [at("ANA , BIA")] });
   });
 });

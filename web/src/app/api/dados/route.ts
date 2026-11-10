@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { gunzipSync } from "node:zlib";
 import { NextResponse } from "next/server";
 import { usuarioDaRequisicao } from "@/server/auth";
-import { nomesDoUsuario } from "@/server/db/client";
+import { listarAtribuicoes, nomesDoUsuario } from "@/server/db/client";
+import type { Atribuicao } from "@/domain/atribuicoes";
 import { chaveEscopo, escopoDoUsuario } from "@/server/escopo";
 import { hojeDaIngestao, obterBase, temposUltimaMontagem } from "@/server/ingestao";
 import { cabecalhoServerTiming, etapasDaMontagem, type Etapa } from "@/server/tempos";
@@ -21,16 +22,17 @@ export async function GET(req: Request) {
   const u = await usuarioDaRequisicao();
   if (!u) return NextResponse.json({ erro: "Não autenticado" }, { status: 401, headers: { "Cache-Control": "no-store" } });
 
-  // Vínculos só para vendedor; banco fora → 503 (nunca cai para um escopo maior).
+  // Vínculos e atribuições só para vendedor; banco fora → 503 (nunca cai para um escopo diferente).
   let nomes: string[] = [];
+  let atribs: Atribuicao[] = [];
   if (u.role === "vendedor") {
     try {
-      nomes = await nomesDoUsuario(u.email);
+      [nomes, atribs] = await Promise.all([nomesDoUsuario(u.email), listarAtribuicoes()]);
     } catch {
       return NextResponse.json({ erro: "Banco indisponível" }, { status: 503, headers: { "Cache-Control": "no-store" } });
     }
   }
-  const escopo = escopoDoUsuario(u, nomes);
+  const escopo = escopoDoUsuario(u, nomes, atribs);
   const etapas: Etapa[] = [{ nome: "sessao", ms: performance.now() - t0, desc: "login e vínculos" }];
   const seqAntes = temposUltimaMontagem()?.seq;
   const tBase = performance.now();

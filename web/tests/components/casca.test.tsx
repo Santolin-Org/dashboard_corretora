@@ -302,6 +302,8 @@ describe("Casca: /api/eu acompanha a base", () => {
     let nomeEu = "Ana Admin", etag = "e1", dados = 0;
     const f = vi.fn(async (url: string, init?: RequestInit) => {
       if (url === "/api/eu") return new Response(JSON.stringify({ email: "a@x.com", nome: nomeEu, role: "admin", nomes: [] }), { status: 200 });
+      // Mudou de propósito (atribuição de renovações): /api/atribuicoes não conta como busca de /api/dados.
+      if (url === "/api/atribuicoes") return new Response(JSON.stringify({ atribuicoes: [] }), { status: 200 });
       dados++;
       const h = (init?.headers ?? {}) as Record<string, string>;
       if (h["If-None-Match"] === etag) return new Response(null, { status: 304 });

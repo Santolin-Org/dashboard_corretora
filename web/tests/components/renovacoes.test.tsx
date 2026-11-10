@@ -5,13 +5,20 @@ import { linha } from "../domain/helpers";
 import type { BaseCliente } from "@/client/useBase";
 import type { Linha } from "@/domain/tipos";
 
+let busca = "";
 vi.mock("next/navigation", () => ({
-  useSearchParams: () => new URLSearchParams(),
+  useSearchParams: () => new URLSearchParams(busca),
   usePathname: () => "/renovacoes",
   useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
 }));
 
+let papel: "gestao" | "admin" | "vendedor" = "gestao";
+vi.mock("@/client/usuario", () => ({
+  useUsuario: () => ({ usuario: { email: "g@x", nome: "G", role: papel, nomes: [] }, carregando: false, falhou: false, recarregar: () => {} }),
+}));
+
 import { EstadoAbasProvider } from "@/client/estadoAbas";
+import { aplicarAtribuicoes, type Atribuicao } from "@/domain/atribuicoes";
 import { FiltrosProvider } from "@/client/filtros";
 import { ContextoPainel } from "@/client/painel";
 import { ABAS, ABAS_PRODUCAO } from "@/components/Abas";
@@ -27,17 +34,22 @@ const L: Linha[] = [
 ];
 const base = (linhas: Linha[]) => ({ linhas, sinistros: [], hoje: "2026-11-09", manifesto: [], avisosSaude: [], contagensSinistros: { sinistrosAvisados: 0, sinistrosPagamentos: 0 } }) as unknown as BaseCliente;
 
-function montar(linhas = L) {
-  const b = base(linhas);
+const salvar = vi.fn(async () => {}), desfazer = vi.fn(async () => {});
+function montar(linhas = L, atribs: Atribuicao[] = [], extra: { atribuicoesErro?: boolean } = {}) {
+  const ap = aplicarAtribuicoes(linhas, atribs);
+  const b = base(ap.linhas);
   return render(
     <EstadoAbasProvider>
-      <ContextoPainel.Provider value={{ base: b, recarregar: () => {}, abrirFontes: () => {} }}>
+      <ContextoPainel.Provider value={{
+        base: b, recarregar: () => {}, abrirFontes: () => {}, atribuicoes: atribs, divergencias: ap.divergencias,
+        salvarAtribuicao: salvar, desfazerAtribuicao: desfazer, ...extra,
+      }}>
         <FiltrosProvider linhas={b.linhas}><Renovacoes /></FiltrosProvider>
       </ContextoPainel.Provider>
     </EstadoAbasProvider>,
   );
 }
-afterEach(() => cleanup());
+afterEach(() => { cleanup(); papel = "gestao"; salvar.mockClear(); desfazer.mockClear(); });
 
 describe("aba Renovações", () => {
   it("está no menu e é uma aba de produção", () => {
@@ -114,5 +126,60 @@ describe("aba Renovações", () => {
     expect(nomes()).toEqual(["Pedro Aberto"]);
     // Os cards não mudam com o filtro da lista.
     expect(container.querySelector("#renov-kpis")!.textContent!.replace(/\u00a0/g, " ")).toContain("1 de 3");
+  });
+
+  describe("atribuição de renovações", () => {
+    // Fictício: B1 (Maria, colab "C" da planilha) atribuída a BIA; A1 (José) atribuída a CAIO, e a R dele saiu no nome "C".
+    const at = (apolice: string, fim: string, para: string): Atribuicao => ({ seg: "Allianz", apolice, fim, para, de: "C", por: "g", em: "2026-11-10T00:00:00Z" });
+    const ATRIBS = [at("B1", "2026-11-07", "BIA - EQUIPE"), at("A1", "2026-11-05", "CAIO")];
+    const linhaDe = (nome: string) => within(screen.getByRole("table")).getAllByRole("row").find((r) => r.textContent!.includes(nome))!;
+
+    it("gestão atribui pelo botão da linha: escolhe o colaborador e salva", async () => {
+      montar(L.concat([linha({ colab: "BIA - EQUIPE", apolice: "X", fim: "2020-01-01" })]));
+      fireEvent.click(within(linhaDe("Pedro Aberto")).getByRole("button", { name: "Atribuir" }));
+      fireEvent.change(screen.getByLabelText("Novo responsável"), { target: { value: "BIA - EQUIPE" } });
+      fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+      await vi.waitFor(() => expect(salvar).toHaveBeenCalledWith({ seg: "Allianz", apolice: "C1", fim: "2026-11-25", para: "BIA - EQUIPE", de: "C" }));
+    });
+
+    it("vendedor não vê o botão Atribuir nem o aviso de divergências", () => {
+      papel = "vendedor";
+      montar(L, ATRIBS);
+      expect(screen.queryByRole("button", { name: "Atribuir" })).toBeNull();
+      expect(screen.queryByText(/saiu no nome de outro colaborador|saíram no nome de outro colaborador/)).toBeNull();
+    });
+
+    it("linha atribuída mostra o responsável, o selo e volta ao original", async () => {
+      montar(L, ATRIBS);
+      const maria = linhaDe("Maria Venceu");
+      expect(maria.children[3].textContent).toContain("BIA");
+      expect(within(maria).getByText("atribuída").getAttribute("title")).toBe("Na planilha: C");
+      fireEvent.click(within(maria).getByRole("button", { name: "Atribuir" }));
+      fireEvent.click(screen.getByRole("button", { name: "Voltar ao original" }));
+      await vi.waitFor(() => expect(desfazer).toHaveBeenCalledWith({ seg: "Allianz", apolice: "B1", fim: "2026-11-07" }));
+    });
+
+    it("aviso de divergências com contagem e filtro só para elas", () => {
+      montar(L, ATRIBS);
+      expect(screen.getByText("1 renovação saiu no nome de outro colaborador.")).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Ver divergências" }));
+      const linhas = within(screen.getByRole("table")).getAllByRole("row").slice(1);
+      expect(linhas).toHaveLength(1);
+      expect(linhas[0].textContent).toContain("José Renovou");
+      expect(within(linhas[0]).getByText(/divergente/).getAttribute("title")).toBe("Renovação no nome de C; atribuída a CAIO");
+    });
+
+    it("filtro de colaborador global usa o responsável atribuído", () => {
+      busca = `f=${encodeURIComponent(JSON.stringify({ col: ["CAIO"] }))}`;
+      montar(L, ATRIBS);
+      const nomes = within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => r.children[0].textContent);
+      busca = "";
+      expect(nomes).toEqual(["José Renovou"]);
+    });
+
+    it("sem as atribuições (banco fora), a gestão vê o aviso", () => {
+      montar(L, [], { atribuicoesErro: true });
+      expect(screen.getByText(/Não foi possível carregar as atribuições/)).toBeTruthy();
+    });
   });
 });

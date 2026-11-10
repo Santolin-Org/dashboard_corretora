@@ -32,7 +32,11 @@ const fetchMock = vi.fn();
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "setTimeout", "clearTimeout", "Date"] });
   vi.setSystemTime(new Date("2026-10-20T15:07:00Z"));
-  fetchMock.mockReset(); signIn.mockReset(); vi.stubGlobal("fetch", fetchMock);
+  fetchMock.mockReset(); signIn.mockReset();
+  // Mudou de propósito (atribuição de renovações): a Casca também busca /api/atribuicoes; ela responde à parte para
+  // não consumir as respostas enfileiradas de /api/dados.
+  vi.stubGlobal("fetch", (url: string, init?: RequestInit) =>
+    url === "/api/atribuicoes" ? Promise.resolve(new Response(JSON.stringify({ atribuicoes: [] }), { status: 200 })) : fetchMock(url, init));
   window.history.replaceState(null, "", "/visao-geral?f=%7B%22seg%22%3A%5B%22Allianz%22%5D%7D");
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
