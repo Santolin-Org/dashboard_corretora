@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { linha } from './helpers';
 import { FILTROS_VAZIOS, type FiltrosGlobais } from '../../src/domain/filtros';
+import { aplicarAtribuicoes } from '../../src/domain/atribuicoes';
 import {
   buscarRenovacoes, cardsRenovacoes, filtrarSituacaoRenov, chegaramParaRenovar, dadosRenovacoes, ligarRenovacoes, periodoRenovacoes, renovacoesDoPeriodo,
 } from '../../src/domain/renovacoes';
@@ -164,5 +165,33 @@ describe('filtrarSituacaoRenov', () => {
     expect(ap('renovada')).toEqual(['ren']);
     expect(ap('vencida')).toEqual(['v']);
     expect(ap('em-aberto')).toEqual(['ab']);
+  });
+});
+
+describe('atribuições na aba Renovações', () => {
+  // Fictício: OLD1 da ANA atribuída à BIA; a R ligada saiu no nome do CAIO (divergente).
+  const at = { seg: 'Allianz', apolice: 'OLD1', fim: '2026-11-10', para: 'BIA', de: 'ANA', por: 'g', em: '2026-11-10T00:00:00Z' };
+  const base = () => aplicarAtribuicoes([antiga({ colab: 'ANA' }), renov({ colab: 'CAIO' }), antiga({ apolice: 'OUTRA', colab: 'ANA', docDigits: '5' })], [at]).linhas;
+  it('com filtro de colaborador, a antiga atribuída conta para o novo responsável, e a R ligada também', () => {
+    const l = base();
+    expect(chegaramParaRenovar(l, f({ col: ['BIA'] }), NOV).map(r => r.apolice)).toEqual(['OLD1']);
+    expect(chegaramParaRenovar(l, f({ col: ['ANA'] }), NOV).map(r => r.apolice)).toEqual(['OUTRA']);
+    expect(renovacoesDoPeriodo(l, f({ col: ['BIA'] }), NOV).map(r => r.apolice)).toEqual(['NEW1']);
+    expect(renovacoesDoPeriodo(l, f({ col: ['CAIO'] }), NOV)).toEqual([]);
+  });
+  it('item divergente quando a R ligada à atribuída saiu no nome de outro, e o filtro de situação "divergente"', () => {
+    const d = dadosRenovacoes(base(), f({ vigIni: NOV.start, vigFim: NOV.end }), '2026-11-09');
+    const old = d.itens.find(i => i.antiga.apolice === 'OLD1')!;
+    expect(old.divergente).toBe(true);
+    expect(d.itens.find(i => i.antiga.apolice === 'OUTRA')!.divergente).toBe(false);
+    expect(filtrarSituacaoRenov(d.itens, 'divergente').map(i => i.antiga.apolice)).toEqual(['OLD1']);
+  });
+});
+
+describe('busca com atribuição', () => {
+  it('encontra pelo responsável atribuído', () => {
+    const at = { seg: 'Allianz', apolice: 'OLD1', fim: '2026-11-10', para: 'ZULEICA', de: 'C', por: 'g', em: '' };
+    const itens = ligarRenovacoes(aplicarAtribuicoes([antiga()], [at]).linhas, []);
+    expect(buscarRenovacoes(itens, 'zuleica')).toHaveLength(1);
   });
 });

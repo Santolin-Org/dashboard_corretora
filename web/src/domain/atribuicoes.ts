@@ -14,8 +14,7 @@ export type Atribuicao = { seg: string; apolice: string; fim: DataISO; para: str
 export type Divergencia = { antiga: Linha; renovacao: Linha; para: string };
 
 export const chaveAtribuicao = (a: { seg: string; apolice: string; fim: DataISO }): string => `${a.seg}|${a.apolice}|${a.fim}`;
-export const respDe = (r: Linha): string => r.resp ?? r.colab;
-export const tipoMetaDe = (r: Linha): string => r.tipoEfetivo ?? r.tipo;
+export { respDe, tipoMetaDe } from './responsavel';
 
 const TIPO_BASE: Record<string, string> = { N: 'R', EN: 'ER' };
 

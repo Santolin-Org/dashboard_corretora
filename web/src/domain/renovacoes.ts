@@ -13,10 +13,12 @@
 import type { DataISO, Linha } from './tipos';
 import type { FiltrosGlobais } from './filtros';
 import { SIT, isApolice } from './situacoes';
+import { respDe } from './responsavel';
 
 export type PeriodoRenov = { start: DataISO; end: DataISO };
 export type SituacaoRenov = 'renovada' | 'vencida' | 'em-aberto';
-export type ItemRenovacao = { antiga: Linha; renovacao: Linha | null; situacao: SituacaoRenov };
+/** `divergente`: a antiga foi atribuída e a R ligada saiu no nome de outro colaborador (domain/atribuicoes.ts). */
+export type ItemRenovacao = { antiga: Linha; renovacao: Linha | null; situacao: SituacaoRenov; divergente: boolean };
 type Totais = { premio: number; com: number; qtd: number };
 type TotaisPct = { premio: number | null; com: number | null; qtd: number | null };
 export type CardsRenovacoes = {
@@ -40,7 +42,8 @@ export function periodoRenovacoes(f: Pick<FiltrosGlobais, 'vigIni' | 'vigFim'>, 
 
 function escopo(f: FiltrosGlobais): (r: Linha) => boolean {
   const col = new Set(f.col), grp = new Set(f.grp), ram = new Set(f.ram), seg = new Set(f.seg);
-  return r => (!col.size || col.has(r.colab)) && (!grp.size || grp.has(r.grp)) && (!ram.size || ram.has(r.ramo)) && (!seg.size || seg.has(r.seg));
+  // Colaborador pelo responsável efetivo: a apólice atribuída conta para quem cuida dela agora.
+  return r => (!col.size || col.has(respDe(r))) && (!grp.size || grp.has(r.grp)) && (!ram.size || ram.has(r.ramo)) && (!seg.size || seg.has(r.seg));
 }
 
 const dentro = (d: DataISO, p: PeriodoRenov) => !!d && d >= p.start && d <= p.end;
@@ -85,7 +88,7 @@ export function ligarRenovacoes(antigas: Linha[], todas: Linha[]): ItemRenovacao
     .map((antiga, i): ItemRenovacao => {
       const renovacao = ligada.get(i) ?? null;
       const situacao: SituacaoRenov = renovacao || antiga.sit === SIT.RENOVADA ? 'renovada' : antiga.sit === SIT.VENCIDA ? 'vencida' : 'em-aberto';
-      return { antiga, renovacao, situacao };
+      return { antiga, renovacao, situacao, divergente: !!renovacao?.divergente };
     })
     .sort((x, y) => x.antiga.fim.localeCompare(y.antiga.fim) || x.antiga.cli.localeCompare(y.antiga.cli, 'pt-BR'));
 }
@@ -104,9 +107,11 @@ export function cardsRenovacoes(itens: ItemRenovacao[], renovacoes: Linha[]): Ca
   };
 }
 
-/** Filtro de situação da lista ('' = todas). */
-export function filtrarSituacaoRenov(itens: ItemRenovacao[], situacao: SituacaoRenov | ''): ItemRenovacao[] {
-  return situacao ? itens.filter(i => i.situacao === situacao) : itens;
+/** Filtro da lista: situação, 'divergente' (R no nome de outro colaborador) ou '' = todas. */
+export type FiltroListaRenov = SituacaoRenov | 'divergente' | '';
+export function filtrarSituacaoRenov(itens: ItemRenovacao[], filtro: FiltroListaRenov): ItemRenovacao[] {
+  if (!filtro) return itens;
+  return itens.filter(i => (filtro === 'divergente' ? i.divergente : i.situacao === filtro));
 }
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -118,7 +123,7 @@ export function buscarRenovacoes(itens: ItemRenovacao[], termo: string): ItemRen
   const digitos = /^[\d.\-/\s]+$/.test(t) ? t.replace(/\D/g, '') : '';
   return itens.filter(({ antiga: a, renovacao: r }) => {
     if (digitos && a.docDigits.includes(digitos)) return true;
-    return [a.cli, a.docDigits, a.apolice, r?.apolice ?? '', a.seg, a.ramo, a.colab].some(c => normalizar(c).includes(t));
+    return [a.cli, a.docDigits, a.apolice, r?.apolice ?? '', a.seg, a.ramo, a.colab, a.resp ?? ''].some(c => normalizar(c).includes(t));
   });
 }
 

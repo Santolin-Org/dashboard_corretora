@@ -40,3 +40,29 @@
   font-size: 11px;
   color: var(--text-secondary);
 }
+
+.atribuir {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.erroAtribuir { color: #b91c1c; }
+
+.seloAtribuida { background: #e0e7ff; color: #3730a3; margin-left: 4px; }
+.seloDivergente { background: #ffedd5; color: #c2410c; margin-left: 4px; }
+
+.aviso {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: var(--r-md, 6px);
+  border: 1px solid #fdba74;
+  background: rgba(251, 146, 60, .12);
+  font-size: 12px;
+}
