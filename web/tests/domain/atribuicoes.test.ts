@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { linha } from './helpers';
+import type { Linha } from '../../src/domain/tipos';
 import { aplicarAtribuicoes, chaveAtribuicao, respDe, tipoMetaDe, type Atribuicao } from '../../src/domain/atribuicoes';
 
 // Nomes e valores fictícios. A1: apólice da ANA, vigência 2025-11-10 → 2026-11-10 (a que chega para renovar).
@@ -11,7 +12,7 @@ const er = linha({ tipo: 'ER', seg: 'SegX', apolice: 'B9', endosso: '1', tipoDoc
 const outra = linha({ apolice: 'Z1', colab: 'CAIO', docDigits: '999' });
 
 const atrib = (o: Partial<Atribuicao> = {}): Atribuicao => ({ seg: 'SegX', apolice: 'A1', fim: '2026-11-10', para: 'BIA', de: 'ANA', por: 'gestor@x', em: '2026-11-10T10:00:00Z', ...o });
-const achar = (ls: { apolice: string; vig: string; tipo: string }[], apolice: string, vig: string, tipo?: string) => ls.find(l => l.apolice === apolice && l.vig === vig && (!tipo || l.tipo === tipo))!;
+const achar = (ls: Linha[], apolice: string, vig: string, tipo?: string) => ls.find(l => l.apolice === apolice && l.vig === vig && (!tipo || l.tipo === tipo))!;
 
 describe('chaveAtribuicao', () => {
   it('seguradora | apólice | fim', () => expect(chaveAtribuicao({ seg: 'S', apolice: 'A', fim: '2026-01-02' })).toBe('S|A|2026-01-02'));

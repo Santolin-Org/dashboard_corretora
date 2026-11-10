@@ -233,7 +233,7 @@ export type Decisao = "passar" | "401" | "403" | "entrar" | "meu-painel";
 const ehApi = (p: string) => p === "/api" || p.startsWith("/api/");
 const sob = (p: string, base: string) => p === base || p.startsWith(`${base}/`);
 const PAGINAS_VENDEDOR = new Set(["/", "/meu-painel"]);
-const APIS_VENDEDOR = new Set(["/api/dados", "/api/eu"]);
+const APIS_VENDEDOR = new Set(["/api/dados", "/api/eu", "/api/atribuicoes"]);
 
 /** Regras por papel, na ordem. Caminho com ".." nunca passa. */
 export function decidirAcesso(pathname: string, usuario: Sessao | null): Decisao {

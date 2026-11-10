@@ -6,10 +6,10 @@ import { join } from "node:path";
 import { gerarFixture } from "../../parity/fixtures/make-fixture";
 
 vi.mock("@/server/auth", () => ({ usuarioDaRequisicao: vi.fn() }));
-vi.mock("@/server/db/client", () => ({ nomesDoUsuario: vi.fn() }));
+vi.mock("@/server/db/client", () => ({ nomesDoUsuario: vi.fn(), listarAtribuicoes: vi.fn() }));
 
 import { usuarioDaRequisicao } from "@/server/auth";
-import { nomesDoUsuario } from "@/server/db/client";
+import { listarAtribuicoes, nomesDoUsuario } from "@/server/db/client";
 import { obterBase, definirDependencias, reiniciarIngestao } from "@/server/ingestao";
 import { criarArmazemMemoria } from "@/server/snapshots";
 import { PastaLocalFonte } from "@/server/fontes/pasta-local";
@@ -20,6 +20,7 @@ import type { ArquivoMeta, FonteArquivos } from "@/server/fontes/tipos";
 
 const usuario = vi.mocked(usuarioDaRequisicao);
 const nomes = vi.mocked(nomesDoUsuario);
+const atribs = vi.mocked(listarAtribuicoes);
 const ANA = "ANA CLARA MENDES", BRUNO = "BRUNO TAVARES";
 const sessao = (role: "admin" | "gestao" | "vendedor", email = "a@b") => ({ email, nome: "A", role, expiraEm: 9e9 });
 const req = (h: Record<string, string> = {}) => new Request("http://x/api/dados", { headers: h });
@@ -36,6 +37,8 @@ beforeEach(() => {
   usuario.mockReset();
   nomes.mockReset();
   nomes.mockResolvedValue([]);
+  atribs.mockReset();
+  atribs.mockResolvedValue([]);
 });
 afterEach(() => {
   definirDependencias(null);
@@ -127,6 +130,30 @@ describe("GET /api/dados", () => {
     expect(r.status).toBe(503);
     expect(r.headers.get("cache-control")).toBe("no-store");
     expect(await r.json()).toEqual({ erro: "Banco indisponível" });
+  });
+
+  it("vendedor recebe a apólice de outro atribuída a ele, e a atribuição muda o ETag", async () => {
+    usuario.mockResolvedValue(sessao("vendedor", "ana@x"));
+    nomes.mockResolvedValue([ANA]);
+    const b = await obterBase();
+    const alvo = b.linhas.find((x) => x.colab === BRUNO && x.tipoDoc === "APÓLICE" && !x.endosso && x.fim)!;
+    expect(alvo).toBeTruthy();
+    const r0 = await GET(req());
+    const e0 = r0.headers.get("etag");
+    expect(decodificarLinhas((await r0.json()).linhas)).not.toContainEqual(alvo);
+    atribs.mockResolvedValue([{ seg: alvo.seg, apolice: alvo.apolice, fim: alvo.fim, para: ANA, de: BRUNO, por: "g", em: "2026-11-10T00:00:00Z" }]);
+    const r1 = await GET(req({ "if-none-match": e0! }));
+    expect(r1.status).toBe(200);
+    expect(r1.headers.get("etag")).not.toBe(e0);
+    expect(decodificarLinhas((await r1.json()).linhas)).toContainEqual(alvo);
+  });
+
+  it("banco fora ao ler as atribuições: 503, nunca um escopo sem elas", async () => {
+    usuario.mockResolvedValue(sessao("vendedor", "ana@x"));
+    nomes.mockResolvedValue([ANA]);
+    atribs.mockRejectedValue(new Error("sem banco"));
+    const r = await GET(req());
+    expect(r.status).toBe(503);
   });
 
   it("gestão e admin não consultam os vínculos", async () => {
