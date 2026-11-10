@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, renderHook, waitFor, act } from "@testing-library/react";
 import type { BaseCliente } from "@/client/useBase";
+import { definirMemoriaBase } from "@/client/memoriaBase";
 
 let rota = "/producao";
 const push = vi.fn();
@@ -78,14 +79,19 @@ describe("BarraLateral", () => {
     render(<BarraLateral usuario={ADMIN} base={base} />);
     expect(screen.getByRole("link", { name: /Usuários e vínculos/ }).getAttribute("aria-current")).toBe("page");
   });
-  it("marca SANTOLIN / Dashboard e pé com nome, papel e Sair (signOut para /entrar)", () => {
+  // Mudou de propósito: Sair agora apaga antes a cópia da base salva no navegador, então o signOut vem depois (assíncrono).
+  it("marca SANTOLIN / Dashboard e pé com nome, papel e Sair (apaga a base salva, depois signOut para /entrar)", async () => {
+    const apagar = vi.fn(async () => {});
+    definirMemoriaBase({ disponivel: () => true, ler: async () => null, gravar: async () => {}, apagar });
     render(<BarraLateral usuario={ADMIN} base={base} />);
     expect(screen.getByText("Santolin")).toBeTruthy();
     expect(screen.getByText("Dashboard")).toBeTruthy();
     expect(screen.getByText("Mitzrael Tassinari")).toBeTruthy();
     expect(screen.getByText("admin")).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: "Sair" }));
-    expect(signOut).toHaveBeenCalledWith({ callbackUrl: "/entrar" });
+    await waitFor(() => expect(signOut).toHaveBeenCalledWith({ callbackUrl: "/entrar" }));
+    expect(apagar).toHaveBeenCalled();
+    definirMemoriaBase(null);
   });
   it("vendedor vê só Resumo pessoal", () => {
     rota = "/meu-painel";
