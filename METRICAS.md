@@ -489,6 +489,30 @@ que entraram nele, e lista apólice por apólice com a renovação de cada uma
 - **Filtro da lista:** botões Todas / Renovadas / Vencidas / Em aberto (com a contagem de
   cada um), combinados com a busca. Só a lista muda; os cards continuam com o período inteiro.
 
+## 6.3 Atribuição de renovações
+
+Desde 10/11/2026 a gestão (gestão/admin) pode atribuir, **apólice por apólice**, quem cuida da
+renovação, na lista da aba Renovações (botão *Atribuir*; *Voltar ao original* desfaz). Spec:
+`docs/superpowers/specs/2026-11-10-atribuicao-renovacoes-design.md`; regra em
+`web/src/domain/atribuicoes.ts`.
+
+- **Chave:** seguradora + número da apólice + **fim de vigência** (a vigência que chega para
+  renovar). Atribuir não muda a planilha; fica no banco (`atribuicoes_renovacao`, com histórico em
+  `atribuicoes_historico`: quem e quando).
+- **Base (apólice antiga + endossos da vigência):** sai do colaborador da planilha e passa para o
+  atribuído; para ele conta sempre como **renovação** (N → R, EN → ER).
+- **Renovação emitida** (a R ligada por CPF/CNPJ + ramo + vigência, e seus endossos): conta para o
+  atribuído. Se saiu no nome de outro colaborador, é **divergência**: aviso no topo da aba
+  Renovações (só gestão), selo *divergente* na linha e o filtro *Divergentes*.
+- **Onde vale:** filtro de colaborador da aba Renovações; Metas (base, realizado, tabela por
+  colaborador e botões de tipo pelo tipo efetivo); filtro de colaborador do Comparativo (período
+  atual, ano anterior e safra da taxa de renovação); lista *A renovar* do painel do produtor (o
+  vendedor recebe as apólices atribuídas a ele).
+- **Onde não vale:** Produção, Visão geral, Retenção, Cross-sell, Exibição TV, Apresentação e o
+  KPI *produtores ativos* do Comparativo — a produção histórica continua de quem produziu.
+- Atribuição cuja vigência não existe mais na planilha (reexportada com outra data) é ignorada
+  nos cálculos, mas continua no banco.
+
 ## 7. Pendências e decisões em aberto
 
 - **Prêmio em risco (Comparativo)** ainda soma as canceladas que começaram no

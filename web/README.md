@@ -93,6 +93,10 @@ novo não desfaz o que foi feito na tela.
 Deploy: a migration `0001` (tabelas `vinculos` e `nomes_ignorados`) precisa de `npm run db:migrate` no banco de
 produção antes de subir esta versão. Quem roda é o Mitz.
 
+A migration `0002` (tabelas `atribuicoes_renovacao` e `atribuicoes_historico`, atribuição de renovações) também
+precisa de `npm run db:migrate` em produção antes de publicar a versão que a usa. Sem ela, `/api/atribuicoes` responde
+503, a aba Renovações avisa a gestão e o vendedor fica sem `/api/dados` (503) até a migração rodar.
+
 ## Harness de paridade
 
 Compara o app antigo (carregado do `index.html` da raiz, com as planilhas injetadas como o `_spFetchAndLoad` faz) com
