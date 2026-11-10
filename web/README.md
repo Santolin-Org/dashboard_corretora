@@ -191,6 +191,22 @@ comprimido e sem streaming, a base caberia até perto de 380 mil linhas (na prop
 confirmação com a base real é o passo "Tamanho de `/api/dados`" de `docs/deploy-checklist.md` §e; se falhar, a saída
 é dividir `/api/dados` por ano ou mover agregações para o servidor (spec §5.3).
 
+## Ambiente de desenvolvimento (`dev-bi.santolinseguros.com.br`)
+
+Endereço fixo para testar antes da produção. Fluxo: trabalho em branch → PR para `dev` (ou push direto em `dev`) →
+publica em `dev-bi.santolinseguros.com.br` → conferido, PR de `dev` (ou da branch) para `main` → produção.
+
+- **Vercel (`dash-next`):** o domínio `dev-bi.santolinseguros.com.br` está ligado à branch `dev` (Settings → Domains).
+  É um deploy de *preview*: `VERCEL_ENV=preview`.
+- **Faixa na tela:** fora da produção aparece "Ambiente de desenvolvimento" no topo (`AvisoAmbiente`).
+- **Cópias das planilhas (Blob):** o preview grava em `snapshots-preview/`, separado de `snapshots/` da produção
+  (`prefixoSnapshots`). Reprocessar no dev não apaga as cópias da produção.
+- **Banco:** a branch `dev` usa uma branch própria do Neon (variável `DATABASE_URL` com escopo Preview + branch `dev`).
+  Sem ela, o preview usaria o banco da produção. Migrações novas rodam primeiro no Neon de dev.
+- **Login e SharePoint:** as variáveis `AUTH_*` e `AZURE_*` precisam existir também em Preview (branch `dev`), e o
+  app do Entra ID precisa do redirect `https://dev-bi.santolinseguros.com.br/api/auth/callback/microsoft-entra-id`.
+- **DNS (Cloudflare):** `CNAME dev-bi` → o destino que a Vercel indicar, com o proxy desligado (nuvem cinza).
+
 ## Pendências antes de virar o domínio
 
 Ver `docs/deploy-checklist.md`. Resumo: Azure/Vercel/Neon/Blob e seed (Mitz); planilhas reais e `regressao:real` com
