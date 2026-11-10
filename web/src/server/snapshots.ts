@@ -81,10 +81,16 @@ export function criarArmazemLocal(dir: string): ArmazemSnapshots {
   };
 }
 
-const PREFIXO_BLOB = "snapshots/";
+/** Prefixo das cópias no Blob por ambiente. Produção (e local) mantém "snapshots/"; preview/dev usam o próprio
+ *  ("snapshots-preview/"), porque o Blob é o mesmo: sem isso, um "reprocessar" no dev apagaria as cópias da produção
+ *  e um formato novo em teste seria lido pela produção. */
+export function prefixoSnapshots(env: Record<string, string | undefined> = process.env): string {
+  const amb = env.VERCEL_ENV;
+  return !amb || amb === "production" ? "snapshots/" : `snapshots-${amb}/`;
+}
 
 /** Vercel Blob privado (BLOB_READ_WRITE_TOKEN). */
-export function criarArmazemBlob(): ArmazemSnapshots {
+export function criarArmazemBlob(PREFIXO_BLOB: string = prefixoSnapshots()): ArmazemSnapshots {
   const caminho = (c: string) => PREFIXO_BLOB + encodeURIComponent(c);
   return {
     async ler(c) {

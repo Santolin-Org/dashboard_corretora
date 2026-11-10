@@ -9,6 +9,7 @@ import { usePodeReprocessar } from "@/client/podeReprocessar";
 import { ContextoPainel, usePainel, type ValorPainel } from "@/client/painel";
 import { useUsuario, type Usuario } from "@/client/usuario";
 import { AvisoSessao, AvisoSemConexao } from "./AvisoSessao";
+import { AvisoAmbiente } from "./AvisoAmbiente";
 import { ABAS } from "./Abas";
 import { BarraLateral } from "./BarraLateral";
 import { Cabecalho, textoRecBadge } from "./Cabecalho";
@@ -82,6 +83,7 @@ export function Casca({ children }: { children: ReactNode }) {
     // O estado de UI das abas fica acima das rotas: sobrevive à troca de aba (como o DOM do app antigo).
     <EstadoAbasProvider>
       <ModoTvEfeito />
+      <AvisoAmbiente ambiente={process.env.NEXT_PUBLIC_VERCEL_ENV} />
       {base && estado === "sessao-expirada" && <AvisoSessao desde={ultimaBoaEm} />}
       {base && estado !== "sessao-expirada" && semConexaoDesde !== undefined && <AvisoSemConexao desde={semConexaoDesde} />}
       {conteudo}
