@@ -1,4 +1,5 @@
 "use client";
+import { comAtribuicoes, useAtribuicoes } from "@/client/atribuicoes";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useBase } from "@/client/useBase";
@@ -39,7 +40,13 @@ export function Casca({ children }: { children: ReactNode }) {
   const abrirFontes = useCallback(() => setFontesAberto(true), []);
   const fecharFontes = useCallback(() => setFontesAberto(false), []);
   const podeReprocessar = usePodeReprocessar(fontesAberto);
-  const painel = useMemo<ValorPainel | null>(() => (base ? { base, recarregar, abrirFontes } : null), [base, recarregar, abrirFontes]);
+  // Atribuições de renovação: buscadas uma vez com a base e aplicadas sobre ela (as abas recebem base.linhas marcadas).
+  const atrib = useAtribuicoes(!!base);
+  const aplicada = useMemo(() => (base ? comAtribuicoes(base, atrib.atribuicoes) : null), [base, atrib.atribuicoes]);
+  const painel = useMemo<ValorPainel | null>(() => (aplicada ? {
+    base: aplicada.base, recarregar, abrirFontes, atribuicoes: atrib.atribuicoes, divergencias: aplicada.divergencias,
+    atribuicoesErro: atrib.erro, salvarAtribuicao: atrib.salvar, desfazerAtribuicao: atrib.desfazer,
+  } : null), [aplicada, recarregar, abrirFontes, atrib.atribuicoes, atrib.erro, atrib.salvar, atrib.desfazer]);
 
   let conteudo: ReactNode;
   if (!base || !painel) {
@@ -65,7 +72,7 @@ export function Casca({ children }: { children: ReactNode }) {
   } else {
     conteudo = (
       <ContextoPainel.Provider value={painel}>
-        <FiltrosProvider linhas={base.linhas}>
+        <FiltrosProvider linhas={painel.base.linhas}>
           <Painel usuario={usuario} carregandoUsuario={carregandoUsuario}>{children}</Painel>
         </FiltrosProvider>
       </ContextoPainel.Provider>
