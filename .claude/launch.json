@@ -15,6 +15,15 @@
       "port": 5500
     },
     {
+      "name": "web-local",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd web && PARITY_AUTH_BYPASS=1 TZ=America/Sao_Paulo npm run dev -- -p 3000"
+      ],
+      "port": 3000
+    },
+    {
       "name": "dashboard-py",
       "runtimeExecutable": "python3",
       "runtimeArgs": [
