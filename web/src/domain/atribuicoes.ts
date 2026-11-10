@@ -1,0 +1,61 @@
+// Atribuição de renovações (spec: docs/superpowers/specs/2026-11-10-atribuicao-renovacoes-design.md).
+// Um gestor atribui a VIGÊNCIA de uma apólice que chega para renovar (seguradora + número + fim) a outro
+// colaborador. Isso marca, sem tocar em `colab`:
+// - a base: a apólice dessa vigência e os endossos dela (mesmo seg|apólice, início em [vig, fim)) — `resp` = novo
+//   responsável, `atrib` = 'base' e `tipoEfetivo` R/ER (para o novo responsável ela é carteira que renova);
+// - a renovação: a R ligada à antiga (ligarRenovacoes: CPF/CNPJ + ramo + vigência) e os endossos dela — `resp` =
+//   novo responsável, `atrib` = 'renovacao'; se a R saiu no nome de outro, `divergente` e entra em `divergencias`.
+// Atribuição sem linha correspondente (planilha mudou) é ignorada; atribuir ao próprio colaborador não marca nada.
+import type { DataISO, Linha } from './tipos';
+import { isApolice, chaveApolice } from './situacoes';
+import { ligarRenovacoes } from './renovacoes';
+
+export type Atribuicao = { seg: string; apolice: string; fim: DataISO; para: string; de: string; por: string; em: string };
+export type Divergencia = { antiga: Linha; renovacao: Linha; para: string };
+
+export const chaveAtribuicao = (a: { seg: string; apolice: string; fim: DataISO }): string => `${a.seg}|${a.apolice}|${a.fim}`;
+export const respDe = (r: Linha): string => r.resp ?? r.colab;
+export const tipoMetaDe = (r: Linha): string => r.tipoEfetivo ?? r.tipo;
+
+const TIPO_BASE: Record<string, string> = { N: 'R', EN: 'ER' };
+
+export function aplicarAtribuicoes(linhas: Linha[], atribs: Atribuicao[]): { linhas: Linha[]; divergencias: Divergencia[] } {
+  if (!atribs.length) return { linhas, divergencias: [] };
+  const porApolice = new Map<string, number[]>();
+  linhas.forEach((r, i) => {
+    const k = chaveApolice(r);
+    (porApolice.get(k) ?? porApolice.set(k, []).get(k)!).push(i);
+  });
+  const marcas = new Map<number, Partial<Linha>>();
+  // Endossos da vigência [inicio, fim) da apólice `ap` (a própria apólice fica de fora: é marcada à parte).
+  const endossos = (ap: Linha) => (porApolice.get(chaveApolice(ap)) ?? []).filter(i => {
+    const e = linhas[i];
+    return !isApolice(e) && !!e.vig && e.vig >= ap.vig && e.vig < ap.fim;
+  });
+
+  const antigas: { i: number; para: string }[] = [];
+  for (const a of atribs) {
+    const i = (porApolice.get(`${a.seg}|${a.apolice}`) ?? []).find(j => isApolice(linhas[j]) && linhas[j].fim === a.fim);
+    if (i === undefined || linhas[i].colab === a.para) continue;
+    antigas.push({ i, para: a.para });
+    for (const j of [i, ...endossos(linhas[i])]) {
+      const t = TIPO_BASE[linhas[j].tipo];
+      marcas.set(j, { resp: a.para, atrib: 'base', ...(t ? { tipoEfetivo: t } : {}) });
+    }
+  }
+
+  const divergencias: Divergencia[] = [];
+  const indice = new Map(linhas.map((r, i) => [r, i] as const));
+  const paraDe = new Map(antigas.map(x => [linhas[x.i], x.para] as const));
+  for (const item of ligarRenovacoes(antigas.map(x => linhas[x.i]), linhas)) {
+    const ren = item.renovacao;
+    if (!ren) continue;
+    const para = paraDe.get(item.antiga)!;
+    const divergente = ren.colab !== para;
+    if (divergente) divergencias.push({ antiga: item.antiga, renovacao: ren, para });
+    for (const j of [indice.get(ren)!, ...endossos(ren)]) marcas.set(j, { resp: para, atrib: 'renovacao', ...(divergente ? { divergente } : {}) });
+  }
+
+  if (!marcas.size) return { linhas, divergencias };
+  return { linhas: linhas.map((r, i) => (marcas.has(i) ? { ...r, ...marcas.get(i) } : r)), divergencias };
+}

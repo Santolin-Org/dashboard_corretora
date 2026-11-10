@@ -8,5 +8,9 @@ export type Linha = {
   vigLocal?: DataISO; emLocal?: DataISO;
   /** Instante (ms) exato do Date de r.vig do app antigo; só o Cross-sell usa (tempo desde a 1ª vigência). Ausente em linhas que não vêm da produção (saúde criada à parte). */
   vigMs?: number;
+  /** Atribuição de renovação (domain/atribuicoes.ts): responsável efetivo, lado (vigência que chega para renovar ou a
+   *  renovação ligada), tipo efetivo na base (N→R, EN→ER) e R emitida no nome de outro colaborador. Só Renovações, Metas,
+   *  Comparativo e "A renovar" leem estes campos; `colab` continua o da planilha. */
+  resp?: string; atrib?: 'base' | 'renovacao'; tipoEfetivo?: string; divergente?: boolean;
   trocaSeg: boolean; saudeManual?: boolean; saudeFaturaDe?: string; // preenchidos pelos enriquecimentos (Task 4)
 };
