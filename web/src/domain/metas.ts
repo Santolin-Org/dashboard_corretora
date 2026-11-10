@@ -3,6 +3,7 @@
 // multiplicada por (1 + % de meta) — um % para Novos e outro para Renovações, digitados na própria aba (padrão 10%).
 import type { DataISO, Linha } from './tipos';
 import type { FiltrosGlobais } from './filtros';
+import { respDe, tipoMetaDe } from './responsavel';
 import { classifyRamo, metaTipoSide } from './ramos';
 import { saudeFaturaConta } from './saude/aplicar';
 
@@ -57,13 +58,13 @@ export function filtrarMetas(linhas: Linha[], f: FiltrosGlobais, hoje: DataISO, 
   const { startStr, endStr } = getMetasBasePeriod(f, hoje);
   const tipos = new Set(f.tipos), col = new Set(f.col), grp = new Set(f.grp), ram = new Set(f.ram), seg = new Set(f.seg);
   return linhas.filter(r => {
-    if (!metaTipoSide(r.tipo)) return false; // só N, R, EN, ER entram na meta
-    if (tipos.size && !tipos.has(r.tipo)) return false;
+    if (!metaTipoSide(tipoMetaDe(r))) return false; // só N, R, EN, ER entram na meta
+    if (tipos.size && !tipos.has(tipoMetaDe(r))) return false;
     if (!saudeFaturaConta(r, tipos)) return false;
     const ds = r.vig;
     if (!ds) return false;
     if (ds < startStr || ds > endStr) return false;
-    if (col.size && !col.has(r.colab)) return false;
+    if (col.size && !col.has(respDe(r))) return false;
     if (grp.size && !grp.has(r.grp)) return false;
     if (ram.size && !ram.has(r.ramo)) return false;
     if (seg.size && !seg.has(r.seg)) return false;
@@ -80,14 +81,14 @@ export function getMetasRealizadoData(linhas: Linha[], f: FiltrosGlobais): Linha
   const vs = f.vigIni, ve = f.vigFim;
   const tipos = new Set(f.tipos), col = new Set(f.col), grp = new Set(f.grp), ram = new Set(f.ram), seg = new Set(f.seg);
   return linhas.filter(r => {
-    if (!metaTipoSide(r.tipo)) return false;
-    if (tipos.size && !tipos.has(r.tipo)) return false;
+    if (!metaTipoSide(tipoMetaDe(r))) return false;
+    if (tipos.size && !tipos.has(tipoMetaDe(r))) return false;
     if (!saudeFaturaConta(r, tipos)) return false;
     const ds = r.vig;
     if (!ds) return false;
     if (vs && ds < vs) return false;
     if (ve && ds > ve) return false;
-    if (col.size && !col.has(r.colab)) return false;
+    if (col.size && !col.has(respDe(r))) return false;
     if (grp.size && !grp.has(r.grp)) return false;
     if (ram.size && !ram.has(r.ramo)) return false;
     if (seg.size && !seg.has(r.seg)) return false;
@@ -108,10 +109,10 @@ export type ChaveMetas = keyof LinhaMetasColab;
 export function buildMetasGroupData(data: Linha[], mn: number, mr: number): LinhaMetasColab[] {
   const map = new Map<string, { nome: string; np: number; nc: number; rp: number; rc: number }>();
   for (const r of data) {
-    const k = r.colab || '—';
+    const k = respDe(r) || '—';
     let v = map.get(k);
     if (!v) { v = { nome: k, np: 0, nc: 0, rp: 0, rc: 0 }; map.set(k, v); }
-    if (metaTipoSide(r.tipo) === 'N') { v.np += r.premio; v.nc += r.com; }
+    if (metaTipoSide(tipoMetaDe(r)) === 'N') { v.np += r.premio; v.nc += r.com; }
     else { v.rp += r.premio; v.rc += r.com; }
   }
   return [...map.values()].map(v => {
@@ -168,7 +169,7 @@ export function buildMetasEquipeCards(linhas: Linha[], f: FiltrosGlobais, hoje: 
   for (const r of data) {
     const t = acc[classifyRamo(r.ramo) as 'pessoais' | 'patrimoniais'];
     if (!t) continue;
-    if (metaTipoSide(r.tipo) === 'N') { t.np += r.premio; t.nc += r.com; }
+    if (metaTipoSide(tipoMetaDe(r)) === 'N') { t.np += r.premio; t.nc += r.com; }
     else { t.rp += r.premio; t.rc += r.com; }
     if (r.ramo) t.ramos.add(r.ramo);
   }
@@ -214,7 +215,7 @@ export function exportacaoMetasEquipe(data: Linha[], mn: number, mr: number): Re
   for (const r of data) {
     const k = r.ramo || '—';
     if (!byRamo[k]) byRamo[k] = { np: 0, nc: 0, rp: 0, rc: 0 };
-    if (metaTipoSide(r.tipo) === 'N') { byRamo[k].np += r.premio; byRamo[k].nc += r.com; }
+    if (metaTipoSide(tipoMetaDe(r)) === 'N') { byRamo[k].np += r.premio; byRamo[k].nc += r.com; }
     else { byRamo[k].rp += r.premio; byRamo[k].rc += r.com; }
   }
   return Object.entries(byRamo).map(([ramo, v]) => {

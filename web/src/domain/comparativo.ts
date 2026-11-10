@@ -1,5 +1,6 @@
 // Aba Comparativo de períodos (main.js 2923–3665): cálculos puros, sem DOM. Regras de negócio em METRICAS.md
 // (§2 taxa de renovação, §3 churn do Comparativo, §4 filtros globais); o main.js é a referência.
+import { respDe } from './responsavel';
 import type { DataISO, Linha } from './tipos';
 import type { FiltrosGlobais } from './filtros';
 import { fBRL, fN } from './formatos';
@@ -72,7 +73,7 @@ export function criarEscopo(f: FiltrosGlobais): Escopo {
   return (r, emStart, emEnd) => {
     if (emStart && r.em && r.em < emStart) return false;
     if (emEnd && r.em && r.em > emEnd) return false;
-    if (col.size > 0 && !col.has(r.colab)) return false;
+    if (col.size > 0 && !col.has(respDe(r))) return false; // responsável efetivo (atribuição de renovações)
     if (grp.size > 0 && !grp.has(r.grp)) return false;
     if (ram.size > 0 && !ram.has(r.ramo)) return false;
     if (seg.size > 0 && !seg.has(r.seg)) return false;
