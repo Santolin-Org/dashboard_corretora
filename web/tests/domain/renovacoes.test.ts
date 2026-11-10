@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { linha } from './helpers';
 import { FILTROS_VAZIOS, type FiltrosGlobais } from '../../src/domain/filtros';
 import {
-  buscarRenovacoes, cardsRenovacoes, chegaramParaRenovar, dadosRenovacoes, ligarRenovacoes, periodoRenovacoes, renovacoesDoPeriodo,
+  buscarRenovacoes, cardsRenovacoes, filtrarSituacaoRenov, chegaramParaRenovar, dadosRenovacoes, ligarRenovacoes, periodoRenovacoes, renovacoesDoPeriodo,
 } from '../../src/domain/renovacoes';
 
 const NOV = { start: '2026-11-01', end: '2026-11-30' };
@@ -149,5 +149,20 @@ describe('dadosRenovacoes', () => {
     expect(d.itens.map(i => i.antiga.apolice)).toEqual(['OLD1']);
     expect(d.itens[0].renovacao).toBe(r);
     expect(d.cards.renovacoes.qtd).toBe(1);
+  });
+});
+
+describe('filtrarSituacaoRenov', () => {
+  const itens = ligarRenovacoes([
+    antiga({ apolice: 'v', sit: 'Vencida', docDigits: '9' }),
+    antiga({ apolice: 'ab', sit: 'Ativa', docDigits: '8' }),
+    antiga({ apolice: 'ren', sit: 'Renovada', docDigits: '7' }),
+  ], []);
+  const ap = (s: Parameters<typeof filtrarSituacaoRenov>[1]) => filtrarSituacaoRenov(itens, s).map(i => i.antiga.apolice);
+  it('vazio devolve todas', () => expect(ap('')).toEqual(['v', 'ab', 'ren']));
+  it('filtra por renovada, vencida ou em aberto', () => {
+    expect(ap('renovada')).toEqual(['ren']);
+    expect(ap('vencida')).toEqual(['v']);
+    expect(ap('em-aberto')).toEqual(['ab']);
   });
 });

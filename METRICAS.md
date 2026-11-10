@@ -486,6 +486,8 @@ que entraram nele, e lista apólice por apólice com a renovação de cada uma
   ligada à antiga de prêmio mais parecido. Sem CPF/CNPJ não há ligação.
 - **Situação na lista:** *Renovada* (a planilha diz Renovada ou há ligação), *Vencida*,
   ou *Em aberto* (ainda Ativa).
+- **Filtro da lista:** botões Todas / Renovadas / Vencidas / Em aberto (com a contagem de
+  cada um), combinados com a busca. Só a lista muda; os cards continuam com o período inteiro.
 
 ## 7. Pendências e decisões em aberto
 
