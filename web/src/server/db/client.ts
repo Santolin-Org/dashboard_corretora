@@ -2,7 +2,8 @@ import { neon } from "@neondatabase/serverless";
 import { and, asc, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
-import { nomesIgnorados, users, vinculos, type Papel } from "./schema";
+import { atribuicoesHistorico, atribuicoesRenovacao, nomesIgnorados, users, vinculos, type Papel } from "./schema";
+import type { Atribuicao } from "@/domain/atribuicoes";
 
 // Aceita neon-http (produção) e pglite (testes).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,4 +136,37 @@ export async function ignorarNome(nome: string, ignorar: boolean, autor: string,
 /** Usuários ativos com pelo menos um nome vinculado. `id` distingue logins com o mesmo nome de exibição. */
 export async function listarProdutores(db: Db = getDb()): Promise<{ id: number; nome: string; nomes: string[] }[]> {
   return (await listarUsuarios(db)).filter((u) => u.ativo && u.nomes.length > 0).map((u) => ({ id: u.id, nome: u.nome, nomes: u.nomes }));
+}
+
+// ---- Atribuições de renovação ----
+
+type ChaveAtrib = { seg: string; apolice: string; fim: string };
+const naChave = (k: ChaveAtrib) =>
+  and(eq(atribuicoesRenovacao.seg, k.seg), eq(atribuicoesRenovacao.apolice, k.apolice), eq(atribuicoesRenovacao.fim, k.fim));
+
+export async function listarAtribuicoes(db: Db = getDb()): Promise<Atribuicao[]> {
+  const rows = await db.select().from(atribuicoesRenovacao).orderBy(asc(atribuicoesRenovacao.fim), asc(atribuicoesRenovacao.apolice));
+  return rows.map((r) => ({
+    seg: r.seg, apolice: r.apolice, fim: r.fim, para: r.para, de: r.de, por: r.alteradoPor, em: new Date(r.alteradoEm).toISOString(),
+  }));
+}
+
+/** Cria ou troca a atribuição da vigência e registra no histórico. */
+export async function salvarAtribuicao(a: ChaveAtrib & { para: string; de: string }, autor: string, db: Db = getDb()): Promise<void> {
+  await db
+    .insert(atribuicoesRenovacao)
+    .values({ ...a, alteradoPor: autor })
+    .onConflictDoUpdate({
+      target: [atribuicoesRenovacao.seg, atribuicoesRenovacao.apolice, atribuicoesRenovacao.fim],
+      set: { para: a.para, de: a.de, alteradoPor: autor, alteradoEm: sql`now()` },
+    });
+  await db.insert(atribuicoesHistorico).values({ ...a, acao: "atribuir", por: autor });
+}
+
+/** Desfaz (volta ao colaborador da planilha). `false` se não havia atribuição. */
+export async function desfazerAtribuicao(k: ChaveAtrib, autor: string, db: Db = getDb()): Promise<boolean> {
+  const [apagada] = await db.delete(atribuicoesRenovacao).where(naChave(k)).returning({ de: atribuicoesRenovacao.de });
+  if (!apagada) return false;
+  await db.insert(atribuicoesHistorico).values({ ...k, acao: "desfazer", para: null, de: apagada.de, por: autor });
+  return true;
 }
