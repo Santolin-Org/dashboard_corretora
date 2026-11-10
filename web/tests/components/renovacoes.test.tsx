@@ -91,4 +91,28 @@ describe("aba Renovações", () => {
     fireEvent.change(screen.getByLabelText("Buscar renovações"), { target: { value: "cli" } });
     expect(screen.getByText("Página 1 de 2")).toBeTruthy();
   });
+
+  it("filtra a lista por situação, junto com a busca, e mostra a contagem em cada botão", () => {
+    const { container } = montar();
+    const botao = (nome: RegExp) => screen.getByRole("button", { name: nome });
+    expect(botao(/^Todas \(3\)/)).toBeTruthy();
+    expect(botao(/^Renovadas \(1\)/)).toBeTruthy();
+    expect(botao(/^Vencidas \(1\)/)).toBeTruthy();
+    expect(botao(/^Em aberto \(1\)/)).toBeTruthy();
+    const nomes = () => within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => r.children[0].textContent);
+    fireEvent.click(botao(/^Vencidas/));
+    expect(nomes()).toEqual(["Maria Venceu"]);
+    expect(botao(/^Vencidas/).getAttribute("aria-pressed")).toBe("true");
+    expect(container.querySelector("#renov-badge")!.textContent).toBe("1 apólices");
+    fireEvent.click(botao(/^Em aberto/));
+    expect(nomes()).toEqual(["Pedro Aberto"]);
+    // Busca e situação juntas: nada de "Pedro" entre as renovadas.
+    fireEvent.click(botao(/^Renovadas/));
+    fireEvent.change(screen.getByLabelText("Buscar renovações"), { target: { value: "pedro" } });
+    expect(screen.getByText("Nenhuma apólice encontrada com essa busca e situação.")).toBeTruthy();
+    fireEvent.click(botao(/^Todas/));
+    expect(nomes()).toEqual(["Pedro Aberto"]);
+    // Os cards não mudam com o filtro da lista.
+    expect(container.querySelector("#renov-kpis")!.textContent!.replace(/\u00a0/g, " ")).toContain("1 de 3");
+  });
 });

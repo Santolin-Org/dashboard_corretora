@@ -7,12 +7,16 @@ import { SecaoBadge, SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoReco
 import { fmtLabel } from "@/domain/comparativo";
 import { fBRL, fN, fPct } from "@/domain/formatos";
 import { nomeCurto, paginar } from "@/domain/painel-produtor";
-import { ROTULO_SITUACAO_RENOV, buscarRenovacoes, dadosRenovacoes, type SituacaoRenov } from "@/domain/renovacoes";
+import { ROTULO_SITUACAO_RENOV, buscarRenovacoes, dadosRenovacoes, filtrarSituacaoRenov, type SituacaoRenov } from "@/domain/renovacoes";
 import s from "./Renovacoes.module.css";
 
 const POR_PAGINA = 50;
 const CLASSE_SITUACAO: Record<SituacaoRenov, string> = { renovada: s.renovada, vencida: s.vencida, "em-aberto": s.emAberto };
 const ICONE_SITUACAO: Record<SituacaoRenov, string> = { renovada: "✅", vencida: "❌", "em-aberto": "⏳" };
+const BOTOES_SITUACAO: { sit: SituacaoRenov | ""; rotulo: string }[] = [
+  { sit: "", rotulo: "Todas" }, { sit: "renovada", rotulo: "Renovadas" }, { sit: "vencida", rotulo: "Vencidas" }, { sit: "em-aberto", rotulo: "Em aberto" },
+];
+const ATIVO = { borderColor: "#378ADD", fontWeight: 600 } as const;
 
 // Aba Renovações (#tab-renovacoes; o PainelAba já envolve): o que chegou para renovar no período × as renovações
 // que entraram nele, e a lista apólice por apólice com a renovação ligada (regras em domain/renovacoes.ts).
@@ -20,11 +24,15 @@ export default function Renovacoes() {
   const { base } = usePainel();
   const { filtros } = useFiltros();
   const [busca, setBusca] = useState("");
+  const [situacao, setSituacao] = useState<SituacaoRenov | "">("");
   const [pg, setPg] = useState({ chave: "", n: 1 });
   const d = useMemo(() => dadosRenovacoes(base.linhas, filtros, base.hoje), [base.linhas, filtros, base.hoje]);
-  const achados = useMemo(() => buscarRenovacoes(d.itens, busca), [d.itens, busca]);
-  // A página volta para 1 quando a busca ou os filtros mudam.
-  const chave = `${busca}|${d.periodo.start}|${d.itens.length}`;
+  const buscados = useMemo(() => buscarRenovacoes(d.itens, busca), [d.itens, busca]);
+  const achados = useMemo(() => filtrarSituacaoRenov(buscados, situacao), [buscados, situacao]);
+  // Contagem em cada botão: o que a busca deixou, por situação.
+  const contagem = (sit: SituacaoRenov | "") => filtrarSituacaoRenov(buscados, sit).length;
+  // A página volta para 1 quando a busca, a situação ou os filtros mudam.
+  const chave = `${busca}|${situacao}|${d.periodo.start}|${d.itens.length}`;
   const pagina = paginar(achados, POR_PAGINA, pg.chave === chave ? pg.n : 1);
   const c = d.cards;
   const sub = (pct: number | null, falta: string) => <>{fPct(pct)} renovado{falta ? ` · faltam ${falta}` : ""}</>;
@@ -58,8 +66,16 @@ export default function Renovacoes() {
         chave="renov-lista"
         cabecalho={<SecaoTitulo>Apólice por apólice{" "}<SecaoBadge id="renov-badge">{fN(achados.length)} apólices</SecaoBadge></SecaoTitulo>}
         controles={
-          <input type="search" className={s.busca} aria-label="Buscar renovações" value={busca} onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar cliente, CPF/CNPJ, apólice, seguradora, ramo, colaborador…" />
+          <>
+            <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginRight: 8 }} role="group" aria-label="Filtrar por situação">
+              {BOTOES_SITUACAO.map((b) => (
+                <button key={b.rotulo} type="button" className="btn-sm" aria-pressed={situacao === b.sit} onClick={() => setSituacao(b.sit)}
+                  style={{ fontSize: 11, ...(situacao === b.sit ? ATIVO : {}) }}>{b.rotulo} ({fN(contagem(b.sit))})</button>
+              ))}
+            </div>
+            <input type="search" className={s.busca} aria-label="Buscar renovações" value={busca} onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar cliente, CPF/CNPJ, apólice, seguradora, ramo, colaborador…" />
+          </>
         }
       >
         <div className={`${s.tabelaWrap} detail-table-wrap`}>
@@ -98,7 +114,9 @@ export default function Renovacoes() {
             </table>
           ) : (
             <div style={{ padding: 16, fontSize: 12, color: "var(--text-secondary)" }}>
-              {busca.trim() ? "Nenhuma apólice encontrada para essa busca." : "Nenhuma apólice chegou para renovar no período com os filtros atuais."}
+              {busca.trim() && situacao ? "Nenhuma apólice encontrada com essa busca e situação."
+                : busca.trim() ? "Nenhuma apólice encontrada para essa busca."
+                : situacao ? `Nenhuma apólice ${ROTULO_SITUACAO_RENOV[situacao].toLowerCase()} no período.` : "Nenhuma apólice chegou para renovar no período com os filtros atuais."}
             </div>
           )}
         </div>

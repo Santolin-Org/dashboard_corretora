@@ -104,6 +104,11 @@ export function cardsRenovacoes(itens: ItemRenovacao[], renovacoes: Linha[]): Ca
   };
 }
 
+/** Filtro de situação da lista ('' = todas). */
+export function filtrarSituacaoRenov(itens: ItemRenovacao[], situacao: SituacaoRenov | ''): ItemRenovacao[] {
+  return situacao ? itens.filter(i => i.situacao === situacao) : itens;
+}
+
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 /** Busca em cliente, CPF/CNPJ (com ou sem pontuação), apólice antiga e nova, seguradora, ramo e colaborador. */
