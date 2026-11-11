@@ -88,6 +88,35 @@ describe("/api/atribuicoes", () => {
   });
 });
 
+describe("/api/atribuicoes em lote", () => {
+  it("PUT com itens grava todas de uma vez, com o autor", async () => {
+    const r = await PUT(req("PUT", { itens: [{ ...K, para: "BIA", de: "ANA" }, { ...K, apolice: "A2", para: "BIA", de: "CAIO" }] }));
+    expect(r.status).toBe(200);
+    expect(await r.json()).toEqual({ ok: true, gravadas: 2 });
+    expect((await listarAtribuicoes()).map((a) => [a.apolice, a.para, a.de, a.por])).toEqual([["A1", "BIA", "ANA", "g@x.com"], ["A2", "BIA", "CAIO", "g@x.com"]]);
+  });
+
+  it("um item inválido recusa o lote inteiro (400) e nada é gravado", async () => {
+    const r = await PUT(req("PUT", { itens: [{ ...K, para: "BIA", de: "ANA" }, { ...K, apolice: "A2", fim: "x", para: "BIA", de: "ANA" }] }));
+    expect(r.status).toBe(400);
+    expect(await listarAtribuicoes()).toEqual([]);
+  });
+
+  it("lote vazio, não-lista ou acima do limite dá 400", async () => {
+    expect((await PUT(req("PUT", { itens: [] }))).status).toBe(400);
+    expect((await PUT(req("PUT", { itens: "x" }))).status).toBe(400);
+    const muitos = Array.from({ length: 1001 }, (_, i) => ({ ...K, apolice: `A${i}`, para: "BIA", de: "ANA" }));
+    expect((await PUT(req("PUT", { itens: muitos }))).status).toBe(400);
+    expect(await listarAtribuicoes()).toEqual([]);
+  });
+
+  it("vendedor não grava em lote (403)", async () => {
+    usuario.mockResolvedValue(sessao("vendedor", "bia@x.com"));
+    expect((await PUT(req("PUT", { itens: [{ ...K, para: "BIA", de: "ANA" }] }))).status).toBe(403);
+    expect(await listarAtribuicoes()).toEqual([]);
+  });
+});
+
 describe("/api/atribuicoes com nome composto", () => {
   it("vendedor recebe a atribuição cujo de/para é um nome composto que inclui o dele", async () => {
     await salvarAtribuicao({ ...K, para: "CESAR", de: "ANA , BIA" }, "g");

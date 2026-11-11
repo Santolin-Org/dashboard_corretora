@@ -10,6 +10,8 @@ export type EstadoAtribuicoes = {
   /** GET falhou (banco fora, rede): a lista fica vazia e as telas avisam. */
   erro: boolean;
   salvar(a: NovaAtribuicao): Promise<void>;
+  /** Várias de uma vez (um PUT com { itens }); tudo ou nada no servidor. */
+  salvarLote(itens: NovaAtribuicao[]): Promise<void>;
   desfazer(k: ChaveAtribuicao): Promise<void>;
 };
 
@@ -53,12 +55,19 @@ export function useAtribuicoes(ativo: boolean, sinal?: unknown): EstadoAtribuico
     setAtribuicoes((l) => [...l.filter((x) => chaveAtribuicao(x) !== chaveAtribuicao(a)), nova]);
   }, []);
 
+  const salvarLote = useCallback(async (itens: NovaAtribuicao[]) => {
+    await enviar("PUT", { itens });
+    const em = new Date().toISOString();
+    const novas = new Map(itens.map((a) => [chaveAtribuicao(a), { ...a, por: "", em } as Atribuicao]));
+    setAtribuicoes((l) => [...l.filter((x) => !novas.has(chaveAtribuicao(x))), ...novas.values()]);
+  }, []);
+
   const desfazer = useCallback(async (k: ChaveAtribuicao) => {
     await enviar("DELETE", k);
     setAtribuicoes((l) => l.filter((x) => chaveAtribuicao(x) !== chaveAtribuicao(k)));
   }, []);
 
-  return { atribuicoes, erro, salvar, desfazer };
+  return { atribuicoes, erro, salvar, salvarLote, desfazer };
 }
 
 /** A base com as linhas marcadas pelas atribuições (sem atribuições: a mesma base, mesma identidade). */

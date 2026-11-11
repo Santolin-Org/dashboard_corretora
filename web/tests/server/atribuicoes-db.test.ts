@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import { desfazerAtribuicao, listarAtribuicoes, salvarAtribuicao, setDb } from "@/server/db/client";
+import { desfazerAtribuicao, listarAtribuicoes, salvarAtribuicao, salvarAtribuicoes, setDb } from "@/server/db/client";
 import { atribuicoesHistorico, atribuicoesRenovacao } from "@/server/db/schema";
 
 const pg = new PGlite();
@@ -58,5 +58,34 @@ describe("atribuições no banco", () => {
     expect((await historico()).at(-1)).toEqual({ acao: "desfazer", para: null, de: "ANA", por: "g2" });
     expect(await desfazerAtribuicao(K, "g2")).toBe(false);
     expect(await historico()).toHaveLength(2);
+  });
+
+  it("salvar em lote grava todas, troca as que já existiam e registra cada uma no histórico", async () => {
+    await salvarAtribuicao({ ...K, para: "BIA", de: "ANA" }, "g");
+    await salvarAtribuicoes([
+      { ...K, para: "CAIO", de: "ANA" },
+      { ...K, apolice: "A2", para: "CAIO", de: "ANA" },
+      { ...K, apolice: "A3", para: "CAIO", de: "DUDA" },
+    ], "lote@x");
+    const l = await listarAtribuicoes();
+    expect(l.map((a) => [a.apolice, a.para, a.de, a.por])).toEqual([
+      ["A1", "CAIO", "ANA", "lote@x"], ["A2", "CAIO", "ANA", "lote@x"], ["A3", "CAIO", "DUDA", "lote@x"],
+    ]);
+    expect((await historico()).slice(1)).toEqual([
+      { acao: "atribuir", para: "CAIO", de: "ANA", por: "lote@x" },
+      { acao: "atribuir", para: "CAIO", de: "ANA", por: "lote@x" },
+      { acao: "atribuir", para: "CAIO", de: "DUDA", por: "lote@x" },
+    ]);
+  });
+
+  it("lote com a mesma vigência repetida fica com a última (não quebra o upsert)", async () => {
+    await salvarAtribuicoes([{ ...K, para: "BIA", de: "ANA" }, { ...K, para: "CAIO", de: "ANA" }], "g");
+    expect((await listarAtribuicoes()).map((a) => a.para)).toEqual(["CAIO"]);
+  });
+
+  it("lote vazio não faz nada", async () => {
+    await salvarAtribuicoes([], "g");
+    expect(await listarAtribuicoes()).toEqual([]);
+    expect(await historico()).toEqual([]);
   });
 });

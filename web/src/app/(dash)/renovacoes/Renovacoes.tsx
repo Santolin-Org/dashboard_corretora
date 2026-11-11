@@ -11,7 +11,9 @@ import { nomeCurto, paginar } from "@/domain/painel-produtor";
 import {
   ROTULO_SITUACAO_RENOV, buscarRenovacoes, dadosRenovacoes, filtrarSituacaoRenov, type FiltroListaRenov, type SituacaoRenov,
 } from "@/domain/renovacoes";
+import { chaveAtribuicao } from "@/domain/atribuicoes";
 import { respDe } from "@/domain/responsavel";
+import { AtribuirEmLote } from "./AtribuirEmLote";
 import { AtribuirResponsavel } from "./AtribuirResponsavel";
 import s from "./Renovacoes.module.css";
 
@@ -35,6 +37,9 @@ export default function Renovacoes() {
   const [busca, setBusca] = useState("");
   const [situacao, setSituacao] = useState<FiltroListaRenov>("");
   const [pg, setPg] = useState({ chave: "", n: 1 });
+  // Seleção para a atribuição em lote (chave da vigência). Só conta o que está na lista filtrada.
+  const [sel, setSel] = useState<ReadonlySet<string>>(() => new Set());
+  const [resultadoLote, setResultadoLote] = useState("");
   const d = useMemo(() => dadosRenovacoes(base.linhas, filtros, base.hoje), [base.linhas, filtros, base.hoje]);
   const buscados = useMemo(() => buscarRenovacoes(d.itens, busca), [d.itens, busca]);
   const achados = useMemo(() => filtrarSituacaoRenov(buscados, situacao), [buscados, situacao]);
@@ -48,6 +53,13 @@ export default function Renovacoes() {
   // A página volta para 1 quando a busca, a situação ou os filtros mudam.
   const chave = `${busca}|${situacao}|${d.periodo.start}|${d.itens.length}`;
   const pagina = paginar(achados, POR_PAGINA, pg.chave === chave ? pg.n : 1);
+  const selecionadas = gestor ? achados.filter((i) => sel.has(chaveAtribuicao(i.antiga))) : [];
+  const chavesPagina = pagina.itens.map((i) => chaveAtribuicao(i.antiga));
+  const paginaToda = chavesPagina.length > 0 && chavesPagina.every((k) => sel.has(k));
+  const alternar = (ks: string[], marcar: boolean) => {
+    setResultadoLote("");
+    setSel((v) => { const n = new Set(v); for (const k of ks) { if (marcar) n.add(k); else n.delete(k); } return n; });
+  };
   const c = d.cards;
   const sub = (pct: number | null, falta: string) => <>{fPct(pct)} renovado{falta ? ` · faltam ${falta}` : ""}</>;
 
@@ -101,11 +113,23 @@ export default function Renovacoes() {
           </>
         }
       >
+        {resultadoLote && <div className={s.resultadoLote} role="status" aria-label="Resultado da atribuição em lote">{resultadoLote}</div>}
+        {selecionadas.length > 0 && (
+          <AtribuirEmLote antigas={selecionadas.map((i) => i.antiga)} totalLista={achados.length} colaboradores={colaboradores} salvarLote={atrib.salvarLote}
+            selecionarTodas={() => alternar(achados.map((i) => chaveAtribuicao(i.antiga)), true)}
+            limpar={() => alternar([...sel], false)}
+            concluir={(m) => { setSel(new Set()); setResultadoLote(m); }} />
+        )}
         <div className={`${s.tabelaWrap} detail-table-wrap`}>
           {achados.length ? (
             <table className="ret-table detail-table" id="renov-tabela">
               <thead>
                 <tr>
+                  {gestor && (
+                    <th className={s.colSel}>
+                      <input type="checkbox" aria-label="Selecionar todas desta página" checked={paginaToda} onChange={() => alternar(chavesPagina, !paginaToda)} />
+                    </th>
+                  )}
                   <th style={{ minWidth: 150 }}>Cliente</th>
                   <th>Ramo</th>
                   <th>Seguradora</th>
@@ -122,6 +146,12 @@ export default function Renovacoes() {
               <tbody>
                 {pagina.itens.map(({ antiga: a, renovacao: r, situacao, divergente }, i) => (
                   <tr key={`${a.seg}|${a.apolice}|${i}`}>
+                    {gestor && (
+                      <td className={s.colSel}>
+                        <input type="checkbox" aria-label={`Selecionar ${a.cli} (apólice ${a.apolice})`} checked={sel.has(chaveAtribuicao(a))}
+                          onChange={(e) => alternar([chaveAtribuicao(a)], e.target.checked)} />
+                      </td>
+                    )}
                     <td className="name-cell" style={{ maxWidth: 200 }} title={`${a.cli} · apólice ${a.apolice}${r ? ` → ${r.apolice}` : ""}`}>{a.cli}</td>
                     <td>{a.ramo}</td>
                     <td>{a.seg}</td>
