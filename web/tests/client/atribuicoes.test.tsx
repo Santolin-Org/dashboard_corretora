@@ -63,6 +63,27 @@ describe("useAtribuicoes", () => {
     expect(fetchMock.mock.calls.filter(([u]) => u === "/api/dados")).toHaveLength(0);
   });
 
+  it("salvarLote faz um PUT só com os itens e atualiza a lista local, trocando as que já existiam", async () => {
+    fetchMock.mockImplementation((_u: string, init?: RequestInit) => (init?.method ? json({ ok: true, gravadas: 2 }) : json({ atribuicoes: [A] })));
+    const { result } = renderHook(() => useAtribuicoes(true));
+    await waitFor(() => expect(result.current.atribuicoes).toEqual([A]));
+    const itens = [{ seg: "S", apolice: "A1", fim: "2026-11-10", para: "CAIO", de: "ANA" }, { seg: "S", apolice: "A2", fim: "2026-11-12", para: "CAIO", de: "DUDA" }];
+    await act(() => result.current.salvarLote(itens));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const [, init] = fetchMock.mock.calls[1];
+    expect(init.method).toBe("PUT");
+    expect(JSON.parse(init.body)).toEqual({ itens });
+    expect(result.current.atribuicoes.map((a) => [a.apolice, a.para])).toEqual([["A1", "CAIO"], ["A2", "CAIO"]]);
+  });
+
+  it("salvarLote com falha lança e não muda a lista", async () => {
+    fetchMock.mockImplementation((_u: string, init?: RequestInit) => (init?.method ? json({ erro: "Requisição inválida." }, 400) : json({ atribuicoes: [] })));
+    const { result } = renderHook(() => useAtribuicoes(true));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    await expect(result.current.salvarLote([{ seg: "S", apolice: "A1", fim: "2026-11-10", para: "BIA", de: "ANA" }])).rejects.toThrow("Requisição inválida.");
+    expect(result.current.atribuicoes).toEqual([]);
+  });
+
   it("falha ao salvar: lança e não muda a lista", async () => {
     fetchMock.mockImplementation((_u: string, init?: RequestInit) => (init?.method ? json({ erro: "Sem permissão" }, 403) : json({ atribuicoes: [] })));
     const { result } = renderHook(() => useAtribuicoes(true));

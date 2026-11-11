@@ -16,6 +16,7 @@ export type ValorPainel = {
   divergencias?: Divergencia[];
   atribuicoesErro?: boolean;
   salvarAtribuicao?(a: NovaAtribuicao): Promise<void>;
+  salvarAtribuicoesLote?(itens: NovaAtribuicao[]): Promise<void>;
   desfazerAtribuicao?(k: ChaveAtribuicao): Promise<void>;
 };
 
@@ -24,7 +25,7 @@ const SEM_ESCRITA = () => Promise.reject(new Error("Atribuições indisponíveis
 export function atribuicoesDoPainel(v: ValorPainel) {
   return {
     atribuicoes: v.atribuicoes ?? [], divergencias: v.divergencias ?? [], erro: v.atribuicoesErro ?? false,
-    salvar: v.salvarAtribuicao ?? SEM_ESCRITA, desfazer: v.desfazerAtribuicao ?? SEM_ESCRITA,
+    salvar: v.salvarAtribuicao ?? SEM_ESCRITA, salvarLote: v.salvarAtribuicoesLote ?? SEM_ESCRITA, desfazer: v.desfazerAtribuicao ?? SEM_ESCRITA,
   };
 }
 

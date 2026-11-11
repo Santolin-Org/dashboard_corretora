@@ -1,4 +1,4 @@
-import { desfazerAtribuicao, listarAtribuicoes, nomesDoUsuario, salvarAtribuicao } from "@/server/db/client";
+import { desfazerAtribuicao, listarAtribuicoes, nomesDoUsuario, salvarAtribuicao, salvarAtribuicoes } from "@/server/db/client";
 import { erro400, exigirPapel, indisponivel, lerCorpo, resposta } from "@/server/api-admin";
 import { bypassAtivo } from "@/server/auth-core";
 import { pertenceA } from "@/domain/painel-produtor";
@@ -8,6 +8,15 @@ import { pertenceA } from "@/domain/painel-produtor";
 const GESTORES = ["gestao", "admin"];
 const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
 const texto = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
+/** Teto de um lote (a tela seleciona no máximo a lista filtrada do período). */
+const MAX_LOTE = 1000;
+
+function atribuicao(c: unknown): { seg: string; apolice: string; fim: string; para: string; de: string } | null {
+  if (!c || typeof c !== "object") return null;
+  const o = c as Record<string, unknown>;
+  const k = chave(o), para = texto(o.para), de = texto(o.de);
+  return k && para && de ? { ...k, para, de } : null;
+}
 
 function chave(c: Record<string, unknown>): { seg: string; apolice: string; fim: string } | null {
   const seg = texto(c.seg), apolice = texto(c.apolice), fim = texto(c.fim);
@@ -34,11 +43,21 @@ export async function PUT(req: Request) {
   const a = await exigirPapel(GESTORES);
   if ("res" in a) return a.res;
   const c = await lerCorpo(req);
-  const k = c && chave(c);
-  const para = c ? texto(c.para) : "", de = c ? texto(c.de) : "";
-  if (!k || !para || !de) return erro400("Requisição inválida.");
+  // Lote ({ itens: [...] }): tudo ou nada — um item inválido recusa o lote inteiro.
+  if (c && "itens" in c) {
+    const itens = Array.isArray(c.itens) ? c.itens.map(atribuicao) : [];
+    if (!itens.length || itens.length > MAX_LOTE || itens.some((x) => !x)) return erro400("Requisição inválida.");
+    try {
+      await salvarAtribuicoes(itens as NonNullable<(typeof itens)[number]>[], a.u.email);
+      return resposta({ ok: true, gravadas: itens.length });
+    } catch {
+      return indisponivel();
+    }
+  }
+  const um = atribuicao(c);
+  if (!um) return erro400("Requisição inválida.");
   try {
-    await salvarAtribuicao({ ...k, para, de }, a.u.email);
+    await salvarAtribuicao(um, a.u.email);
     return resposta({ ok: true });
   } catch {
     return indisponivel();

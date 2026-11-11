@@ -163,6 +163,20 @@ export async function salvarAtribuicao(a: ChaveAtrib & { para: string; de: strin
   await db.insert(atribuicoesHistorico).values({ ...a, acao: "atribuir", por: autor });
 }
 
+/** Atribuição em lote: um upsert e um registro de histórico para todas (vigência repetida no lote: vale a última). */
+export async function salvarAtribuicoes(lista: (ChaveAtrib & { para: string; de: string })[], autor: string, db: Db = getDb()): Promise<void> {
+  const unicas = [...new Map(lista.map((a) => [`${a.seg}|${a.apolice}|${a.fim}`, a])).values()];
+  if (!unicas.length) return;
+  await db
+    .insert(atribuicoesRenovacao)
+    .values(unicas.map((a) => ({ ...a, alteradoPor: autor })))
+    .onConflictDoUpdate({
+      target: [atribuicoesRenovacao.seg, atribuicoesRenovacao.apolice, atribuicoesRenovacao.fim],
+      set: { para: sql`excluded.para`, de: sql`excluded.de`, alteradoPor: autor, alteradoEm: sql`now()` },
+    });
+  await db.insert(atribuicoesHistorico).values(unicas.map((a) => ({ ...a, acao: "atribuir" as const, por: autor })));
+}
+
 /** Desfaz (volta ao colaborador da planilha). `false` se não havia atribuição. */
 export async function desfazerAtribuicao(k: ChaveAtrib, autor: string, db: Db = getDb()): Promise<boolean> {
   const [apagada] = await db.delete(atribuicoesRenovacao).where(naChave(k)).returning({ de: atribuicoesRenovacao.de });

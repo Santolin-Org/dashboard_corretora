@@ -46,8 +46,8 @@ export function Casca({ children }: { children: ReactNode }) {
   const aplicada = useMemo(() => (base ? comAtribuicoes(base, atrib.atribuicoes) : null), [base, atrib.atribuicoes]);
   const painel = useMemo<ValorPainel | null>(() => (aplicada ? {
     base: aplicada.base, recarregar, abrirFontes, atribuicoes: atrib.atribuicoes, divergencias: aplicada.divergencias,
-    atribuicoesErro: atrib.erro, salvarAtribuicao: atrib.salvar, desfazerAtribuicao: atrib.desfazer,
-  } : null), [aplicada, recarregar, abrirFontes, atrib.atribuicoes, atrib.erro, atrib.salvar, atrib.desfazer]);
+    atribuicoesErro: atrib.erro, salvarAtribuicao: atrib.salvar, salvarAtribuicoesLote: atrib.salvarLote, desfazerAtribuicao: atrib.desfazer,
+  } : null), [aplicada, recarregar, abrirFontes, atrib.atribuicoes, atrib.erro, atrib.salvar, atrib.salvarLote, atrib.desfazer]);
 
   let conteudo: ReactNode;
   if (!base || !painel) {

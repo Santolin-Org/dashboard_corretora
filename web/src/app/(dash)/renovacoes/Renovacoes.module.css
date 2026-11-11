@@ -66,3 +66,23 @@
   background: rgba(251, 146, 60, .12);
   font-size: 12px;
 }
+
+.lote {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: rgba(55, 138, 221, .08);
+  font-size: 12px;
+}
+
+.resultadoLote {
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #15803d;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.colSel { width: 28px; text-align: center; }

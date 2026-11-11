@@ -35,6 +35,7 @@ const L: Linha[] = [
 const base = (linhas: Linha[]) => ({ linhas, sinistros: [], hoje: "2026-11-09", manifesto: [], avisosSaude: [], contagensSinistros: { sinistrosAvisados: 0, sinistrosPagamentos: 0 } }) as unknown as BaseCliente;
 
 const salvar = vi.fn(async () => {}), desfazer = vi.fn(async () => {});
+const salvarLote = vi.fn<(itens: unknown[]) => Promise<void>>(async () => {});
 function montar(linhas = L, atribs: Atribuicao[] = [], extra: { atribuicoesErro?: boolean } = {}) {
   const ap = aplicarAtribuicoes(linhas, atribs);
   const b = base(ap.linhas);
@@ -42,14 +43,19 @@ function montar(linhas = L, atribs: Atribuicao[] = [], extra: { atribuicoesErro?
     <EstadoAbasProvider>
       <ContextoPainel.Provider value={{
         base: b, recarregar: () => {}, abrirFontes: () => {}, atribuicoes: atribs, divergencias: ap.divergencias,
-        salvarAtribuicao: salvar, desfazerAtribuicao: desfazer, ...extra,
+        salvarAtribuicao: salvar, desfazerAtribuicao: desfazer, salvarAtribuicoesLote: salvarLote, ...extra,
       }}>
         <FiltrosProvider linhas={b.linhas}><Renovacoes /></FiltrosProvider>
       </ContextoPainel.Provider>
     </EstadoAbasProvider>,
   );
 }
-afterEach(() => { cleanup(); papel = "gestao"; salvar.mockClear(); desfazer.mockClear(); });
+// Célula pela coluna do cabeçalho (a gestão tem a coluna de seleção antes de "Cliente").
+const celula = (linhaTabela: Element, coluna: string) => {
+  const cab = [...within(screen.getByRole("table")).getAllByRole("columnheader")].map((h) => h.textContent);
+  return linhaTabela.children[cab.indexOf(coluna)];
+};
+afterEach(() => { cleanup(); papel = "gestao"; salvar.mockClear(); desfazer.mockClear(); salvarLote.mockReset(); salvarLote.mockImplementation(async () => {}); });
 
 describe("aba Renovações", () => {
   it("está no menu e é uma aba de produção", () => {
@@ -111,7 +117,7 @@ describe("aba Renovações", () => {
     expect(botao(/^Renovadas \(1\)/)).toBeTruthy();
     expect(botao(/^Vencidas \(1\)/)).toBeTruthy();
     expect(botao(/^Em aberto \(1\)/)).toBeTruthy();
-    const nomes = () => within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => r.children[0].textContent);
+    const nomes = () => within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => celula(r, "Cliente").textContent);
     fireEvent.click(botao(/^Vencidas/));
     expect(nomes()).toEqual(["Maria Venceu"]);
     expect(botao(/^Vencidas/).getAttribute("aria-pressed")).toBe("true");
@@ -152,7 +158,7 @@ describe("aba Renovações", () => {
     it("linha atribuída mostra o responsável, o selo e volta ao original", async () => {
       montar(L, ATRIBS);
       const maria = linhaDe("Maria Venceu");
-      expect(maria.children[3].textContent).toContain("BIA");
+      expect(celula(maria, "Colaborador").textContent).toContain("BIA");
       expect(within(maria).getByText("atribuída").getAttribute("title")).toBe("Na planilha: C");
       fireEvent.click(within(maria).getByRole("button", { name: "Atribuir" }));
       fireEvent.click(screen.getByRole("button", { name: "Voltar ao original" }));
@@ -172,7 +178,7 @@ describe("aba Renovações", () => {
     it("filtro de colaborador global usa o responsável atribuído", () => {
       busca = `f=${encodeURIComponent(JSON.stringify({ col: ["CAIO"] }))}`;
       montar(L, ATRIBS);
-      const nomes = within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => r.children[0].textContent);
+      const nomes = within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => celula(r, "Cliente").textContent);
       busca = "";
       expect(nomes).toEqual(["José Renovou"]);
     });
@@ -180,6 +186,93 @@ describe("aba Renovações", () => {
     it("sem as atribuições (banco fora), a gestão vê o aviso", () => {
       montar(L, [], { atribuicoesErro: true });
       expect(screen.getByText(/Não foi possível carregar as atribuições/)).toBeTruthy();
+    });
+  });
+
+  describe("atribuição em lote", () => {
+    const COM_BIA = L.concat([linha({ colab: "BIA - EQUIPE", apolice: "X", fim: "2020-01-01" })]);
+    const marcar = (cli: string) => fireEvent.click(screen.getByRole("checkbox", { name: new RegExp(`Selecionar ${cli}`) }));
+    const barra = () => screen.getByRole("region", { name: "Atribuição em lote" });
+
+    it("seleciona linhas e atribui todas de uma vez ao responsável escolhido", async () => {
+      montar(COM_BIA);
+      expect(screen.queryByRole("region", { name: "Atribuição em lote" })).toBeNull();
+      marcar("Maria Venceu");
+      marcar("Pedro Aberto");
+      expect(within(barra()).getByText("2 selecionadas")).toBeTruthy();
+      fireEvent.change(within(barra()).getByLabelText("Responsável das selecionadas"), { target: { value: "BIA - EQUIPE" } });
+      fireEvent.click(within(barra()).getByRole("button", { name: "Atribuir 2" }));
+      await vi.waitFor(() => expect(salvarLote).toHaveBeenCalledTimes(1));
+      expect(salvarLote.mock.calls[0][0]).toEqual([
+        { seg: "Allianz", apolice: "B1", fim: "2026-11-07", para: "BIA - EQUIPE", de: "C" },
+        { seg: "Allianz", apolice: "C1", fim: "2026-11-25", para: "BIA - EQUIPE", de: "C" },
+      ]);
+      // Gravou: limpa a seleção e confirma.
+      await vi.waitFor(() => expect(screen.getByRole("status", { name: "Resultado da atribuição em lote" }).textContent).toBe("2 renovações atribuídas a BIA - EQUIPE."));
+      expect(screen.queryByRole("region", { name: "Atribuição em lote" })).toBeNull();
+      expect(screen.getAllByRole("checkbox").every((c) => !(c as HTMLInputElement).checked)).toBe(true);
+    });
+
+    it("o cabeçalho seleciona e desmarca todas as linhas da página", () => {
+      montar(COM_BIA);
+      const todas = screen.getByRole("checkbox", { name: "Selecionar todas desta página" });
+      fireEvent.click(todas);
+      expect(within(barra()).getByText("3 selecionadas")).toBeTruthy();
+      fireEvent.click(todas);
+      expect(screen.queryByRole("region", { name: "Atribuição em lote" })).toBeNull();
+    });
+
+    it("com mais de uma página, oferece selecionar todas as da lista filtrada", () => {
+      const muitas = Array.from({ length: 60 }, (_, i) =>
+        linha({ cli: `Cliente ${i}`, docDigits: `9${i}`, ramo: "Auto", tipo: "N", sit: "Ativa", vig: "2025-11-20", fim: "2026-11-20", apolice: `M${i}` }));
+      montar(muitas);
+      fireEvent.click(screen.getByRole("checkbox", { name: "Selecionar todas desta página" }));
+      expect(within(barra()).getByText("50 selecionadas")).toBeTruthy();
+      fireEvent.click(within(barra()).getByRole("button", { name: "Selecionar todas as 60 da lista" }));
+      expect(within(barra()).getByText("60 selecionadas")).toBeTruthy();
+    });
+
+    it("a seleção só vale para o que está na lista: a busca esconde, a barra não conta", () => {
+      montar(COM_BIA);
+      marcar("Maria Venceu");
+      marcar("Pedro Aberto");
+      fireEvent.change(screen.getByRole("searchbox", { name: "Buscar renovações" }), { target: { value: "Pedro" } });
+      expect(within(barra()).getByText("1 selecionada")).toBeTruthy();
+    });
+
+    it("quem já é o colaborador da planilha fica de fora e a mensagem avisa", async () => {
+      montar(COM_BIA.concat([linha({ cli: "Bia Cliente", docDigits: "555", ramo: "Auto", tipo: "N", sit: "Ativa", vig: "2025-11-26", fim: "2026-11-26", apolice: "E1", colab: "BIA - EQUIPE" })]));
+      marcar("Pedro Aberto");
+      marcar("Bia Cliente");
+      fireEvent.change(within(barra()).getByLabelText("Responsável das selecionadas"), { target: { value: "BIA - EQUIPE" } });
+      fireEvent.click(within(barra()).getByRole("button", { name: "Atribuir 2" }));
+      await vi.waitFor(() => expect(salvarLote).toHaveBeenCalledTimes(1));
+      expect(salvarLote.mock.calls[0][0]).toEqual([{ seg: "Allianz", apolice: "C1", fim: "2026-11-25", para: "BIA - EQUIPE", de: "C" }]);
+      await vi.waitFor(() => expect(screen.getByRole("status", { name: "Resultado da atribuição em lote" }).textContent)
+        .toBe("1 renovação atribuída a BIA - EQUIPE. 1 já era de BIA - EQUIPE na planilha e ficou como estava."));
+    });
+
+    it("falha ao gravar: mostra o erro e mantém a seleção", async () => {
+      salvarLote.mockRejectedValueOnce(new Error("Banco indisponível."));
+      montar(COM_BIA);
+      marcar("Pedro Aberto");
+      fireEvent.change(within(barra()).getByLabelText("Responsável das selecionadas"), { target: { value: "BIA - EQUIPE" } });
+      fireEvent.click(within(barra()).getByRole("button", { name: "Atribuir 1" }));
+      await vi.waitFor(() => expect(within(barra()).getByRole("alert").textContent).toBe("Banco indisponível."));
+      expect(within(barra()).getByText("1 selecionada")).toBeTruthy();
+    });
+
+    it("Limpar seleção desmarca tudo", () => {
+      montar(COM_BIA);
+      marcar("Pedro Aberto");
+      fireEvent.click(within(barra()).getByRole("button", { name: "Limpar seleção" }));
+      expect(screen.queryByRole("region", { name: "Atribuição em lote" })).toBeNull();
+    });
+
+    it("vendedor não vê as caixas de seleção", () => {
+      papel = "vendedor";
+      montar(COM_BIA);
+      expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
     });
   });
 });
