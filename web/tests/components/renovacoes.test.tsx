@@ -134,6 +134,45 @@ describe("aba Renovações", () => {
     expect(container.querySelector("#renov-kpis")!.textContent!.replace(/\u00a0/g, " ")).toContain("1 de 3");
   });
 
+  describe("renovações de outros vencimentos", () => {
+    // Lucas: R de novembro sem antiga que vence em novembro (renovação de outro vencimento). Fictício.
+    const LUCAS = linha({ cli: "Lucas Outro", docDigits: "666", ramo: "Auto", tipo: "R", sit: "Ativa", vig: "2026-11-15", fim: "2027-11-15", premio: 800, com: 80, apolice: "L1" });
+
+    it("o card conta só o que renovou do que chegou; as de outros vencimentos aparecem à parte", () => {
+      const { container } = montar(L.concat([LUCAS]));
+      const kpis = container.querySelector("#renov-kpis")!.parentElement!.textContent!.replace(/\u00a0/g, " ");
+      expect(kpis).toContain("R$ 1.200,00 de R$ 1.800,00");
+      expect(kpis).toContain("1 de 3");
+      expect(kpis).toContain("+1 renovação de outros vencimentos (R$ 800,00 de prêmio, R$ 80,00 de comissão) fora da conta.");
+    });
+
+    it("o filtro Outros vencimentos lista essas renovações, com a busca", () => {
+      montar(L.concat([LUCAS]));
+      expect(screen.getByRole("button", { name: "Todas (3)" })).toBeTruthy();
+      fireEvent.click(screen.getByRole("button", { name: "Outros vencimentos (1)" }));
+      const linhas = within(screen.getByRole("table")).getAllByRole("row").slice(1);
+      expect(linhas).toHaveLength(1);
+      expect(linhas[0].textContent).toContain("Lucas Outro");
+      expect(linhas[0].textContent).toContain("Sem apólice anterior ligada");
+      // Essas linhas não têm atribuição (ela é feita na apólice que vence).
+      expect(within(linhas[0]).queryByRole("checkbox")).toBeNull();
+      fireEvent.change(screen.getByRole("searchbox", { name: "Buscar renovações" }), { target: { value: "José" } });
+      expect(screen.queryByRole("table")).toBeNull();
+      expect(screen.getByText("Nenhuma renovação de outro vencimento para essa busca.")).toBeTruthy();
+    });
+
+    it("o link do card abre o filtro", () => {
+      montar(L.concat([LUCAS]));
+      fireEvent.click(screen.getByRole("button", { name: "Ver renovações de outros vencimentos" }));
+      expect(screen.getByRole("button", { name: "Outros vencimentos (1)" }).getAttribute("aria-pressed")).toBe("true");
+    });
+
+    it("sem nenhuma, nem a linha do card nem o botão aparecem", () => {
+      montar();
+      expect(screen.queryByText(/outros vencimentos/)).toBeNull();
+    });
+  });
+
   describe("atribuição de renovações", () => {
     // Fictício: B1 (Maria, colab "C" da planilha) atribuída a BIA; A1 (José) atribuída a CAIO, e a R dele saiu no nome "C".
     const at = (apolice: string, fim: string, para: string): Atribuicao => ({ seg: "Allianz", apolice, fim, para, de: "C", por: "g", em: "2026-11-10T00:00:00Z" });

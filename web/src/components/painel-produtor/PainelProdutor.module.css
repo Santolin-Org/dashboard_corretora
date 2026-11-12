@@ -469,3 +469,27 @@
   .k-30 { color: #2f6fd6; }
   .grupo { color: #7f1d1d; background: rgba(127, 29, 29, .08); }
 }
+
+.acoesLista {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.filtroRenovaveis {
+  font-size: 11px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-default);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.filtroRenovaveis[aria-pressed="true"] {
+  border-color: #378ADD;
+  color: inherit;
+  font-weight: 600;
+}

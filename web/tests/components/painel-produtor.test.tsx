@@ -120,6 +120,34 @@ describe("A renovar", () => {
   });
 });
 
+describe("A renovar: só renováveis", () => {
+  const COM_VIAGEM = LINHAS.concat([
+    linha({ colab: GV, tipo: "N", fim: "2026-10-27", sit: "Ativa", cli: "Viajante Silva", vig: "2025-10-27", ramo: "Seguro Viagem Individual" }),
+    linha({ colab: GV, tipo: "N", fim: "2026-10-28", sit: "Ativa", cli: "Obra Ltda", vig: "2025-10-28", ramo: "Riscos de Engenharia" }),
+  ]);
+
+  it("abre ativo e esconde os ramos que não renovam; desligar mostra todos (também na lista completa)", () => {
+    painel({}, fakeBase(COM_VIAGEM));
+    const botao = screen.getByRole("button", { name: "Só renováveis" });
+    expect(botao.getAttribute("aria-pressed")).toBe("true");
+    expect(lista().textContent).toContain("A renovar · 3 em outubro");
+    expect(lista().textContent).not.toContain("Viajante Silva");
+    fireEvent.click(botao);
+    expect(botao.getAttribute("aria-pressed")).toBe("false");
+    expect(lista().textContent).toContain("A renovar · 5 em outubro");
+    fireEvent.click(screen.getByRole("button", { name: "Ver lista completa" }));
+    expect(screen.getByRole("dialog", { name: /A renovar/ }).textContent).toContain("Obra Ltda");
+  });
+
+  it("na lista completa com o filtro ligado, os ramos que não renovam também ficam de fora", () => {
+    painel({}, fakeBase(COM_VIAGEM));
+    fireEvent.click(screen.getByRole("button", { name: "Ver lista completa" }));
+    const d = screen.getByRole("dialog", { name: /A renovar/ });
+    expect(d.textContent).not.toContain("Viajante Silva");
+    expect(d.textContent).not.toContain("Obra Ltda");
+  });
+});
+
 describe("A renovar: paginação e lista completa", () => {
   // 12 apólices a vencer em outubro (dias 23..31 e mais 3 no dia 31) + 1 vencida.
   const MUITAS = [

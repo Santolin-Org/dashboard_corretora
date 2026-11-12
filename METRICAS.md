@@ -478,7 +478,13 @@ que entraram nele, e lista apólice por apólice com a renovação de cada uma
 
 - **Período:** a vigência dos filtros globais (as duas pontas); sem ela, o mês atual inteiro.
 - **Chegaram para renovar:** apólices N e R (sem endossos) com **fim de vigência** no período.
-- **Renovações:** apólices R com **início de vigência** no período.
+- **Renovações (cards, desde 12/11/2026):** o que renovou **do que chegou** no período — prêmio e
+  comissão das R ligadas às antigas da lista; em apólices, as *Renovadas*. Assim o "X de Y" e a
+  porcentagem falam da mesma safra.
+- **Renovações de outros vencimentos:** R com **início de vigência** no período que não renovam
+  nada do que venceu nele (renovação adiantada/atrasada de outro vencimento, ou sem antiga ligada:
+  anterior cancelada, fora da base, CPF/CNPJ ou ramo diferente). Ficam fora da conta, numa linha
+  abaixo dos cards, e no filtro *Outros vencimentos* da lista (com a apólice anterior, quando há).
 - **Fora dos dois lados:** Cancelada, Perda Total e Suspensa (saíram no meio da vigência).
 - **Filtros globais:** valem colaborador, grupo, ramo e seguradora; tipo e emissão não.
 - **Ligação antiga → renovação:** mesmo CPF/CNPJ + mesmo ramo + a R começa no fim da antiga
@@ -488,6 +494,9 @@ que entraram nele, e lista apólice por apólice com a renovação de cada uma
   ou *Em aberto* (ainda Ativa).
 - **Filtro da lista:** botões Todas / Renovadas / Vencidas / Em aberto (com a contagem de
   cada um), combinados com a busca. Só a lista muda; os cards continuam com o período inteiro.
+- **A renovar (painel do produtor):** botão *Só renováveis*, ligado por padrão, esconde os ramos
+  que não renovam — os de fora da meta (viagem, carta verde, AP, previdência…) e riscos de
+  engenharia (`ramoRenova` em `web/src/domain/ramos.ts`).
 
 ## 6.3 Atribuição de renovações
 

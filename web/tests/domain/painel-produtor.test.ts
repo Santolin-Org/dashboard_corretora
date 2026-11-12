@@ -90,6 +90,12 @@ describe('a renovar', () => {
     expect(r.vencidas.map(i => [i.cli, i.dias, i.faixa])).toEqual([['venceu', -4, 'vencida']]);
     expect(aRenovar(l, new Set(['A']), '2026-11', hoje).aVencer[0]).toMatchObject({ cli: 'novembro', dias: 11, faixa: '15' });
   });
+  it('só renováveis: tira viagem, carta verde e riscos de engenharia; sem a opção, mostra todos', () => {
+    const r = (ramo: string, cli: string) => linha({ ...base, tipo: 'N', fim: '2026-10-28', sit: 'Ativa', ramo, cli });
+    const l2 = [r('Automóvel', 'auto'), r('Seguro Viagem Individual', 'viagem'), r('Carta Verde', 'carta'), r('Riscos de Engenharia', 'engenharia'), r('Vida', 'vida')];
+    expect(aRenovar(l2, new Set(['A']), '2026-10', hoje, true).aVencer.map(i => i.cli)).toEqual(['auto', 'vida']);
+    expect(aRenovar(l2, new Set(['A']), '2026-10', hoje).aVencer).toHaveLength(5);
+  });
   it('faixas nas bordas', () => {
     expect([-1, 0, 1, 2, 3, 4, 7, 8, 15, 16, 30, 31].map(faixaUrgencia))
       .toEqual(['vencida', '1', '1', '3', '3', '7', '7', '15', '15', '30', '30', 'neutra']);

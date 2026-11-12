@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { canonRamo, classifyRamo, metaTipoSide, shortRamo, normRamo } from '../../src/domain/ramos';
+import { canonRamo, classifyRamo, metaTipoSide, ramoRenova, shortRamo, normRamo } from '../../src/domain/ramos';
 import { fBRL, fN, fP, fPct, fShort } from '../../src/domain/formatos';
 
 const nb = (s: string) => s.replace(/ /g, ' ');
@@ -35,5 +35,14 @@ describe('formatos', () => {
     expect(fShort(1500000)).toBe('R$1.50M');
     expect(fShort(2500)).toBe('R$2.50k');
     expect(fShort(99.6)).toBe('R$100');
+  });
+});
+describe('ramoRenova', () => {
+  it('fora: os ramos fora da meta (viagem, carta verde, AP…) e riscos de engenharia', () => {
+    for (const r of ['Seguro Viagem Individual', 'Carta Verde', 'CARTA VERDE', 'Acidentes Pessoais', 'Riscos de Engenharia', 'riscos de engenharia'])
+      expect(ramoRenova(r), r).toBe(false);
+  });
+  it('dentro: auto, residencial, vida, empresarial', () => {
+    for (const r of ['Automóvel', 'Compreensivo Residencial', 'Vida', 'Compreensivo Empresarial']) expect(ramoRenova(r), r).toBe(true);
   });
 });

@@ -2,6 +2,7 @@ import { respDe } from './responsavel';
 import type { DataISO, Linha } from './tipos';
 import { filtrarLinhas, FILTROS_VAZIOS } from './filtros';
 import { isApolice, SIT } from './situacoes';
+import { ramoRenova } from './ramos';
 
 // ── Painel do produtor: funções puras (sem React, sem servidor) ────────────────
 // COLABORADOR pode trazer dupla/trio separados por " , ". A apólice compartilhada vale
@@ -84,11 +85,13 @@ export type ItemRenovar = { cli: string; ramo: string; seg: string; fim: DataISO
 
 const utcDia = (d: DataISO) => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 86400000;
 
-/** Apólice N/R do(s) nome(s) cujo fim cai no mês, ainda Ativa ou Vencida. `vencidas` = fim antes de hoje. */
-export function aRenovar(linhas: Linha[], nomes: ReadonlySet<string>, mes: string, hoje: DataISO): { vencidas: ItemRenovar[]; aVencer: ItemRenovar[] } {
+/** Apólice N/R do(s) nome(s) cujo fim cai no mês, ainda Ativa ou Vencida. `vencidas` = fim antes de hoje.
+ *  `soRenovaveis`: sem os ramos que não renovam (ramoRenova). */
+export function aRenovar(linhas: Linha[], nomes: ReadonlySet<string>, mes: string, hoje: DataISO, soRenovaveis = false): { vencidas: ItemRenovar[]; aVencer: ItemRenovar[] } {
   const itens = linhas
     .filter(r => isApolice(r) && (r.tipo === 'N' || r.tipo === 'R') && r.fim.slice(0, 7) === mes
-      && (r.sit === SIT.ATIVA || r.sit === SIT.VENCIDA) && pertenceA({ colab: respDe(r) }, nomes))
+      && (r.sit === SIT.ATIVA || r.sit === SIT.VENCIDA) && pertenceA({ colab: respDe(r) }, nomes)
+      && (!soRenovaveis || ramoRenova(r.ramo)))
     .sort((a, b) => (a.fim < b.fim ? -1 : a.fim > b.fim ? 1 : 0))
     .map((r): ItemRenovar => {
       const dias = utcDia(r.fim) - utcDia(hoje);

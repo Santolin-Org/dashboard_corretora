@@ -19,10 +19,15 @@ export type PeriodoRenov = { start: DataISO; end: DataISO };
 export type SituacaoRenov = 'renovada' | 'vencida' | 'em-aberto';
 /** `divergente`: a antiga foi atribuída e a R ligada saiu no nome de outro colaborador (domain/atribuicoes.ts). */
 export type ItemRenovacao = { antiga: Linha; renovacao: Linha | null; situacao: SituacaoRenov; divergente: boolean };
+/** Renovação que começou no período mas não renova nada do que venceu nele: a antiga é de outro vencimento
+ *  (renovação adiantada ou atrasada) ou não foi achada (antiga cancelada, fora da base, CPF/ramo diferente). */
+export type ItemOutroVencimento = { renovacao: Linha; antiga: Linha | null };
 type Totais = { premio: number; com: number; qtd: number };
 type TotaisPct = { premio: number | null; com: number | null; qtd: number | null };
 export type CardsRenovacoes = {
-  chegaram: Totais; renovacoes: Totais; pct: TotaisPct; faltam: Totais;
+  /** renovacoes: o que renovou do que chegou (prêmio/comissão das R ligadas; quantidade = renovadas).
+   *  outros: R com início no período que não renovam nada do que chegou nele. */
+  chegaram: Totais; renovacoes: Totais; outros: Totais; pct: TotaisPct; faltam: Totais;
   desfecho: { renovadas: number; vencidas: number; emAberto: number };
 };
 
@@ -103,14 +108,17 @@ export function ligarRenovacoes(antigas: Linha[], todas: Linha[]): ItemRenovacao
 const somar = (l: Linha[]): Totais => l.reduce((t, r) => ({ premio: t.premio + r.premio, com: t.com + r.com, qtd: t.qtd + 1 }), { premio: 0, com: 0, qtd: 0 });
 const razao = (a: number, b: number) => (b ? a / b : null);
 
-export function cardsRenovacoes(itens: ItemRenovacao[], renovacoes: Linha[]): CardsRenovacoes {
-  const chegaram = somar(itens.map(i => i.antiga)), ren = somar(renovacoes);
-  const conta = (s: SituacaoRenov) => itens.filter(i => i.situacao === s).length;
+export function cardsRenovacoes(itens: ItemRenovacao[], renovacoesPeriodo: Linha[]): CardsRenovacoes {
+  const conta = (sit: SituacaoRenov) => itens.filter(i => i.situacao === sit).length;
+  const ligadas = itens.flatMap(i => (i.renovacao ? [i.renovacao] : []));
+  const usadas = new Set(ligadas);
+  const chegaram = somar(itens.map(i => i.antiga));
+  const ren = { ...somar(ligadas), qtd: conta('renovada') };
   return {
-    chegaram, renovacoes: ren,
+    chegaram, renovacoes: ren, outros: somar(renovacoesPeriodo.filter(r => !usadas.has(r))),
     pct: { premio: razao(ren.premio, chegaram.premio), com: razao(ren.com, chegaram.com), qtd: razao(ren.qtd, chegaram.qtd) },
     faltam: { premio: Math.max(0, chegaram.premio - ren.premio), com: Math.max(0, chegaram.com - ren.com), qtd: Math.max(0, chegaram.qtd - ren.qtd) },
-    desfecho: { renovadas: conta('renovada'), vencidas: conta('vencida'), emAberto: conta('em-aberto') },
+    desfecho: { renovadas: ren.qtd, vencidas: conta('vencida'), emAberto: conta('em-aberto') },
   };
 }
 
@@ -123,20 +131,41 @@ export function filtrarSituacaoRenov(itens: ItemRenovacao[], filtro: FiltroLista
 
 const normalizar = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-/** Busca em cliente, CPF/CNPJ (com ou sem pontuação), apólice antiga e nova, seguradora, ramo e colaborador. */
-export function buscarRenovacoes(itens: ItemRenovacao[], termo: string): ItemRenovacao[] {
+function casa(termo: string, docDigits: string, campos: string[]): boolean {
   const t = normalizar(termo.trim());
-  if (!t) return itens;
+  if (!t) return true;
   const digitos = /^[\d.\-/\s]+$/.test(t) ? t.replace(/\D/g, '') : '';
-  return itens.filter(({ antiga: a, renovacao: r }) => {
-    if (digitos && a.docDigits.includes(digitos)) return true;
-    return [a.cli, a.docDigits, a.apolice, r?.apolice ?? '', a.seg, a.ramo, a.colab, a.resp ?? ''].some(c => normalizar(c).includes(t));
-  });
+  if (digitos && docDigits.includes(digitos)) return true;
+  return campos.some(c => normalizar(c).includes(t));
 }
 
-export function dadosRenovacoes(linhas: Linha[], f: FiltrosGlobais, hoje: DataISO): { periodo: PeriodoRenov; itens: ItemRenovacao[]; cards: CardsRenovacoes } {
+/** Busca em cliente, CPF/CNPJ (com ou sem pontuação), apólice antiga e nova, seguradora, ramo e colaborador. */
+export function buscarRenovacoes(itens: ItemRenovacao[], termo: string): ItemRenovacao[] {
+  if (!termo.trim()) return itens;
+  return itens.filter(({ antiga: a, renovacao: r }) =>
+    casa(termo, a.docDigits, [a.cli, a.docDigits, a.apolice, r?.apolice ?? '', a.seg, a.ramo, a.colab, a.resp ?? '']));
+}
+
+/** A mesma busca, para as renovações de outros vencimentos (campos da R e a apólice antiga, quando há). */
+export function buscarOutrosVencimentos(itens: ItemOutroVencimento[], termo: string): ItemOutroVencimento[] {
+  if (!termo.trim()) return itens;
+  return itens.filter(({ renovacao: r, antiga: a }) =>
+    casa(termo, r.docDigits, [r.cli, r.docDigits, r.apolice, a?.apolice ?? '', r.seg, r.ramo, r.colab, r.resp ?? '']));
+}
+
+export function dadosRenovacoes(linhas: Linha[], f: FiltrosGlobais, hoje: DataISO): {
+  periodo: PeriodoRenov; itens: ItemRenovacao[]; outros: ItemOutroVencimento[]; cards: CardsRenovacoes;
+} {
   const periodo = periodoRenovacoes(f, hoje);
   const chegaram = new Set(chegaramParaRenovar(linhas, f, periodo));
-  const itens = ligarRenovacoes(candidatasRenovacao(linhas), linhas).filter(i => chegaram.has(i.antiga));
-  return { periodo, itens, cards: cardsRenovacoes(itens, renovacoesDoPeriodo(linhas, f, periodo)) };
+  const todas = ligarRenovacoes(candidatasRenovacao(linhas), linhas);
+  const itens = todas.filter(i => chegaram.has(i.antiga));
+  const renovacoesPeriodo = renovacoesDoPeriodo(linhas, f, periodo);
+  const usadas = new Set(itens.flatMap(i => (i.renovacao ? [i.renovacao] : [])));
+  const antigaDe = new Map(todas.flatMap(i => (i.renovacao ? [[i.renovacao, i.antiga] as const] : [])));
+  const outros = renovacoesPeriodo
+    .filter(r => !usadas.has(r))
+    .map((renovacao): ItemOutroVencimento => ({ renovacao, antiga: antigaDe.get(renovacao) ?? null }))
+    .sort((x, y) => x.renovacao.vig.localeCompare(y.renovacao.vig) || x.renovacao.cli.localeCompare(y.renovacao.cli, 'pt-BR'));
+  return { periodo, itens, outros, cards: cardsRenovacoes(itens, renovacoesPeriodo) };
 }
