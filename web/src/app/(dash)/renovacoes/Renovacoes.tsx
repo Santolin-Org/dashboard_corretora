@@ -9,7 +9,7 @@ import { fmtLabel } from "@/domain/comparativo";
 import { fBRL, fN, fPct } from "@/domain/formatos";
 import { nomeCurto, paginar } from "@/domain/painel-produtor";
 import {
-  ROTULO_SITUACAO_RENOV, buscarRenovacoes, dadosRenovacoes, filtrarSituacaoRenov, type FiltroListaRenov, type SituacaoRenov,
+  ROTULO_SITUACAO_RENOV, buscarOutrosVencimentos, buscarRenovacoes, dadosRenovacoes, filtrarSituacaoRenov, type FiltroListaRenov, type SituacaoRenov,
 } from "@/domain/renovacoes";
 import { chaveAtribuicao } from "@/domain/atribuicoes";
 import { respDe } from "@/domain/responsavel";
@@ -20,7 +20,9 @@ import s from "./Renovacoes.module.css";
 const POR_PAGINA = 50;
 const CLASSE_SITUACAO: Record<SituacaoRenov, string> = { renovada: s.renovada, vencida: s.vencida, "em-aberto": s.emAberto };
 const ICONE_SITUACAO: Record<SituacaoRenov, string> = { renovada: "✅", vencida: "❌", "em-aberto": "⏳" };
-const BOTOES_SITUACAO: { sit: FiltroListaRenov; rotulo: string }[] = [
+/** Filtro da lista; 'outros' troca a lista pelas renovações de outros vencimentos. */
+type FiltroTela = FiltroListaRenov | "outros";
+const BOTOES_SITUACAO: { sit: FiltroTela; rotulo: string }[] = [
   { sit: "", rotulo: "Todas" }, { sit: "renovada", rotulo: "Renovadas" }, { sit: "vencida", rotulo: "Vencidas" }, { sit: "em-aberto", rotulo: "Em aberto" },
 ];
 const ATIVO = { borderColor: "#378ADD", fontWeight: 600 } as const;
@@ -35,25 +37,34 @@ export default function Renovacoes() {
   const gestor = usuario?.role === "gestao" || usuario?.role === "admin";
   const { filtros } = useFiltros();
   const [busca, setBusca] = useState("");
-  const [situacao, setSituacao] = useState<FiltroListaRenov>("");
+  const [situacao, setSituacao] = useState<FiltroTela>("");
+  const outrosAtivo = situacao === "outros";
   const [pg, setPg] = useState({ chave: "", n: 1 });
   // Seleção para a atribuição em lote (chave da vigência). Só conta o que está na lista filtrada.
   const [sel, setSel] = useState<ReadonlySet<string>>(() => new Set());
   const [resultadoLote, setResultadoLote] = useState("");
   const d = useMemo(() => dadosRenovacoes(base.linhas, filtros, base.hoje), [base.linhas, filtros, base.hoje]);
   const buscados = useMemo(() => buscarRenovacoes(d.itens, busca), [d.itens, busca]);
-  const achados = useMemo(() => filtrarSituacaoRenov(buscados, situacao), [buscados, situacao]);
+  const achados = useMemo(() => (outrosAtivo ? [] : filtrarSituacaoRenov(buscados, situacao as FiltroListaRenov)), [buscados, situacao, outrosAtivo]);
+  const outrosAchados = useMemo(() => buscarOutrosVencimentos(d.outros, busca), [d.outros, busca]);
   // Contagem em cada botão: o que a busca deixou, por situação.
-  const contagem = (sit: FiltroListaRenov) => filtrarSituacaoRenov(buscados, sit).length;
+  const contagem = (sit: FiltroTela) => (sit === "outros" ? outrosAchados.length : filtrarSituacaoRenov(buscados, sit).length);
   const divergentes = useMemo(() => d.itens.filter((i) => i.divergente).length, [d.itens]);
-  const botoes = gestor && divergentes ? [...BOTOES_SITUACAO, { sit: "divergente" as const, rotulo: "Divergentes" }] : BOTOES_SITUACAO;
+  const botoes: { sit: FiltroTela; rotulo: string }[] = [
+    ...BOTOES_SITUACAO,
+    ...(gestor && divergentes ? [{ sit: "divergente" as const, rotulo: "Divergentes" }] : []),
+    ...(d.outros.length ? [{ sit: "outros" as const, rotulo: "Outros vencimentos" }] : []),
+  ];
   // Quem pode receber uma atribuição: os nomes da coluna COLABORADOR da base.
   const colaboradores = useMemo(() => [...new Set(base.linhas.map((r) => r.colab).filter((c) => c.trim()))].sort((a, b) => a.localeCompare(b, "pt-BR")),
     [base.linhas]);
   // A página volta para 1 quando a busca, a situação ou os filtros mudam.
   const chave = `${busca}|${situacao}|${d.periodo.start}|${d.itens.length}`;
   const pagina = paginar(achados, POR_PAGINA, pg.chave === chave ? pg.n : 1);
-  const selecionadas = gestor ? achados.filter((i) => sel.has(chaveAtribuicao(i.antiga))) : [];
+  const paginaOutros = paginar(outrosAchados, POR_PAGINA, pg.chave === chave ? pg.n : 1);
+  const pag = outrosAtivo ? paginaOutros : pagina;
+  const totalLista = outrosAtivo ? outrosAchados.length : achados.length;
+  const selecionadas = gestor && !outrosAtivo ? achados.filter((i) => sel.has(chaveAtribuicao(i.antiga))) : [];
   const chavesPagina = pagina.itens.map((i) => chaveAtribuicao(i.antiga));
   const paginaToda = chavesPagina.length > 0 && chavesPagina.every((k) => sel.has(k));
   const alternar = (ks: string[], marcar: boolean) => {
@@ -92,14 +103,24 @@ export default function Renovacoes() {
               sub={<>{fPct(c.pct.qtd)} · {fN(c.desfecho.renovadas)} renovadas · {fN(c.desfecho.vencidas)} vencidas · {fN(c.desfecho.emAberto)} em aberto</>} />
           </div>
           <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 8 }}>
-            Valor grande: renovações (apólices R) com início de vigência no período. &quot;de&quot;: o que chegou para renovar (apólices N e R com fim de vigência no período).
+            Valor grande: o que renovou do que chegou (prêmio e comissão das renovações ligadas; em apólices, as renovadas).
+            &quot;de&quot;: o que chegou para renovar (apólices N e R com fim de vigência no período).
           </div>
+          {c.outros.qtd > 0 && (
+            <div className={s.outros} id="renov-outros">
+              <span>
+                +{fN(c.outros.qtd)} {c.outros.qtd === 1 ? "renovação" : "renovações"} de outros vencimentos ({fBRL(c.outros.premio)} de prêmio,{" "}
+                {fBRL(c.outros.com)} de comissão) fora da conta.
+              </span>{" "}
+              <button type="button" className="btn-sm" aria-label="Ver renovações de outros vencimentos" onClick={() => setSituacao("outros")}>Ver</button>
+            </div>
+          )}
         </div>
       </SecaoRecolhivel>
       {" "}
       <SecaoRecolhivel
         chave="renov-lista"
-        cabecalho={<SecaoTitulo>Apólice por apólice{" "}<SecaoBadge id="renov-badge">{fN(achados.length)} apólices</SecaoBadge></SecaoTitulo>}
+        cabecalho={<SecaoTitulo>Apólice por apólice{" "}<SecaoBadge id="renov-badge">{fN(totalLista)} {outrosAtivo ? "renovações" : "apólices"}</SecaoBadge></SecaoTitulo>}
         controles={
           <>
             <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginRight: 8 }} role="group" aria-label="Filtrar por situação">
@@ -121,7 +142,44 @@ export default function Renovacoes() {
             concluir={(m) => { setSel(new Set()); setResultadoLote(m); }} />
         )}
         <div className={`${s.tabelaWrap} detail-table-wrap`}>
-          {achados.length ? (
+          {outrosAtivo ? (outrosAchados.length ? (
+            <table className="ret-table detail-table" id="renov-outros-tabela">
+              <thead>
+                <tr>
+                  <th style={{ minWidth: 150 }}>Cliente</th>
+                  <th>Ramo</th>
+                  <th>Seguradora</th>
+                  <th>Colaborador</th>
+                  <th>Início</th>
+                  <th style={{ textAlign: "right" }}>Prêmio ant.</th>
+                  <th style={{ textAlign: "right" }}>Prêmio renov.</th>
+                  <th style={{ textAlign: "right" }}>Comissão ant.</th>
+                  <th style={{ textAlign: "right" }}>Comissão renov.</th>
+                  <th>Apólice anterior</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginaOutros.itens.map(({ renovacao: r, antiga: a }, i) => (
+                  <tr key={`${r.seg}|${r.apolice}|${i}`}>
+                    <td className="name-cell" style={{ maxWidth: 200 }} title={`${r.cli} · apólice ${r.apolice}${a ? ` (anterior ${a.apolice})` : ""}`}>{r.cli}</td>
+                    <td>{r.ramo}</td>
+                    <td>{r.seg}</td>
+                    <td>{nomeCurto(respDe(r))}</td>
+                    <td>{fmtLabel(r.vig)}</td>
+                    <td className="num">{a ? fBRL(a.premio) : "—"}</td>
+                    <td className="num">{fBRL(r.premio)}</td>
+                    <td className="num">{a ? fBRL(a.com) : "—"}</td>
+                    <td className="num">{fBRL(r.com)}</td>
+                    <td>{a ? `Venceu em ${fmtLabel(a.fim)}` : "Sem apólice anterior ligada"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ padding: 16, fontSize: 12, color: "var(--text-secondary)" }}>
+              {busca.trim() ? "Nenhuma renovação de outro vencimento para essa busca." : "Nenhuma renovação de outro vencimento no período."}
+            </div>
+          )) : achados.length ? (
             <table className="ret-table detail-table" id="renov-tabela">
               <thead>
                 <tr>
@@ -182,17 +240,17 @@ export default function Renovacoes() {
               {busca.trim() && situacao ? "Nenhuma apólice encontrada com essa busca e situação."
                 : busca.trim() ? "Nenhuma apólice encontrada para essa busca."
                 : situacao === "divergente" ? "Nenhuma divergência no período."
-                : situacao ? `Nenhuma apólice ${ROTULO_SITUACAO_RENOV[situacao].toLowerCase()} no período.` : "Nenhuma apólice chegou para renovar no período com os filtros atuais."}
+                : situacao ? `Nenhuma apólice ${ROTULO_SITUACAO_RENOV[situacao as SituacaoRenov].toLowerCase()} no período.` : "Nenhuma apólice chegou para renovar no período com os filtros atuais."}
             </div>
           )}
         </div>
-        {pagina.paginas > 1 && (
+        {pag.paginas > 1 && (
           <div className={s.paginacao}>
-            <span>{fN((pagina.pagina - 1) * POR_PAGINA + 1)}–{fN((pagina.pagina - 1) * POR_PAGINA + pagina.itens.length)} de {fN(achados.length)}</span>
+            <span>{fN((pag.pagina - 1) * POR_PAGINA + 1)}–{fN((pag.pagina - 1) * POR_PAGINA + pag.itens.length)} de {fN(totalLista)}</span>
             <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-              <button type="button" className="btn-sm" disabled={pagina.pagina <= 1} onClick={() => setPg({ chave, n: pagina.pagina - 1 })}>← Anterior</button>
-              <span>Página {pagina.pagina} de {pagina.paginas}</span>
-              <button type="button" className="btn-sm" disabled={pagina.pagina >= pagina.paginas} onClick={() => setPg({ chave, n: pagina.pagina + 1 })}>Próxima →</button>
+              <button type="button" className="btn-sm" disabled={pag.pagina <= 1} onClick={() => setPg({ chave, n: pag.pagina - 1 })}>← Anterior</button>
+              <span>Página {pag.pagina} de {pag.paginas}</span>
+              <button type="button" className="btn-sm" disabled={pag.pagina >= pag.paginas} onClick={() => setPg({ chave, n: pag.pagina + 1 })}>Próxima →</button>
             </div>
           </div>
         )}

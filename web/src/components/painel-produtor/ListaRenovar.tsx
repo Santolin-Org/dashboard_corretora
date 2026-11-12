@@ -58,9 +58,11 @@ export function ListaRenovar({ nomes, mostrarDono }: { nomes: ReadonlySet<string
   const [pagina, setPagina] = useState(1);
   const [min, setMin] = useState(lerMin);
   const [completa, setCompleta] = useState(false);
+  // "Só renováveis" (padrão ligado): esconde viagem, carta verde, riscos de engenharia e os demais que não renovam.
+  const [soRenovaveis, setSoRenovaveis] = useState(true);
   const ulRef = useRef<HTMLUListElement>(null);
   const porPagina = useItensQueCabem(ulRef);
-  const { vencidas, aVencer } = useMemo(() => aRenovar(base.linhas, nomes, mes, base.hoje), [base, nomes, mes]);
+  const { vencidas, aVencer } = useMemo(() => aRenovar(base.linhas, nomes, mes, base.hoje, soRenovaveis), [base, nomes, mes, soRenovaveis]);
   const n = vencidas.length + aVencer.length;
   const visiveis = useMemo(() => [...(min ? [] : vencidas), ...aVencer], [min, vencidas, aVencer]);
   const pg = paginar(visiveis, porPagina, pagina);
@@ -85,7 +87,12 @@ export function ListaRenovar({ nomes, mostrarDono }: { nomes: ReadonlySet<string
           <h2 id="pp-renovar-titulo">A renovar <small>· {n} em {nomeMes(mes)}</small></h2>
           <div className={s.sub}>Novas e renovações com fim de vigência no mês, ainda não renovadas no Quiver</div>
         </div>
-        <SeletorMes mes={mes} atual={atual} aoMudar={setMes} />
+        <div className={s.acoesLista}>
+          <button type="button" className={s.filtroRenovaveis} aria-pressed={soRenovaveis}
+            title="Esconde os ramos que não renovam: viagem, carta verde, riscos de engenharia, acidentes pessoais, previdência…"
+            onClick={() => { setSoRenovaveis(!soRenovaveis); setPagina(1); }}>Só renováveis</button>
+          <SeletorMes mes={mes} atual={atual} aoMudar={setMes} />
+        </div>
       </div>
       {n === 0 && <p className={s.vazio}>Nenhuma apólice a renovar em {nomeMes(mes, "ano")}.</p>}
       {vencidas.length > 0 && (

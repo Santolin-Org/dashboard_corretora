@@ -87,6 +87,14 @@ export function classifyRamo(ramo: unknown): 'excluded' | 'pessoais' | 'patrimon
   return 'patrimoniais';
 }
 
+// Ramos que não renovam: os de fora da meta (viagem, carta verde, AP, previdência…) e riscos de engenharia (seguro da
+// obra, termina com ela). Usado no "Só renováveis" da lista A renovar.
+const NAO_RENOVA_EXTRA_KEYS: string[] = ['RISCOS DE ENGENHARIA'];
+export function ramoRenova(ramo: unknown): boolean {
+  const n = normRamo(ramo);
+  return classifyRamo(ramo) !== 'excluded' && !NAO_RENOVA_EXTRA_KEYS.some(k => n.includes(k));
+}
+
 // Produção da meta = N, R, EN, ER (mesma definição do resto do dashboard).
 // O lado "novos" agrega N + endosso novo; "renovações" agrega R + endosso renovação.
 export function metaTipoSide(tipo: string): 'N' | 'R' | null {

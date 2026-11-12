@@ -3,7 +3,7 @@ import { linha } from './helpers';
 import { FILTROS_VAZIOS, type FiltrosGlobais } from '../../src/domain/filtros';
 import { aplicarAtribuicoes } from '../../src/domain/atribuicoes';
 import {
-  buscarRenovacoes, cardsRenovacoes, filtrarSituacaoRenov, chegaramParaRenovar, dadosRenovacoes, ligarRenovacoes, periodoRenovacoes, renovacoesDoPeriodo,
+  buscarOutrosVencimentos, buscarRenovacoes, cardsRenovacoes, filtrarSituacaoRenov, chegaramParaRenovar, dadosRenovacoes, ligarRenovacoes, periodoRenovacoes, renovacoesDoPeriodo,
 } from '../../src/domain/renovacoes';
 
 const NOV = { start: '2026-11-01', end: '2026-11-30' };
@@ -101,23 +101,61 @@ describe('ligarRenovacoes', () => {
 });
 
 describe('cardsRenovacoes', () => {
-  it('soma o que chegou para renovar e as renovações do período, com % e o que falta', () => {
+  // Mudança intencional (12/11/2026): o lado "renovações" passou a ser só o que renovou do que chegou no período
+  // (as R ligadas às antigas da lista); as R de outros vencimentos ficam em `outros`.
+  it('renovações = R ligadas ao que chegou; quantidade = renovadas; outros vencimentos à parte', () => {
+    const rA = renov({ apolice: 'RA', docDigits: '1', premio: 1500, com: 120 });
+    const rOutro = renov({ apolice: 'R-OUTRO', docDigits: '9', premio: 700, com: 70 });
     const itens = ligarRenovacoes([
       antiga({ apolice: 'a', sit: 'Renovada', premio: 1000, com: 100, docDigits: '1' }),
       antiga({ apolice: 'b', sit: 'Vencida', premio: 500, com: 50, docDigits: '2' }),
       antiga({ apolice: 'c', sit: 'Ativa', premio: 500, com: 50, docDigits: '3' }),
-    ], []);
-    const c = cardsRenovacoes(itens, [renov({ premio: 1500, com: 120 })]);
+    ], [rA, rOutro]);
+    const c = cardsRenovacoes(itens, [rA, rOutro]);
     expect(c.chegaram).toEqual({ premio: 2000, com: 200, qtd: 3 });
     expect(c.renovacoes).toEqual({ premio: 1500, com: 120, qtd: 1 });
+    expect(c.outros).toEqual({ premio: 700, com: 70, qtd: 1 });
     expect(c.pct).toEqual({ premio: 0.75, com: 0.6, qtd: 1 / 3 });
     expect(c.faltam).toEqual({ premio: 500, com: 80, qtd: 2 });
     expect(c.desfecho).toEqual({ renovadas: 1, vencidas: 1, emAberto: 1 });
+  });
+  it('a antiga Renovada na planilha sem R ligada conta na quantidade, mas não soma prêmio', () => {
+    const itens = ligarRenovacoes([antiga({ apolice: 'a', sit: 'Renovada', docDigits: '1' }), antiga({ apolice: 'b', sit: 'Vencida', docDigits: '2' })], []);
+    const c = cardsRenovacoes(itens, []);
+    expect(c.renovacoes).toEqual({ premio: 0, com: 0, qtd: 1 });
+    expect(c.desfecho.renovadas).toBe(1);
+    expect(c.pct.qtd).toBe(0.5);
   });
   it('sem nada para renovar, % é null e nada falta', () => {
     const c = cardsRenovacoes([], [renov()]);
     expect(c.pct).toEqual({ premio: null, com: null, qtd: null });
     expect(c.faltam).toEqual({ premio: 0, com: 0, qtd: 0 });
+    expect(c.outros.qtd).toBe(1);
+  });
+});
+
+describe('outros vencimentos', () => {
+  // OUT venceu em 31/10 e a R dela começa em 01/11 (1 dia: liga) — entra em novembro, mas a antiga é de outubro.
+  // SOLTA: R de novembro sem antiga ligada.
+  const out = antiga({ apolice: 'OUT', fim: '2026-10-31', vig: '2025-10-31', docDigits: '444' });
+  const rOut = renov({ apolice: 'R-OUT', vig: '2026-11-01', fim: '2027-11-01', docDigits: '444' });
+  const solta = renov({ apolice: 'SOLTA', vig: '2026-11-20', fim: '2027-11-20', docDigits: '555', colab: 'BIA' });
+  it('são as R do período que não renovaram nada do que chegou nele, com a antiga quando há ligação', () => {
+    const d = dadosRenovacoes([antiga(), renov(), out, rOut, solta], f(), '2026-11-09');
+    expect(d.itens.map(i => i.antiga.apolice)).toEqual(['OLD1']);
+    expect(d.outros.map(o => [o.renovacao.apolice, o.antiga?.apolice ?? null])).toEqual([['R-OUT', 'OUT'], ['SOLTA', null]]);
+    expect(d.cards.outros.qtd).toBe(2);
+    expect(d.cards.renovacoes.qtd).toBe(1);
+  });
+  it('seguem os filtros globais (colaborador pela R)', () => {
+    const d = dadosRenovacoes([antiga(), renov(), out, rOut, solta], f({ col: ['BIA'] }), '2026-11-09');
+    expect(d.outros.map(o => o.renovacao.apolice)).toEqual(['SOLTA']);
+  });
+  it('busca por cliente, apólice nova ou antiga, CPF/CNPJ', () => {
+    const d = dadosRenovacoes([out, rOut, solta], f(), '2026-11-09');
+    expect(buscarOutrosVencimentos(d.outros, 'out').map(o => o.renovacao.apolice)).toEqual(['R-OUT']);
+    expect(buscarOutrosVencimentos(d.outros, '555').map(o => o.renovacao.apolice)).toEqual(['SOLTA']);
+    expect(buscarOutrosVencimentos(d.outros, '')).toHaveLength(2);
   });
 });
 
