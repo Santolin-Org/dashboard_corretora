@@ -1,9 +1,10 @@
 import { neon } from "@neondatabase/serverless";
-import { and, asc, eq, sql } from "drizzle-orm";
+import { and, asc, eq, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
-import { atribuicoesHistorico, atribuicoesRenovacao, nomesIgnorados, users, vinculos, type Papel } from "./schema";
+import { atribuicoesHistorico, atribuicoesRenovacao, nomesIgnorados, users, vinculos, vinculosRenovacao, vinculosRenovacaoHistorico, type Papel } from "./schema";
 import type { Atribuicao } from "@/domain/atribuicoes";
+import type { ChaveVinculoAntiga, VinculoRenovacao } from "@/domain/vinculos-renovacao";
 
 // Aceita neon-http (produção) e pglite (testes).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -182,5 +183,58 @@ export async function desfazerAtribuicao(k: ChaveAtrib, autor: string, db: Db = 
   const [apagada] = await db.delete(atribuicoesRenovacao).where(naChave(k)).returning({ de: atribuicoesRenovacao.de });
   if (!apagada) return false;
   await db.insert(atribuicoesHistorico).values({ ...k, acao: "desfazer", para: null, de: apagada.de, por: autor });
+  return true;
+}
+
+// ---- Vínculos manuais de renovação (spec 2026-11-13) ----
+
+type NovoVinculo = Omit<VinculoRenovacao, "por" | "em">;
+const V = vinculosRenovacao;
+const paraVinculo = (r: typeof V.$inferSelect): VinculoRenovacao => ({
+  seg: r.seg, apolice: r.apolice, fim: r.fim, renSeg: r.renSeg, renApolice: r.renApolice, renVig: r.renVig,
+  por: r.alteradoPor, em: new Date(r.alteradoEm).toISOString(),
+});
+const naAntiga = (k: ChaveVinculoAntiga) => and(eq(V.seg, k.seg), eq(V.apolice, k.apolice), eq(V.fim, k.fim));
+const naRen = (v: NovoVinculo) => and(eq(V.renSeg, v.renSeg), eq(V.renApolice, v.renApolice), eq(V.renVig, v.renVig));
+const mesmoPar = (a: NovoVinculo, b: NovoVinculo) =>
+  a.seg === b.seg && a.apolice === b.apolice && a.fim === b.fim && a.renSeg === b.renSeg && a.renApolice === b.renApolice && a.renVig === b.renVig;
+const semAutor = (v: VinculoRenovacao): NovoVinculo =>
+  ({ seg: v.seg, apolice: v.apolice, fim: v.fim, renSeg: v.renSeg, renApolice: v.renApolice, renVig: v.renVig });
+
+/** Vários comandos de uma vez: no Neon (neon-http) num `batch`, que é uma transação; sem batch (PGlite dos testes),
+ *  em sequência. */
+async function emLote(db: Db, comandos: unknown[]): Promise<void> {
+  const d = db as unknown as { batch?: (q: unknown[]) => Promise<unknown> };
+  if (typeof d.batch === "function") { await d.batch(comandos); return; }
+  for (const c of comandos) await c;
+}
+
+export async function listarVinculosRenovacao(db: Db = getDb()): Promise<VinculoRenovacao[]> {
+  return (await db.select().from(V).orderBy(asc(V.fim), asc(V.apolice))).map(paraVinculo);
+}
+
+/** Vincula a R à antiga. Se a antiga já tem outro vínculo ou a R já é de outra antiga: sem `substituir` devolve os
+ *  conflitos e não muda nada; com `substituir`, desfaz os conflitantes e grava o novo de uma vez (histórico de tudo).
+ *  O mesmo par de novo não muda nada. */
+export async function salvarVinculoRenovacao(
+  v: NovoVinculo, autor: string, opts: { substituir: boolean }, db: Db = getDb(),
+): Promise<{ ok: true; desfeitos: VinculoRenovacao[] } | { ok: false; conflitos: VinculoRenovacao[] }> {
+  const existentes = (await db.select().from(V).where(or(naAntiga(v), naRen(v)))).map(paraVinculo);
+  if (existentes.some((e) => mesmoPar(semAutor(e), v))) return { ok: true, desfeitos: [] };
+  if (existentes.length && !opts.substituir) return { ok: false, conflitos: existentes };
+  await emLote(db, [
+    ...existentes.map((e) => db.delete(V).where(naAntiga(e))),
+    ...(existentes.length ? [db.insert(vinculosRenovacaoHistorico).values(existentes.map((e) => ({ ...semAutor(e), acao: "desfazer" as const, por: autor })))] : []),
+    db.insert(V).values({ ...v, alteradoPor: autor }),
+    db.insert(vinculosRenovacaoHistorico).values({ ...v, acao: "vincular", por: autor }),
+  ]);
+  return { ok: true, desfeitos: existentes };
+}
+
+/** Desfaz o vínculo da antiga. `false` se não havia. */
+export async function desfazerVinculoRenovacao(k: ChaveVinculoAntiga, autor: string, db: Db = getDb()): Promise<boolean> {
+  const [apagado] = await db.delete(V).where(naAntiga(k)).returning();
+  if (!apagado) return false;
+  await db.insert(vinculosRenovacaoHistorico).values({ ...semAutor(paraVinculo(apagado)), acao: "desfazer", por: autor });
   return true;
 }

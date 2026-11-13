@@ -490,6 +490,14 @@ que entraram nele, e lista apólice por apólice com a renovação de cada uma
 - **Ligação antiga → renovação:** mesmo CPF/CNPJ + mesmo ramo + a R começa no fim da antiga
   (até 1 dia de diferença). Com mais de uma candidata (dois carros), cada R é usada uma vez,
   ligada à antiga de prêmio mais parecido. Sem CPF/CNPJ não há ligação.
+- **Vínculo manual (desde 13/11/2026):** quando o cliente renova em outro nome (cônjuge, empresa) ou
+  atrasado, a gestão vincula à mão a R à antiga — a partir da antiga ("Vincular renovação") ou da R
+  solta em *Outros vencimentos* ("Vincular à apólice anterior"). Só R, com início **até 90 dias
+  depois do fim** da antiga (regra da Santolin: depois disso é lançada como N). O vínculo manual vale
+  antes da ligação automática e conta igual a ela: a R sai de *Outros vencimentos*, soma no card do
+  período da antiga e, se a antiga foi atribuída, vai junto para o novo responsável. A linha mostra o
+  nome da antiga com a etiqueta "renovada como <cliente da R>". Cada antiga e cada R têm no máximo um
+  vínculo; vincular por cima pede confirmação e desfaz o anterior. A ligação automática não mudou.
 - **Situação na lista:** *Renovada* (a planilha diz Renovada ou há ligação), *Vencida*,
   ou *Em aberto* (ainda Ativa).
 - **Filtro da lista:** botões Todas / Renovadas / Vencidas / Em aberto (com a contagem de

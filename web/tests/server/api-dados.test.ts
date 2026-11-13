@@ -6,10 +6,10 @@ import { join } from "node:path";
 import { gerarFixture } from "../../parity/fixtures/make-fixture";
 
 vi.mock("@/server/auth", () => ({ usuarioDaRequisicao: vi.fn() }));
-vi.mock("@/server/db/client", () => ({ nomesDoUsuario: vi.fn(), listarAtribuicoes: vi.fn() }));
+vi.mock("@/server/db/client", () => ({ nomesDoUsuario: vi.fn(), listarAtribuicoes: vi.fn(), listarVinculosRenovacao: vi.fn() }));
 
 import { usuarioDaRequisicao } from "@/server/auth";
-import { listarAtribuicoes, nomesDoUsuario } from "@/server/db/client";
+import { listarAtribuicoes, listarVinculosRenovacao, nomesDoUsuario } from "@/server/db/client";
 import { obterBase, definirDependencias, reiniciarIngestao } from "@/server/ingestao";
 import { criarArmazemMemoria } from "@/server/snapshots";
 import { PastaLocalFonte } from "@/server/fontes/pasta-local";
@@ -21,6 +21,7 @@ import type { ArquivoMeta, FonteArquivos } from "@/server/fontes/tipos";
 const usuario = vi.mocked(usuarioDaRequisicao);
 const nomes = vi.mocked(nomesDoUsuario);
 const atribs = vi.mocked(listarAtribuicoes);
+const vincs = vi.mocked(listarVinculosRenovacao);
 const ANA = "ANA CLARA MENDES", BRUNO = "BRUNO TAVARES";
 const sessao = (role: "admin" | "gestao" | "vendedor", email = "a@b") => ({ email, nome: "A", role, expiraEm: 9e9 });
 const req = (h: Record<string, string> = {}) => new Request("http://x/api/dados", { headers: h });
@@ -38,6 +39,8 @@ beforeEach(() => {
   nomes.mockReset();
   nomes.mockResolvedValue([]);
   atribs.mockReset();
+  vincs.mockReset();
+  vincs.mockResolvedValue([]);
   atribs.mockResolvedValue([]);
 });
 afterEach(() => {
@@ -146,6 +149,21 @@ describe("GET /api/dados", () => {
     expect(r1.status).toBe(200);
     expect(r1.headers.get("etag")).not.toBe(e0);
     expect(decodificarLinhas((await r1.json()).linhas)).toContainEqual(alvo);
+  });
+
+  it("vínculo manual muda o ETag do vendedor com atribuição; banco fora nos vínculos dá 503", async () => {
+    usuario.mockResolvedValue(sessao("vendedor", "ana@x"));
+    nomes.mockResolvedValue([ANA]);
+    const b = await obterBase();
+    const alvo = b.linhas.find((x) => x.colab === BRUNO && x.tipoDoc === "APÓLICE" && !x.endosso && x.fim)!;
+    atribs.mockResolvedValue([{ seg: alvo.seg, apolice: alvo.apolice, fim: alvo.fim, para: ANA, de: BRUNO, por: "g", em: "" }]);
+    const e0 = (await GET(req())).headers.get("etag");
+    vincs.mockResolvedValue([{ seg: alvo.seg, apolice: alvo.apolice, fim: alvo.fim, renSeg: "S", renApolice: "X", renVig: alvo.fim, por: "g", em: "" }]);
+    const r1 = await GET(req({ "if-none-match": e0! }));
+    expect(r1.status).toBe(200);
+    expect(r1.headers.get("etag")).not.toBe(e0);
+    vincs.mockRejectedValue(new Error("sem banco"));
+    expect((await GET(req())).status).toBe(503);
   });
 
   it("banco fora ao ler as atribuições: 503, nunca um escopo sem elas", async () => {

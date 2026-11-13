@@ -2,9 +2,10 @@ import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import { aplicarEscopo, chaveEscopo, escopoDoUsuario, podeReprocessar } from "@/server/escopo";
+import { vinculosDoRecorte, aplicarEscopo, chaveEscopo, escopoDoUsuario, podeReprocessar } from "@/server/escopo";
 import { linha } from "../domain/helpers";
 import type { Atribuicao } from "@/domain/atribuicoes";
+import type { VinculoRenovacao } from "@/domain/vinculos-renovacao";
 import { buscarUsuarioAtivo, setDb } from "@/server/db/client";
 import { users } from "@/server/db/schema";
 import { sincronizarUsuarios } from "@/server/db/seed";
@@ -158,5 +159,40 @@ describe("atribuições com nome composto", () => {
   const at = (para: string): Atribuicao => ({ seg: "S", apolice: "A1", fim: "2026-11-10", para, de: "X", por: "g", em: "" });
   it("atribuição para 'ANA , BIA' entra no escopo da vendedora ANA", () => {
     expect(escopoDoUsuario({ role: "vendedor" }, ["ANA"], [at("ANA , BIA")])).toMatchObject({ atribuicoes: [at("ANA , BIA")] });
+  });
+});
+
+describe("escopo com vínculo manual de renovação", () => {
+  // Fictício: A1 da ANA (doc 111) atribuída à BIA; a renovação R7 saiu no nome do cônjuge (doc 999), colaborador CAIO.
+  const a1 = linha({ colab: "ANA", seg: "S", apolice: "A1", vig: "2025-11-10", fim: "2026-11-10", docDigits: "111", ramo: "Auto" });
+  const r7 = linha({ tipo: "R", colab: "CAIO", seg: "S", apolice: "R7", vig: "2026-11-12", fim: "2027-11-12", docDigits: "999", ramo: "Auto" });
+  const at: Atribuicao = { seg: "S", apolice: "A1", fim: "2026-11-10", para: "BIA", de: "ANA", por: "g", em: "" };
+  const v: VinculoRenovacao = { seg: "S", apolice: "A1", fim: "2026-11-10", renSeg: "S", renApolice: "R7", renVig: "2026-11-12", por: "g", em: "" };
+
+  it("vendedor com a antiga atribuída recebe a R vinculada; sem o vínculo não", () => {
+    expect(aplicarEscopo([a1, r7], escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at]))).toEqual([a1]);
+    expect(aplicarEscopo([a1, r7], escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at], [v]))).toEqual([a1, r7]);
+  });
+  // Mudou de propósito (revisão final): os vínculos entram no escopo de todo vendedor, com ou sem atribuição, para
+  // que um vínculo novo mude o ETag e a lista do vendedor não fique velha.
+  it("vínculos entram no escopo do vendedor mesmo sem atribuição; gestão não", () => {
+    expect(escopoDoUsuario({ role: "vendedor" }, ["DAVI"], [at], [v])).toEqual({ tipo: "colaboradores", nomes: ["DAVI"], vinculos: [v] });
+    expect(escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at], [v])).toEqual({ tipo: "colaboradores", nomes: ["BIA"], atribuicoes: [at], vinculos: [v] });
+    expect(escopoDoUsuario({ role: "gestao" }, [], [at], [v])).toEqual({ tipo: "tudo" });
+    const sem = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["DAVI"]));
+    expect(chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["DAVI"], [], [v]))).not.toBe(sem);
+  });
+  it("vinculosDoRecorte: só os vínculos cuja antiga ou R está nas linhas do vendedor", () => {
+    const outroA = { ...v, apolice: "Z1", renApolice: "Z2" };
+    expect(vinculosDoRecorte([v, outroA], [a1])).toEqual([v]);
+    expect(vinculosDoRecorte([v, outroA], [r7])).toEqual([v]);
+    expect(vinculosDoRecorte([v, outroA], [])).toEqual([]);
+  });
+  it("chaveEscopo muda quando muda o vínculo", () => {
+    const sem = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at]));
+    const com = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at], [v]));
+    const outro = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at], [{ ...v, renApolice: "R8" }]));
+    expect(com).not.toBe(sem);
+    expect(outro).not.toBe(com);
   });
 });

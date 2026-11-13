@@ -20,7 +20,7 @@ vi.mock("@/client/usuario", () => ({
 import { EstadoAbasProvider } from "@/client/estadoAbas";
 import { aplicarAtribuicoes, type Atribuicao } from "@/domain/atribuicoes";
 import { FiltrosProvider } from "@/client/filtros";
-import { ContextoPainel } from "@/client/painel";
+import { ContextoPainel, type ValorPainel } from "@/client/painel";
 import { ABAS, ABAS_PRODUCAO } from "@/components/Abas";
 import Renovacoes from "@/app/(dash)/renovacoes/Renovacoes";
 
@@ -36,7 +36,7 @@ const base = (linhas: Linha[]) => ({ linhas, sinistros: [], hoje: "2026-11-09", 
 
 const salvar = vi.fn(async () => {}), desfazer = vi.fn(async () => {});
 const salvarLote = vi.fn<(itens: unknown[]) => Promise<void>>(async () => {});
-function montar(linhas = L, atribs: Atribuicao[] = [], extra: { atribuicoesErro?: boolean } = {}) {
+function montar(linhas = L, atribs: Atribuicao[] = [], extra: Partial<ValorPainel> = {}) {
   const ap = aplicarAtribuicoes(linhas, atribs);
   const b = base(ap.linhas);
   return render(
@@ -313,5 +313,113 @@ describe("aba Renovações", () => {
       montar(COM_BIA);
       expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
     });
+  });
+});
+
+describe("vínculo manual de renovações", () => {
+  // Fictício: a apólice E1 da Ana Exemplo venceu; a renovação F1 saiu no nome do cônjuge (Bruno Exemplo, outro CPF).
+  const ANA = linha({ cli: "Ana Exemplo", docDigits: "555", ramo: "Auto", tipo: "N", sit: "Renovada", vig: "2025-11-15", fim: "2026-11-15", premio: 800, com: 80, apolice: "E1", seg: "SegX" });
+  const BRUNO = linha({ cli: "Bruno Exemplo", docDigits: "666", ramo: "Auto", tipo: "R", sit: "Ativa", vig: "2026-11-14", fim: "2027-11-14", premio: 900, com: 90, apolice: "F1", seg: "SegX" });
+  const L2 = [...L, ANA, BRUNO];
+  const V = { seg: "SegX", apolice: "E1", fim: "2026-11-15", renSeg: "SegX", renApolice: "F1", renVig: "2026-11-14" };
+  const vincular = vi.fn();
+  const desfazerV = vi.fn(async () => {});
+  const ext = (o = {}) => ({ vincularRenovacao: vincular, desfazerVinculoRenovacao: desfazerV, ...o });
+  const linhaDe = (cli: string) => screen.getAllByRole("row").find((r) => r.textContent!.includes(cli))!;
+  afterEach(() => { vincular.mockReset(); desfazerV.mockClear(); vi.restoreAllMocks(); });
+
+  it("vendedor não vê os botões de vínculo", () => {
+    papel = "vendedor";
+    montar(L2, [], ext());
+    expect(screen.queryByRole("button", { name: /Vincular renovação/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^Outros vencimentos/ }));
+    expect(screen.queryByRole("button", { name: /Vincular à apólice anterior/ })).toBeNull();
+  });
+
+  it("A: botão só na antiga sem renovação; o diálogo sugere a R e grava o par", async () => {
+    vincular.mockResolvedValue({ ok: true, desfeitos: [] });
+    montar(L2, [], ext());
+    expect(within(linhaDe("José Renovou")).queryByRole("button", { name: /Vincular renovação/ })).toBeNull(); // já ligada
+    fireEvent.click(within(linhaDe("Ana Exemplo")).getByRole("button", { name: /Vincular renovação/ }));
+    const dlg = screen.getByRole("dialog", { name: /Vincular renovação/ });
+    expect(within(dlg).getByText(/Qual apólice renovou a de Ana Exemplo/)).toBeTruthy();
+    fireEvent.click(within(dlg).getByRole("radio", { name: /Bruno Exemplo/ }));
+    fireEvent.click(within(dlg).getByRole("button", { name: "Vincular" }));
+    await vi.waitFor(() => expect(vincular).toHaveBeenCalledWith(V));
+    await vi.waitFor(() => expect(screen.queryByRole("dialog")).toBeNull());
+  });
+
+  it("B: botão na renovação solta de outros vencimentos; o diálogo sugere a antiga", async () => {
+    vincular.mockResolvedValue({ ok: true, desfeitos: [] });
+    montar(L2, [], ext());
+    fireEvent.click(screen.getByRole("button", { name: /^Outros vencimentos/ }));
+    fireEvent.click(within(linhaDe("Bruno Exemplo")).getByRole("button", { name: /Vincular à apólice anterior/ }));
+    const dlg = screen.getByRole("dialog", { name: /Vincular à apólice anterior/ });
+    fireEvent.click(within(dlg).getByRole("radio", { name: /Ana Exemplo/ }));
+    fireEvent.click(within(dlg).getByRole("button", { name: "Vincular" }));
+    await vi.waitFor(() => expect(vincular).toHaveBeenCalledWith(V));
+  });
+
+  it("conflito: pede confirmação; cancelar não grava de novo", async () => {
+    vincular.mockResolvedValue({ ok: false, conflitos: [{ ...V, seg: "Allianz", apolice: "C1", fim: "2026-11-25", por: "g", em: "" }] });
+    const confirmar = vi.spyOn(window, "confirm").mockReturnValue(false);
+    montar(L2, [], ext());
+    fireEvent.click(within(linhaDe("Ana Exemplo")).getByRole("button", { name: /Vincular renovação/ }));
+    const dlg = screen.getByRole("dialog");
+    fireEvent.click(within(dlg).getByRole("radio", { name: /Bruno Exemplo/ }));
+    fireEvent.click(within(dlg).getByRole("button", { name: "Vincular" }));
+    await vi.waitFor(() => expect(confirmar).toHaveBeenCalled());
+    expect(confirmar.mock.calls[0][0]).toContain("Esta renovação já está vinculada a Pedro Aberto (apólice C1).");
+    expect(confirmar.mock.calls[0][0]).toContain("Desfazer esse vínculo e vincular a esta?");
+    expect(vincular).toHaveBeenCalledTimes(1);
+  });
+
+  it("conflito confirmado: substitui e avisa com link para a apólice que perdeu o vínculo", async () => {
+    const desfeito = { ...V, seg: "Allianz", apolice: "C1", fim: "2026-11-25", por: "g", em: "" };
+    vincular.mockResolvedValueOnce({ ok: false, conflitos: [desfeito] }).mockResolvedValueOnce({ ok: true, desfeitos: [desfeito] });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    montar(L2, [], ext());
+    fireEvent.click(within(linhaDe("Ana Exemplo")).getByRole("button", { name: /Vincular renovação/ }));
+    const dlg = screen.getByRole("dialog");
+    fireEvent.click(within(dlg).getByRole("radio", { name: /Bruno Exemplo/ }));
+    fireEvent.click(within(dlg).getByRole("button", { name: "Vincular" }));
+    await vi.waitFor(() => expect(vincular).toHaveBeenLastCalledWith(V, true));
+    const aviso = await screen.findByRole("status", { name: /Vínculos desfeitos/ });
+    expect(aviso.textContent).toContain("Vínculo desfeito na apólice C1");
+    fireEvent.click(within(aviso).getByRole("button", { name: "C1" }));
+    expect((screen.getByRole("searchbox", { name: "Buscar renovações" }) as HTMLInputElement).value).toBe("C1");
+    expect(screen.getAllByRole("row").some((r) => r.textContent!.includes("Pedro Aberto"))).toBe(true);
+  });
+
+  it("linha vinculada: nome da antiga + 'renovada como', desfazer só no manual", async () => {
+    montar(L2, [], ext({ vinculosRenovacao: [{ ...V, por: "g", em: "" }] }));
+    const ana = linhaDe("Ana Exemplo");
+    expect(within(ana).getByText("renovada como Bruno Exemplo")).toBeTruthy();
+    expect(within(linhaDe("José Renovou")).queryByText(/renovada como/)).toBeNull(); // mesmo cliente
+    expect(within(linhaDe("José Renovou")).queryByRole("button", { name: /Desfazer vínculo/ })).toBeNull(); // automático
+    fireEvent.click(within(ana).getByRole("button", { name: /Desfazer vínculo/ }));
+    await vi.waitFor(() => expect(desfazerV).toHaveBeenCalledWith({ seg: "SegX", apolice: "E1", fim: "2026-11-15" }));
+    expect(screen.queryByRole("button", { name: /^Outros vencimentos/ })).toBeNull(); // a F1 saiu de outros
+  });
+
+  it("erro ao gravar aparece no diálogo e nada muda", async () => {
+    vincular.mockRejectedValue(new Error("Banco indisponível"));
+    montar(L2, [], ext());
+    fireEvent.click(within(linhaDe("Ana Exemplo")).getByRole("button", { name: /Vincular renovação/ }));
+    const dlg = screen.getByRole("dialog");
+    fireEvent.click(within(dlg).getByRole("radio", { name: /Bruno Exemplo/ }));
+    fireEvent.click(within(dlg).getByRole("button", { name: "Vincular" }));
+    expect((await within(dlg).findByRole("alert")).textContent).toBe("Banco indisponível");
+  });
+});
+
+describe("vínculos indisponíveis", () => {
+  it("gestão vê o aviso quando a lista de vínculos não carregou; vendedor não", () => {
+    montar(L, [], { vinculosErro: true });
+    expect(screen.getByText(/Não foi possível carregar os vínculos de renovação/)).toBeTruthy();
+    cleanup();
+    papel = "vendedor";
+    montar(L, [], { vinculosErro: true });
+    expect(screen.queryByText(/Não foi possível carregar os vínculos de renovação/)).toBeNull();
   });
 });

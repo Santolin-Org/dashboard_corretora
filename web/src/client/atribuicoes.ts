@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { aplicarAtribuicoes, chaveAtribuicao, type Atribuicao, type Divergencia } from "@/domain/atribuicoes";
 import type { BaseCliente } from "./useBase";
+import type { VinculoRenovacao } from "@/domain/vinculos-renovacao";
 
 export type ChaveAtribuicao = { seg: string; apolice: string; fim: string };
 export type NovaAtribuicao = ChaveAtribuicao & { para: string; de: string };
@@ -71,7 +72,7 @@ export function useAtribuicoes(ativo: boolean, sinal?: unknown): EstadoAtribuico
 }
 
 /** A base com as linhas marcadas pelas atribuições (sem atribuições: a mesma base, mesma identidade). */
-export function comAtribuicoes(base: BaseCliente, atribs: Atribuicao[]): { base: BaseCliente; divergencias: Divergencia[] } {
-  const r = aplicarAtribuicoes(base.linhas, atribs);
+export function comAtribuicoes(base: BaseCliente, atribs: Atribuicao[], vinculos: VinculoRenovacao[] = []): { base: BaseCliente; divergencias: Divergencia[] } {
+  const r = aplicarAtribuicoes(base.linhas, atribs, vinculos);
   return { base: r.linhas === base.linhas ? base : { ...base, linhas: r.linhas }, divergencias: r.divergencias };
 }

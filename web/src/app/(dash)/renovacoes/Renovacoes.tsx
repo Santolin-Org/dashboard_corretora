@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useState } from "react";
 import { useFiltros } from "@/client/filtros";
-import { atribuicoesDoPainel, usePainel } from "@/client/painel";
+import { atribuicoesDoPainel, usePainel, vinculosDoPainel } from "@/client/painel";
 import { useUsuario } from "@/client/usuario";
 import { Kpi } from "@/components/Kpi";
 import { SecaoBadge, SecaoRecolhivel, SecaoTitulo } from "@/components/SecaoRecolhivel";
@@ -15,6 +15,9 @@ import { chaveAtribuicao } from "@/domain/atribuicoes";
 import { respDe } from "@/domain/responsavel";
 import { AtribuirEmLote } from "./AtribuirEmLote";
 import { AtribuirResponsavel } from "./AtribuirResponsavel";
+import { VincularRenovacao } from "./VincularRenovacao";
+import type { Linha } from "@/domain/tipos";
+import type { VinculoRenovacao } from "@/domain/vinculos-renovacao";
 import s from "./Renovacoes.module.css";
 
 const POR_PAGINA = 50;
@@ -33,6 +36,7 @@ export default function Renovacoes() {
   const painel = usePainel();
   const { base } = painel;
   const atrib = atribuicoesDoPainel(painel);
+  const vinc = vinculosDoPainel(painel);
   const { usuario } = useUsuario();
   const gestor = usuario?.role === "gestao" || usuario?.role === "admin";
   const { filtros } = useFiltros();
@@ -43,7 +47,29 @@ export default function Renovacoes() {
   // Seleção para a atribuição em lote (chave da vigência). Só conta o que está na lista filtrada.
   const [sel, setSel] = useState<ReadonlySet<string>>(() => new Set());
   const [resultadoLote, setResultadoLote] = useState("");
-  const d = useMemo(() => dadosRenovacoes(base.linhas, filtros, base.hoje), [base.linhas, filtros, base.hoje]);
+  // Vínculo manual (spec 2026-11-13): diálogo aberto (A: a partir da antiga; B: a partir da R) e o aviso dos desfeitos.
+  const [vinculando, setVinculando] = useState<{ modo: "antiga" | "renovacao"; origem: Linha } | null>(null);
+  const [desfeitos, setDesfeitos] = useState<{ apolice: string; outros: boolean }[]>([]);
+  const [erroVinculo, setErroVinculo] = useState("");
+  const d = useMemo(() => dadosRenovacoes(base.linhas, filtros, base.hoje, vinc.vinculos), [base.linhas, filtros, base.hoje, vinc.vinculos]);
+  const clientePorApolice = useMemo(() => new Map(base.linhas.map((r) => [`${r.seg}|${r.apolice}`, r.cli] as const)), [base.linhas]);
+  const clienteDe = (seg: string, apolice: string) => clientePorApolice.get(`${seg}|${apolice}`) ?? "outro cliente";
+  const abrirVinculo = (modo: "antiga" | "renovacao", origem: Linha) => { setDesfeitos([]); setErroVinculo(""); setVinculando({ modo, origem }); };
+  // Quem perdeu o vínculo: a outra antiga (fica sem renovação, na lista) ou a outra R (volta para outros vencimentos).
+  const concluirVinculo = (lista: VinculoRenovacao[]) => {
+    const o = vinculando!.origem, antiga = vinculando!.modo === "antiga" ? o : null;
+    setVinculando(null);
+    setDesfeitos(lista.map((x) => {
+      const mesmaAntiga = antiga ? x.seg === antiga.seg && x.apolice === antiga.apolice && x.fim === antiga.fim
+        : !(x.renSeg === o.seg && x.renApolice === o.apolice && x.renVig === o.vig);
+      return mesmaAntiga ? { apolice: x.renApolice, outros: true } : { apolice: x.apolice, outros: false };
+    }));
+  };
+  const irPara = (x: { apolice: string; outros: boolean }) => { setBusca(x.apolice); setSituacao(x.outros ? "outros" : ""); };
+  const desfazerVinculo = async (a: Linha) => {
+    setErroVinculo("");
+    try { await vinc.desfazer({ seg: a.seg, apolice: a.apolice, fim: a.fim }); } catch (e) { setErroVinculo(e instanceof Error ? e.message : "Não foi possível desfazer o vínculo."); }
+  };
   const buscados = useMemo(() => buscarRenovacoes(d.itens, busca), [d.itens, busca]);
   const achados = useMemo(() => (outrosAtivo ? [] : filtrarSituacaoRenov(buscados, situacao as FiltroListaRenov)), [buscados, situacao, outrosAtivo]);
   const outrosAchados = useMemo(() => buscarOutrosVencimentos(d.outros, busca), [d.outros, busca]);
@@ -82,6 +108,9 @@ export default function Renovacoes() {
       </div>
       {gestor && atrib.erro && (
         <div className={s.aviso} role="status">Não foi possível carregar as atribuições de renovação; os números abaixo seguem a planilha.</div>
+      )}
+      {gestor && vinc.erro && (
+        <div className={s.aviso} role="status">Não foi possível carregar os vínculos de renovação; os números abaixo estão sem os vínculos manuais.</div>
       )}
       {gestor && divergentes > 0 && (
         <div className={s.aviso} role="status" id="renov-divergencias">
@@ -134,6 +163,21 @@ export default function Renovacoes() {
           </>
         }
       >
+        {vinculando && (
+          <VincularRenovacao key={`${vinculando.modo}|${vinculando.origem.seg}|${vinculando.origem.apolice}|${vinculando.origem.vig}`}
+            modo={vinculando.modo} origem={vinculando.origem}
+            livres={vinculando.modo === "antiga" ? d.livres.renovacoes : d.livres.antigas}
+            vincular={vinc.vincular} clienteDe={clienteDe} concluir={concluirVinculo} fechar={() => setVinculando(null)} />
+        )}
+        {desfeitos.length > 0 && (
+          <div className={s.resultadoLote} role="status" aria-label="Vínculos desfeitos">
+            {desfeitos.map((x) => (
+              <div key={x.apolice}>Vínculo desfeito na apólice{" "}
+                <button type="button" className={s.link} onClick={() => irPara(x)}>{x.apolice}</button></div>
+            ))}
+          </div>
+        )}
+        {erroVinculo && <div className={s.aviso} role="alert">{erroVinculo}</div>}
         {resultadoLote && <div className={s.resultadoLote} role="status" aria-label="Resultado da atribuição em lote">{resultadoLote}</div>}
         {selecionadas.length > 0 && (
           <AtribuirEmLote antigas={selecionadas.map((i) => i.antiga)} totalLista={achados.length} colaboradores={colaboradores} salvarLote={atrib.salvarLote}
@@ -156,6 +200,7 @@ export default function Renovacoes() {
                   <th style={{ textAlign: "right" }}>Comissão ant.</th>
                   <th style={{ textAlign: "right" }}>Comissão renov.</th>
                   <th>Apólice anterior</th>
+                  {gestor && <th>Vínculo</th>}
                 </tr>
               </thead>
               <tbody>
@@ -171,6 +216,9 @@ export default function Renovacoes() {
                     <td className="num">{a ? fBRL(a.com) : "—"}</td>
                     <td className="num">{fBRL(r.com)}</td>
                     <td>{a ? `Venceu em ${fmtLabel(a.fim)}` : "Sem apólice anterior ligada"}</td>
+                    {gestor && (
+                      <td>{!a && <button type="button" className="btn-sm" style={{ fontSize: 10 }} onClick={() => abrirVinculo("renovacao", r)}>Vincular à apólice anterior</button>}</td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -202,7 +250,7 @@ export default function Renovacoes() {
                 </tr>
               </thead>
               <tbody>
-                {pagina.itens.map(({ antiga: a, renovacao: r, situacao, divergente }, i) => (
+                {pagina.itens.map(({ antiga: a, renovacao: r, situacao, divergente, manual }, i) => (
                   <tr key={`${a.seg}|${a.apolice}|${i}`}>
                     {gestor && (
                       <td className={s.colSel}>
@@ -210,7 +258,10 @@ export default function Renovacoes() {
                           onChange={(e) => alternar([chaveAtribuicao(a)], e.target.checked)} />
                       </td>
                     )}
-                    <td className="name-cell" style={{ maxWidth: 200 }} title={`${a.cli} · apólice ${a.apolice}${r ? ` → ${r.apolice}` : ""}`}>{a.cli}</td>
+                    <td className="name-cell" style={{ maxWidth: 200 }} title={`${a.cli} · apólice ${a.apolice}${r ? ` → ${r.apolice}` : ""}`}>
+                      {a.cli}
+                      {r && r.cli !== a.cli && <><br /><span className={`${s.selo} ${s.seloRenovadaComo}`}>renovada como {r.cli}</span></>}
+                    </td>
                     <td>{a.ramo}</td>
                     <td>{a.seg}</td>
                     <td>
@@ -226,6 +277,12 @@ export default function Renovacoes() {
                       <span className={`${s.selo} ${CLASSE_SITUACAO[situacao]}`}>{ICONE_SITUACAO[situacao]} {ROTULO_SITUACAO_RENOV[situacao]}</span>
                       {divergente && r && (
                         <span className={`${s.selo} ${s.seloDivergente}`} title={`Renovação no nome de ${r.colab}; atribuída a ${respDe(a)}`}>⚠ divergente</span>
+                      )}
+                      {gestor && !r && (
+                        <button type="button" className="btn-sm" style={{ fontSize: 10, marginLeft: 4 }} onClick={() => abrirVinculo("antiga", a)}>Vincular renovação</button>
+                      )}
+                      {gestor && manual && (
+                        <button type="button" className="btn-sm" style={{ fontSize: 10, marginLeft: 4 }} onClick={() => desfazerVinculo(a)}>Desfazer vínculo</button>
                       )}
                     </td>
                     {gestor && (
