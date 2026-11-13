@@ -1,5 +1,6 @@
 "use client";
 import { comAtribuicoes, useAtribuicoes } from "@/client/atribuicoes";
+import { useVinculosRenovacao } from "@/client/vinculos-renovacao";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useBase } from "@/client/useBase";
@@ -43,11 +44,15 @@ export function Casca({ children }: { children: ReactNode }) {
   const podeReprocessar = usePodeReprocessar(fontesAberto);
   // Atribuições de renovação: buscadas uma vez com a base e aplicadas sobre ela (as abas recebem base.linhas marcadas).
   const atrib = useAtribuicoes(!!base, base);
-  const aplicada = useMemo(() => (base ? comAtribuicoes(base, atrib.atribuicoes) : null), [base, atrib.atribuicoes]);
+  // Vínculos manuais de renovação: a atribuição segue a R vinculada; a aba Renovações lê a lista pelo painel.
+  const vinc = useVinculosRenovacao(!!base, base);
+  const aplicada = useMemo(() => (base ? comAtribuicoes(base, atrib.atribuicoes, vinc.vinculos) : null), [base, atrib.atribuicoes, vinc.vinculos]);
   const painel = useMemo<ValorPainel | null>(() => (aplicada ? {
     base: aplicada.base, recarregar, abrirFontes, atribuicoes: atrib.atribuicoes, divergencias: aplicada.divergencias,
     atribuicoesErro: atrib.erro, salvarAtribuicao: atrib.salvar, salvarAtribuicoesLote: atrib.salvarLote, desfazerAtribuicao: atrib.desfazer,
-  } : null), [aplicada, recarregar, abrirFontes, atrib.atribuicoes, atrib.erro, atrib.salvar, atrib.salvarLote, atrib.desfazer]);
+    vinculosRenovacao: vinc.vinculos, vinculosErro: vinc.erro, vincularRenovacao: vinc.vincular, desfazerVinculoRenovacao: vinc.desfazer,
+  } : null), [aplicada, recarregar, abrirFontes, atrib.atribuicoes, atrib.erro, atrib.salvar, atrib.salvarLote, atrib.desfazer,
+    vinc.vinculos, vinc.erro, vinc.vincular, vinc.desfazer]);
 
   let conteudo: ReactNode;
   if (!base || !painel) {
