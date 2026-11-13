@@ -97,6 +97,10 @@ A migration `0002` (tabelas `atribuicoes_renovacao` e `atribuicoes_historico`, a
 precisa de `npm run db:migrate` em produção antes de publicar a versão que a usa. Sem ela, `/api/atribuicoes` responde
 503, a aba Renovações avisa a gestão e o vendedor fica sem `/api/dados` (503) até a migração rodar.
 
+A migration `0003` (tabelas `vinculos_renovacao` e `vinculos_renovacao_historico`, vínculo manual de renovações) segue a
+mesma regra: rodar **antes** de publicar — primeiro no Neon de dev (branch `preview/dev`), depois em produção com o OK
+do Mitz. Sem ela, `/api/vinculos-renovacao` responde 503 e o vendedor fica sem `/api/dados` (503).
+
 ## Harness de paridade
 
 Compara o app antigo (carregado do `index.html` da raiz, com as planilhas injetadas como o `_spFetchAndLoad` faz) com

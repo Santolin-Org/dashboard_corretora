@@ -104,6 +104,13 @@ describe('sugestões', () => {
     expect(sugestoesAntiga(r, [r, atual, futura], '')).toEqual([]);
     expect(sugestoesRenovacao(antiga(), [antiga({ apolice: 'X3', tipo: 'R', vig: '2025-10-01' })], '')).toEqual([]);
   });
+  it('sugestões só até 90 dias antes do fim (antiga ainda longe de vencer não é sugerida)', () => {
+    const r = renov(); // início 2026-11-14
+    const longeDeVencer = antiga({ apolice: 'L1', vig: '2026-03-06', fim: '2027-03-06' });
+    const antecipada = antiga({ apolice: 'L2', vig: '2026-02-01', fim: '2027-02-01' }); // R começa 79 dias antes do fim
+    expect(sugestoesAntiga(r, [longeDeVencer, antecipada], '').map(x => x.apolice)).toEqual(['L2']);
+    expect(sugestoesRenovacao(longeDeVencer, [r], '')).toEqual([]);
+  });
   it('sugestoesAntiga: espelho, a partir da R', () => {
     const r = renov();
     const a2 = antiga({ apolice: 'A2', seg: 'SegY', fim: '2026-11-14' });

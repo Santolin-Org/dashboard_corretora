@@ -39,8 +39,10 @@ function ordenar(antigaDe: (x: Linha) => Linha, renDe: (x: Linha) => Linha) {
   };
 }
 
-/** O par faz sentido no tempo: a R começa depois do início da antiga e até 90 dias depois do fim dela. */
-const parPossivel = (a: Linha, r: Linha) => a !== r && !!a.vig && r.vig > a.vig && dentroDaJanela(a.fim, r.vig);
+/** Sugestão faz sentido no tempo: a R começa depois do início da antiga, até 90 dias depois do fim e no máximo 90 dias
+ *  antes dele (renovação antecipada); antigas que ainda estão longe de vencer não são sugeridas. */
+const parPossivel = (a: Linha, r: Linha) =>
+  a !== r && !!a.vig && r.vig > a.vig && dentroDaJanela(a.fim, r.vig) && dia(a.fim) - dia(r.vig) <= JANELA_VINCULO_DIAS;
 
 /** Diálogo A: R livres que podem ser a renovação de `antiga`. */
 export function sugestoesRenovacao(antiga: Linha, livres: Linha[], termo: string): Linha[] {

@@ -83,8 +83,9 @@ ligação automática o tivesse achado.
 - Botões A e B aparecem só para gestão/admin, e só onde não há ligação: A na antiga sem renovação ligada (qualquer
   situação); B na R de Outros vencimentos sem antiga.
 - Candidatas: só R (tipo `R`, apólice, fora Cancelada/Perda Total/Suspensa) com início até 90 dias depois do fim
-  da antiga. Antes do fim não há limite fixo (renovação antecipada); a ordem das sugestões já põe as mais próximas
-  primeiro (decisão do Claude).
+  da antiga. Nas sugestões, também no máximo 90 dias **antes** do fim (renovação antecipada) — sem esse limite o
+  diálogo sugeria apólices que só vencem no ano seguinte (decisão do Claude, depois de ver os dados reais). A API só
+  confere o limite de depois.
 - Busca do diálogo: nome, CPF/CNPJ ou número da apólice (mesma regra da busca da lista). Sem termo, mostra as
   sugestões: mesma seguradora e ramo primeiro, depois pela distância entre o início da R e o fim da antiga.
 - A busca procura na base inteira, não só no período filtrado: a renovação pode ter começado em outro mês.
