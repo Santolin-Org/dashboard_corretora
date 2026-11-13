@@ -412,3 +412,14 @@ describe("vínculo manual de renovações", () => {
     expect((await within(dlg).findByRole("alert")).textContent).toBe("Banco indisponível");
   });
 });
+
+describe("vínculos indisponíveis", () => {
+  it("gestão vê o aviso quando a lista de vínculos não carregou; vendedor não", () => {
+    montar(L, [], { vinculosErro: true });
+    expect(screen.getByText(/Não foi possível carregar os vínculos de renovação/)).toBeTruthy();
+    cleanup();
+    papel = "vendedor";
+    montar(L, [], { vinculosErro: true });
+    expect(screen.queryByText(/Não foi possível carregar os vínculos de renovação/)).toBeNull();
+  });
+});

@@ -4,16 +4,25 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 
 vi.mock("@/server/auth", () => ({ usuarioDaRequisicao: vi.fn() }));
+// Base fictícia do vendedor: só a antiga A1 é da BIA; a A9 é de outro colaborador.
+vi.mock("@/server/ingestao", () => ({
+  obterBase: vi.fn(async () => ({
+    linhas: [
+      { tipo: "N", seg: "SegX", apolice: "A1", vig: "2025-11-15", fim: "2026-11-15", colab: "BIA", tipoDoc: "APÓLICE", endosso: "", docDigits: "1", ramo: "Auto", sit: "Ativa" },
+      { tipo: "N", seg: "SegX", apolice: "A9", vig: "2025-11-15", fim: "2026-11-15", colab: "CAIO", tipoDoc: "APÓLICE", endosso: "", docDigits: "2", ramo: "Auto", sit: "Ativa" },
+    ],
+  })),
+}));
 
 import { usuarioDaRequisicao } from "@/server/auth";
 import { listarVinculosRenovacao, salvarVinculoRenovacao, setDb } from "@/server/db/client";
-import { vinculosRenovacao, vinculosRenovacaoHistorico } from "@/server/db/schema";
+import { users, vinculos, vinculosRenovacao, vinculosRenovacaoHistorico } from "@/server/db/schema";
 import { DELETE, GET, PUT } from "@/app/api/vinculos-renovacao/route";
 
 const pg = new PGlite();
 const db = drizzle(pg);
 const usuario = vi.mocked(usuarioDaRequisicao);
-const sessao = (role: "admin" | "gestao" | "vendedor") => ({ email: "g@x.com", nome: "X", role, expiraEm: 9e9 });
+const sessao = (role: "admin" | "gestao" | "vendedor", email = "g@x.com") => ({ email, nome: "X", role, expiraEm: 9e9 });
 const req = (method: string, corpo?: unknown) =>
   new Request("http://x/api/vinculos-renovacao", { method, ...(corpo === undefined ? {} : { body: typeof corpo === "string" ? corpo : JSON.stringify(corpo) }) });
 // Dados fictícios.
@@ -29,6 +38,10 @@ beforeEach(async () => {
   usuario.mockResolvedValue(sessao("gestao"));
   await db.delete(vinculosRenovacao);
   await db.delete(vinculosRenovacaoHistorico);
+  await db.delete(vinculos);
+  await db.delete(users);
+  const [{ id }] = await db.insert(users).values({ email: "bia@x.com", nome: "Bia", role: "vendedor" }).returning({ id: users.id });
+  await db.insert(vinculos).values({ nome: "BIA", userId: id, alteradoPor: "t" });
 });
 
 describe("/api/vinculos-renovacao", () => {
@@ -63,6 +76,15 @@ describe("/api/vinculos-renovacao", () => {
     expect((await PUT(req("PUT", V))).status).toBe(403);
     expect((await DELETE(req("DELETE", ANT))).status).toBe(403);
     expect(await listarVinculosRenovacao()).toEqual([]);
+  });
+
+  it("vendedor recebe só os vínculos cuja antiga ou renovação está no recorte dele", async () => {
+    await salvarVinculoRenovacao(V, "g", { substituir: false });
+    await salvarVinculoRenovacao({ ...V, apolice: "A9", renApolice: "R9" }, "g", { substituir: false });
+    usuario.mockResolvedValue(sessao("vendedor", "bia@x.com"));
+    expect((await (await GET()).json()).vinculos).toMatchObject([V]);
+    usuario.mockResolvedValue(sessao("gestao"));
+    expect((await (await GET()).json()).vinculos).toHaveLength(2);
   });
 
   it("admin também grava", async () => {

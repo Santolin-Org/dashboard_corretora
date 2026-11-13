@@ -6,7 +6,7 @@ import { chaveVinculoAntiga, chaveVinculoRen, type VinculoRenovacao } from "@/do
 
 /** `colaboradores`: vendedor com vínculo; `nomes` ordenados, sem vazios nem repetidos. `atribuicoes`: as renovações
  *  atribuídas a um dos nomes (só presente quando há alguma) — as linhas delas também vão para o vendedor. */
-/** `vinculos`: vínculos manuais de renovação (só com atribuições: a R vinculada segue a antiga atribuída). */
+/** `vinculos`: vínculos manuais de renovação (a R vinculada segue a antiga atribuída; também mudam a chave do escopo). */
 export type Escopo =
   | { tipo: "tudo" } | { tipo: "nada" }
   | { tipo: "colaboradores"; nomes: string[]; atribuicoes?: Atribuicao[]; vinculos?: VinculoRenovacao[] };
@@ -18,7 +18,8 @@ export function escopoDoUsuario(u: { role: Papel } | null, nomes: string[] = [],
     const ns = [...new Set(nomes.filter((n) => n.trim() !== ""))].sort();
     const conjunto = new Set(ns);
     const minhas = atribs.filter((a) => pertenceA({ colab: a.para }, conjunto)); // "A , B" vale para A e para B
-    if (ns.length) return { tipo: "colaboradores", nomes: ns, ...(minhas.length ? { atribuicoes: minhas, ...(vinculos.length ? { vinculos } : {}) } : {}) };
+    // Vínculos sempre (com ou sem atribuição): entram na chave do escopo, então um vínculo novo muda o ETag do vendedor.
+    if (ns.length) return { tipo: "colaboradores", nomes: ns, ...(minhas.length ? { atribuicoes: minhas } : {}), ...(vinculos.length ? { vinculos } : {}) };
   }
   return { tipo: "nada" };
 }
@@ -44,3 +45,10 @@ export const chaveEscopo = (e: Escopo): string =>
   );
 
 export const podeReprocessar = (u: { role: Papel } | null): boolean => u?.role === "admin";
+
+/** Vínculos que dizem respeito às linhas do recorte (a antiga ou a R está nelas): é o que o vendedor pode ver. */
+export function vinculosDoRecorte(vinculos: VinculoRenovacao[], linhas: Linha[]): VinculoRenovacao[] {
+  const fins = new Set(linhas.map((r) => `${r.seg}|${r.apolice}|${r.fim}`));
+  const inicios = new Set(linhas.map((r) => `${r.seg}|${r.apolice}|${r.vig}`));
+  return vinculos.filter((v) => fins.has(chaveVinculoAntiga(v)) || inicios.has(chaveVinculoRen(v)));
+}

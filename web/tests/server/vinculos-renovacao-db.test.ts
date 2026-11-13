@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
@@ -79,5 +79,19 @@ describe("vínculos de renovação no banco", () => {
     expect(await listarVinculosRenovacao()).toEqual([]);
     expect((await historico()).at(-1)).toMatchObject({ acao: "desfazer", apolice: "A1", ren_apolice: "R1", por: "h@x" });
     expect(await desfazerVinculoRenovacao(ANT, "h@x")).toBe(false);
+  });
+});
+
+describe("substituição no Neon (driver com batch)", () => {
+  it("todas as escritas vão num único batch; nada roda fora dele", async () => {
+    await salvarVinculoRenovacao({ ...ANT, ...R1 }, "g@x", { substituir: false });
+    const batch = vi.fn(async () => []);
+    // O mesmo banco, mas com `batch` (como o neon-http): as escritas não podem ser executadas fora dele.
+    const comBatch = new Proxy(db, { get: (t, p) => (p === "batch" ? batch : Reflect.get(t, p)) });
+    const r = await salvarVinculoRenovacao({ ...ANT, ...R2 }, "h@x", { substituir: true }, comBatch as never);
+    expect(r.ok).toBe(true);
+    expect(batch).toHaveBeenCalledTimes(1);
+    expect((batch.mock.calls[0] as unknown[][])[0]).toHaveLength(4); // apaga A1←R1, histórico desfazer, grava, histórico vincular
+    expect((await listarVinculosRenovacao()).map((v) => v.renApolice)).toEqual(["R1"]); // nada aplicado fora do batch
   });
 });

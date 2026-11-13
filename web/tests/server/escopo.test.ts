@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { PGlite } from "@electric-sql/pglite";
 import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
-import { aplicarEscopo, chaveEscopo, escopoDoUsuario, podeReprocessar } from "@/server/escopo";
+import { vinculosDoRecorte, aplicarEscopo, chaveEscopo, escopoDoUsuario, podeReprocessar } from "@/server/escopo";
 import { linha } from "../domain/helpers";
 import type { Atribuicao } from "@/domain/atribuicoes";
 import type { VinculoRenovacao } from "@/domain/vinculos-renovacao";
@@ -173,9 +173,20 @@ describe("escopo com vínculo manual de renovação", () => {
     expect(aplicarEscopo([a1, r7], escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at]))).toEqual([a1]);
     expect(aplicarEscopo([a1, r7], escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at], [v]))).toEqual([a1, r7]);
   });
-  it("vínculos só entram no escopo quando há atribuição do vendedor", () => {
-    expect(escopoDoUsuario({ role: "vendedor" }, ["DAVI"], [at], [v])).toEqual({ tipo: "colaboradores", nomes: ["DAVI"] });
+  // Mudou de propósito (revisão final): os vínculos entram no escopo de todo vendedor, com ou sem atribuição, para
+  // que um vínculo novo mude o ETag e a lista do vendedor não fique velha.
+  it("vínculos entram no escopo do vendedor mesmo sem atribuição; gestão não", () => {
+    expect(escopoDoUsuario({ role: "vendedor" }, ["DAVI"], [at], [v])).toEqual({ tipo: "colaboradores", nomes: ["DAVI"], vinculos: [v] });
     expect(escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at], [v])).toEqual({ tipo: "colaboradores", nomes: ["BIA"], atribuicoes: [at], vinculos: [v] });
+    expect(escopoDoUsuario({ role: "gestao" }, [], [at], [v])).toEqual({ tipo: "tudo" });
+    const sem = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["DAVI"]));
+    expect(chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["DAVI"], [], [v]))).not.toBe(sem);
+  });
+  it("vinculosDoRecorte: só os vínculos cuja antiga ou R está nas linhas do vendedor", () => {
+    const outroA = { ...v, apolice: "Z1", renApolice: "Z2" };
+    expect(vinculosDoRecorte([v, outroA], [a1])).toEqual([v]);
+    expect(vinculosDoRecorte([v, outroA], [r7])).toEqual([v]);
+    expect(vinculosDoRecorte([v, outroA], [])).toEqual([]);
   });
   it("chaveEscopo muda quando muda o vínculo", () => {
     const sem = chaveEscopo(escopoDoUsuario({ role: "vendedor" }, ["BIA"], [at]));

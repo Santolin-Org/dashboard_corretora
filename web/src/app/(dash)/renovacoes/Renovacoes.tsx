@@ -109,6 +109,9 @@ export default function Renovacoes() {
       {gestor && atrib.erro && (
         <div className={s.aviso} role="status">Não foi possível carregar as atribuições de renovação; os números abaixo seguem a planilha.</div>
       )}
+      {gestor && vinc.erro && (
+        <div className={s.aviso} role="status">Não foi possível carregar os vínculos de renovação; os números abaixo estão sem os vínculos manuais.</div>
+      )}
       {gestor && divergentes > 0 && (
         <div className={s.aviso} role="status" id="renov-divergencias">
           <span>{divergentes === 1 ? "1 renovação saiu no nome de outro colaborador." : `${fN(divergentes)} renovações saíram no nome de outro colaborador.`}</span>

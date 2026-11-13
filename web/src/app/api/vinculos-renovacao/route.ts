@@ -1,10 +1,12 @@
-import { desfazerVinculoRenovacao, listarVinculosRenovacao, salvarVinculoRenovacao } from "@/server/db/client";
+import { desfazerVinculoRenovacao, listarAtribuicoes, listarVinculosRenovacao, nomesDoUsuario, salvarVinculoRenovacao } from "@/server/db/client";
+import { aplicarEscopo, escopoDoUsuario, vinculosDoRecorte } from "@/server/escopo";
+import { obterBase } from "@/server/ingestao";
 import { erro400, exigirPapel, indisponivel, lerCorpo, resposta } from "@/server/api-admin";
 import { bypassAtivo } from "@/server/auth-core";
 import { dentroDaJanela } from "@/domain/vinculos-renovacao";
 
-// Vínculos manuais de renovação (spec 2026-11-13). Leitura: gestão, admin e vendedor (os números do vendedor dependem
-// deles). Escrita (vincular/desfazer): só gestão e admin.
+// Vínculos manuais de renovação (spec 2026-11-13). Leitura: gestão e admin veem todos; vendedor só os das linhas do
+// recorte dele (os números dele dependem deles). Escrita (vincular/desfazer): só gestão e admin.
 const GESTORES = ["gestao", "admin"];
 const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
 const texto = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
@@ -19,7 +21,13 @@ export async function GET() {
   if ("res" in a) return a.res;
   if (bypassAtivo()) return resposta({ vinculos: [] });
   try {
-    return resposta({ vinculos: await listarVinculosRenovacao() });
+    const todos = await listarVinculosRenovacao();
+    if (a.u.role !== "vendedor") return resposta({ vinculos: todos });
+    // Vendedor: só os vínculos das linhas que ele recebe em /api/dados (mesmo recorte).
+    const [nomes, atribs] = await Promise.all([nomesDoUsuario(a.u.email), listarAtribuicoes()]);
+    const escopo = escopoDoUsuario(a.u, nomes, atribs, todos);
+    if (escopo.tipo !== "colaboradores" || !todos.length) return resposta({ vinculos: [] });
+    return resposta({ vinculos: vinculosDoRecorte(todos, aplicarEscopo((await obterBase()).linhas, escopo)) });
   } catch {
     return indisponivel();
   }
