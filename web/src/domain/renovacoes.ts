@@ -14,11 +14,13 @@ import type { DataISO, Linha } from './tipos';
 import type { FiltrosGlobais } from './filtros';
 import { SIT, isApolice } from './situacoes';
 import { respDe } from './responsavel';
+import { dentroDaJanela, type VinculoRenovacao } from './vinculos-renovacao';
 
 export type PeriodoRenov = { start: DataISO; end: DataISO };
 export type SituacaoRenov = 'renovada' | 'vencida' | 'em-aberto';
 /** `divergente`: a antiga foi atribuída e a R ligada saiu no nome de outro colaborador (domain/atribuicoes.ts). */
-export type ItemRenovacao = { antiga: Linha; renovacao: Linha | null; situacao: SituacaoRenov; divergente: boolean };
+/** `manual`: a renovação veio de um vínculo feito pela gestão (domain/vinculos-renovacao.ts), não da ligação automática. */
+export type ItemRenovacao = { antiga: Linha; renovacao: Linha | null; situacao: SituacaoRenov; divergente: boolean; manual: boolean };
 /** Renovação que começou no período mas não renova nada do que venceu nele: a antiga é de outro vencimento
  *  (renovação adiantada ou atrasada) ou não foi achada (antiga cancelada, fora da base, CPF/ramo diferente). */
 export type ItemOutroVencimento = { renovacao: Linha; antiga: Linha | null };
@@ -74,7 +76,21 @@ export function candidatasRenovacao(linhas: Linha[]): Linha[] {
 const chaveLigacao = (r: Linha) => `${r.docDigits}|${r.ramo}`;
 
 /** Liga cada antiga à sua renovação (ver topo) e ordena por vencimento e cliente. `todas`: onde procurar as R. */
-export function ligarRenovacoes(antigas: Linha[], todas: Linha[]): ItemRenovacao[] {
+export function ligarRenovacoes(antigas: Linha[], todas: Linha[], vinculos: VinculoRenovacao[] = []): ItemRenovacao[] {
+  const ligada = new Map<number, Linha>(), usadas = new Set<Linha>(), manuais = new Set<number>();
+  // Vínculos manuais primeiro: o par fica fixo e nem a antiga nem a R entram na disputa automática. Vínculo cuja
+  // antiga ou R sumiu da planilha (ou fora da regra: só R, até 90 dias depois do fim) é ignorado.
+  if (vinculos.length) {
+    const idxAntiga = new Map(antigas.map((a, i) => [`${a.seg}|${a.apolice}|${a.fim}`, i] as const));
+    const rPorChave = new Map<string, Linha>();
+    for (const r of todas) if (r.tipo === 'R' && isApolice(r) && !SIT_FORA_RENOVACOES.includes(r.sit) && r.vig) rPorChave.set(`${r.seg}|${r.apolice}|${r.vig}`, r);
+    for (const v of vinculos) {
+      const i = idxAntiga.get(`${v.seg}|${v.apolice}|${v.fim}`);
+      const r = rPorChave.get(`${v.renSeg}|${v.renApolice}|${v.renVig}`);
+      if (i === undefined || !r || ligada.has(i) || usadas.has(r) || !dentroDaJanela(v.fim, v.renVig)) continue;
+      ligada.set(i, r); usadas.add(r); manuais.add(i);
+    }
+  }
   const porChave = new Map<string, Linha[]>();
   for (const r of todas) {
     if (r.tipo !== 'R' || !isApolice(r) || !r.docDigits || !r.vig) continue;
@@ -83,15 +99,14 @@ export function ligarRenovacoes(antigas: Linha[], todas: Linha[]): ItemRenovacao
   }
   const pares: { i: number; r: Linha; difPremio: number; difDias: number }[] = [];
   antigas.forEach((a, i) => {
-    if (!a.docDigits || !a.fim) return;
+    if (!a.docDigits || !a.fim || ligada.has(i)) return;
     for (const r of porChave.get(chaveLigacao(a)) ?? []) {
-      if (r === a) continue;
+      if (r === a || usadas.has(r)) continue;
       const difDias = Math.abs(diaUtc(r.vig) - diaUtc(a.fim));
       if (difDias <= 1) pares.push({ i, r, difPremio: Math.abs(r.premio - a.premio), difDias });
     }
   });
   pares.sort((x, y) => x.difPremio - y.difPremio || x.difDias - y.difDias);
-  const ligada = new Map<number, Linha>(), usadas = new Set<Linha>();
   for (const p of pares) {
     if (ligada.has(p.i) || usadas.has(p.r)) continue;
     ligada.set(p.i, p.r); usadas.add(p.r);
@@ -100,7 +115,7 @@ export function ligarRenovacoes(antigas: Linha[], todas: Linha[]): ItemRenovacao
     .map((antiga, i): ItemRenovacao => {
       const renovacao = ligada.get(i) ?? null;
       const situacao: SituacaoRenov = renovacao || antiga.sit === SIT.RENOVADA ? 'renovada' : antiga.sit === SIT.VENCIDA ? 'vencida' : 'em-aberto';
-      return { antiga, renovacao, situacao, divergente: !!renovacao?.divergente };
+      return { antiga, renovacao, situacao, divergente: !!renovacao?.divergente, manual: manuais.has(i) };
     })
     .sort((x, y) => x.antiga.fim.localeCompare(y.antiga.fim) || x.antiga.cli.localeCompare(y.antiga.cli, 'pt-BR'));
 }
@@ -153,12 +168,15 @@ export function buscarOutrosVencimentos(itens: ItemOutroVencimento[], termo: str
     casa(termo, r.docDigits, [r.cli, r.docDigits, r.apolice, a?.apolice ?? '', r.seg, r.ramo, r.colab, r.resp ?? '']));
 }
 
-export function dadosRenovacoes(linhas: Linha[], f: FiltrosGlobais, hoje: DataISO): {
+/** `livres` (base inteira, para os diálogos de vínculo): R candidatas sem antiga ligada e antigas candidatas sem
+ *  renovação ligada. `vinculos`: pares manuais da gestão (domain/vinculos-renovacao.ts). */
+export function dadosRenovacoes(linhas: Linha[], f: FiltrosGlobais, hoje: DataISO, vinculos: VinculoRenovacao[] = []): {
   periodo: PeriodoRenov; itens: ItemRenovacao[]; outros: ItemOutroVencimento[]; cards: CardsRenovacoes;
+  livres: { renovacoes: Linha[]; antigas: Linha[] };
 } {
   const periodo = periodoRenovacoes(f, hoje);
   const chegaram = new Set(chegaramParaRenovar(linhas, f, periodo));
-  const todas = ligarRenovacoes(candidatasRenovacao(linhas), linhas);
+  const todas = ligarRenovacoes(candidatasRenovacao(linhas), linhas, vinculos);
   const itens = todas.filter(i => chegaram.has(i.antiga));
   const renovacoesPeriodo = renovacoesDoPeriodo(linhas, f, periodo);
   const usadas = new Set(itens.flatMap(i => (i.renovacao ? [i.renovacao] : [])));
@@ -167,5 +185,10 @@ export function dadosRenovacoes(linhas: Linha[], f: FiltrosGlobais, hoje: DataIS
     .filter(r => !usadas.has(r))
     .map((renovacao): ItemOutroVencimento => ({ renovacao, antiga: antigaDe.get(renovacao) ?? null }))
     .sort((x, y) => x.renovacao.vig.localeCompare(y.renovacao.vig) || x.renovacao.cli.localeCompare(y.renovacao.cli, 'pt-BR'));
-  return { periodo, itens, outros, cards: cardsRenovacoes(itens, renovacoesPeriodo) };
+  const ligadasBase = new Set(todas.flatMap(i => (i.renovacao ? [i.renovacao] : [])));
+  const livres = {
+    renovacoes: linhas.filter(r => r.tipo === 'R' && candidata(r) && !!r.vig && !ligadasBase.has(r)),
+    antigas: todas.filter(i => !i.renovacao).map(i => i.antiga),
+  };
+  return { periodo, itens, outros, cards: cardsRenovacoes(itens, renovacoesPeriodo), livres };
 }

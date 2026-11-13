@@ -108,3 +108,24 @@ describe('revisão final', () => {
     expect(divergencias).toEqual([]);
   });
 });
+
+describe('aplicarAtribuicoes com vínculo manual', () => {
+  // R no nome do cônjuge (doc 222): sem vínculo não é ligada à A1.
+  const rOutroDoc = linha({ tipo: 'R', seg: 'SegX', apolice: 'C7', vig: '2026-11-12', fim: '2027-11-12', colab: 'CAIO', sit: 'Ativa', docDigits: '222', ramo: 'Auto', premio: 900 });
+  const vinc = { seg: 'SegX', apolice: 'A1', fim: '2026-11-10', renSeg: 'SegX', renApolice: 'C7', renVig: '2026-11-12', por: 'g@x', em: '2026-11-13T10:00:00Z' };
+
+  it('atribuição segue a R vinculada à mão', () => {
+    expect(achar(aplicarAtribuicoes([v2, rOutroDoc], [atrib()]).linhas, 'C7', '2026-11-12').resp).toBeUndefined();
+    const { linhas, divergencias } = aplicarAtribuicoes([v2, rOutroDoc], [atrib()], [vinc]);
+    expect(achar(linhas, 'C7', '2026-11-12')).toMatchObject({ resp: 'BIA', atrib: 'renovacao', divergente: true });
+    expect(divergencias.map(d => d.renovacao.apolice)).toEqual(['C7']);
+  });
+
+  it('vigências seguidas: a R vinculada que é antiga atribuída mantém a marca base', () => {
+    const rViraAntiga = linha({ ...rOutroDoc, vig: '2025-11-12', fim: '2026-11-12' });
+    const v = { ...vinc, renVig: '2025-11-12' };
+    const antigaCedo = linha({ ...v2, vig: '2024-11-10', fim: '2025-11-10' });
+    const { linhas } = aplicarAtribuicoes([antigaCedo, rViraAntiga], [atrib({ fim: '2025-11-10' }), atrib({ apolice: 'C7', fim: '2026-11-12', para: 'DORA', de: 'CAIO' })], [{ ...v, fim: '2025-11-10' }]);
+    expect(achar(linhas, 'C7', '2025-11-12')).toMatchObject({ resp: 'DORA', atrib: 'base' });
+  });
+});

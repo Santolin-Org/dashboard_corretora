@@ -9,6 +9,7 @@
 import type { DataISO, Linha } from './tipos';
 import { isApolice, chaveApolice } from './situacoes';
 import { candidatasRenovacao, ligarRenovacoes } from './renovacoes';
+import type { VinculoRenovacao } from './vinculos-renovacao';
 
 export type Atribuicao = { seg: string; apolice: string; fim: DataISO; para: string; de: string; por: string; em: string };
 export type Divergencia = { antiga: Linha; renovacao: Linha; para: string };
@@ -18,7 +19,8 @@ export { respDe, tipoMetaDe } from './responsavel';
 
 const TIPO_BASE: Record<string, string> = { N: 'R', EN: 'ER' };
 
-export function aplicarAtribuicoes(linhas: Linha[], atribs: Atribuicao[]): { linhas: Linha[]; divergencias: Divergencia[] } {
+/** `vinculos`: pares manuais (domain/vinculos-renovacao.ts) — a atribuição segue a R vinculada como segue a ligada. */
+export function aplicarAtribuicoes(linhas: Linha[], atribs: Atribuicao[], vinculos: VinculoRenovacao[] = []): { linhas: Linha[]; divergencias: Divergencia[] } {
   if (!atribs.length) return { linhas, divergencias: [] };
   const porApolice = new Map<string, number[]>();
   linhas.forEach((r, i) => {
@@ -50,7 +52,7 @@ export function aplicarAtribuicoes(linhas: Linha[], atribs: Atribuicao[]): { lin
   // par "prêmio mais parecido" depende do conjunto inteiro.
   const conjunto = new Set(candidatasRenovacao(linhas));
   for (const x of antigas) conjunto.add(linhas[x.i]);
-  for (const item of ligarRenovacoes([...conjunto], linhas)) {
+  for (const item of ligarRenovacoes([...conjunto], linhas, vinculos)) {
     const ren = item.renovacao;
     const para = paraDe.get(item.antiga);
     if (!ren || para === undefined) continue;
